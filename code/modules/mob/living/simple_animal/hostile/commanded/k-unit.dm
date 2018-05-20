@@ -10,12 +10,12 @@
 
 	// Command vars
 	stance = COMMANDED_STOP
-	var/short_name = null
-	var/list/command_buffer = list()
-	var/list/known_commands = list("stay", "stop", "attack", "follow")
-	var/mob/master = null //undisputed master. Their commands hold ultimate sway and ultimate power.
-	var/list/allowed_targets = list() //WHO CAN I KILL D:
-	var/retribution = 1 //whether or not they will attack us if we attack them like some kinda dick.
+	short_name = null
+	list/command_buffer = list()
+	list/known_commands = list("stay", "stop", "attack", "follow")
+	mob/master = null //undisputed master. Their commands hold ultimate sway and ultimate power.
+	list/allowed_targets = list() //WHO CAN I KILL D:
+	retribution = 1 //whether or not they will attack us if we attack them like some kinda dick.
 
 	response_help = "pokes"
 	response_disarm = "shoves"
@@ -26,8 +26,8 @@
 	// Health and attack
 	attacktext = "punched"
 	a_intent = I_HURT
-	maxHealth = 100
-	health = 100
+	maxHealth = 200
+	health = 200
 	harm_intent_damage = 5
 	melee_damage_lower = 10
 	melee_damage_upper = 10
@@ -38,8 +38,8 @@
 	// Gun vars
 	var/weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
 	var/weapon2
-	var/ranged = 1
-	var/rapid = 1
+	ranged = 1
+	rapid = 1
 
 	casingtype = /obj/item/ammo_casing/t40
 	projectilesound = 'sound/weapons/Gunshot_light.ogg'
