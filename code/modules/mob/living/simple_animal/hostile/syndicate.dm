@@ -33,7 +33,6 @@
 	unsuitable_atoms_damage = 15
 	environment_smash = 1
 	faction = "syndicate"
-	status_flags = CANPUSH
 
 	tameable = FALSE
 
