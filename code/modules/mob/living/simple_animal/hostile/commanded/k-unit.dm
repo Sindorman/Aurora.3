@@ -7,6 +7,7 @@
 	icon_dead = "syndicate_dead" //placeholder, no sprites
 	icon_gib = "syndicate_gib" //placeholder, no sprites
 	faction = "syndicate"
+	var/mob/hostage = null
 
 	// Command vars
 	stance = COMMANDED_STOP
@@ -35,10 +36,8 @@
 	maxHealth = 200
 	health = 200
 	harm_intent_damage = 5
-	melee_damage_lower = 10
-	melee_damage_upper = 10
-	melee_damage_lower = 0
-	melee_damage_upper = 0
+	melee_damage_lower = 20
+	melee_damage_upper = 25
 	density = 0
 	var/shield = FALSE
 	var/attack_mode = "ranged"
@@ -137,7 +136,12 @@
 	else
 		..()
 
-	if (ismob(P.firer) && target_mob != P.firer && !(user in friends))
+	if (ismob(P.firer) && target_mob != P.firer || !(user in friends) || user == master)
+		if(P.firer == hostage)
+			audible_emote("This is your warning!")
+			target_mob = P.firer
+			AttackTarget()
+			return
 		audible_emote("You know that I am more accurate then you?")
 		if(attack_mode == "melee")
 			switch_mode()
@@ -162,7 +166,12 @@
 			visible_message("<span class='warning'>[user] gently taps [src] with the [O].</span>")
 	else
 		..()
-	if(target_mob != user && !(user in friends))
+	if(target_mob != user || !(user in friends) || user == master)
+		if(user == hostage)
+			audible_emote("This is your warning!")
+			target_mob = user
+			AttackTarget()
+			return
 		if(attack_mode == "ranged")
 			audible_emote("I am excellent in hand combat")
 			switch_mode()
@@ -190,7 +199,12 @@
 
 		else
 			..()
-		if((target_mob != O.thrower) && ismob(O.thrower) && !(user in friends))
+		if((target_mob != O.thrower) && ismob(O.thrower) || !(user in friends) || user == master)
+			if(O.thrower == hostage)
+				audible_emote("This is your warning!")
+				target_mob = O.thrower
+				AttackTarget()
+				return
 			audible_emote("You wanna juggle things with me?!")
 			target_mob = O.thrower
 			stance = HOSTILE_STANCE_ATTACK
@@ -200,13 +214,23 @@
 
 /mob/living/simple_animal/hostile/commanded/kunit/attack_generic(var/mob/user, var/damage, var/attack_message)
 	..()
-	if(target_mob != user && !(user in friends))
+	if(target_mob != user || !(user in friends) || user == master)
+		if(user == hostage)
+			audible_emote("This is your warning!")
+			target_mob = user
+			AttackTarget()
+			return
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
 
 /mob/living/simple_animal/hostile/commanded/kunit/attack_hand(mob/living/carbon/human/M as mob)
 	..()
-	if(target_mob != M && !(user in friends))
+	if(target_mob != M || !(user in friends) ||  user == master)
+		if(M == hostage)
+			audible_emote("This is your warning!")
+			target_mob = M
+			AttackTarget()
+			return
 		audible_emote("Hey, don't touch me asshole!")
 		target_mob = M
 		stance = HOSTILE_STANCE_ATTACK
@@ -217,6 +241,9 @@
 
 	// Proc that switches guns between bullets burst rifle and laser rifle.
 /mob/living/simple_animal/hostile/commanded/kunit/proc/switch_gun()
+	if(ranged)
+		audible_emote("Sorry pal, I am in melee mode!")
+		return 0
 	weapon2 = null
 	shield = FALSE
 	ranged = 1
@@ -230,7 +257,7 @@
 		gun_type = "bullets"
 		update_icon()
 	else
-		visible_message("<span class='warning'>[src] Switches his gun from automaci c20r to laser rifle</span>")
+		visible_message("<span class='warning'>[src] Switches his gun from automatic c20r to laser rifle</span>")
 		weapon1 = /obj/item/weapon/gun/energy/laser
 		casingtype = null
 		projectilesound = 'sound/weapons/Laser.ogg'
@@ -305,9 +332,7 @@
 		LoseTarget()
 	if(target_mob in targets)
 		if(ranged)
-			if(get_dist(src, target_mob) <= 7)
-				OpenFire(target_mob)
-			else
+			if(get_dist(src, target_mob) >= 9)
 				walk_to(src, target_mob, 1, move_to_delay)
 		else
 			stance = HOSTILE_STANCE_ATTACKING
@@ -324,10 +349,16 @@
 		return 0
 	if(next_move >= world.time)
 		return 0
-	if(get_dist(src, target_mob) <= 1)	//Attacking
-		AttackingTarget()
-		attacked_times += 1
-		return 1
+	if(!ranged)
+		if(get_dist(src, target_mob) <= 1)	//Attacking
+			AttackingTarget()
+			attacked_times += 1
+			return 1
+	else
+		if(get_dist(src, target_mob) <= 9)
+			OpenFire(target_mob)
+			attacked_times += 1
+			return 1
 
 /mob/living/simple_animal/hostile/commanded/kunit/AttackingTarget()
 	setClickCooldown(attack_delay)
