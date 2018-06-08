@@ -136,7 +136,7 @@
 	else
 		..()
 
-	if (ismob(P.firer) && target_mob != P.firer || !(user in friends) || user == master)
+	if (ismob(P.firer) && target_mob != P.firer || !(user in friends) || user != master)
 		if(P.firer == hostage)
 			audible_emote("[emote_hear]["This is your warning!"]")
 			target_mob = P.firer
@@ -166,7 +166,7 @@
 			visible_message("<span class='warning'>[user] gently taps [src] with the [O].</span>")
 	else
 		..()
-	if(target_mob != user || !(user in friends) || user == master)
+	if(target_mob != user || !(user in friends) || user != master)
 		if(user == hostage)
 			audible_emote("[emote_hear]["This is your warning!"]")
 			target_mob = user
@@ -199,7 +199,7 @@
 
 		else
 			..()
-		if((target_mob != O.thrower) && ismob(O.thrower) || !(user in friends) || user == master)
+		if((target_mob != O.thrower) && ismob(O.thrower) || !(user in friends) || user != master)
 			if(O.thrower == hostage)
 				audible_emote("[emote_hear]["This is your warning!"]")
 				target_mob = O.thrower
@@ -219,7 +219,7 @@
 	else
 		..()
 
-	if(target_mob != user || !(user in friends) || user == master)
+	if(target_mob != user || !(user in friends) || user != master)
 		if(user == hostage)
 			audible_emote("[emote_hear]["This is your warning!"]")
 			target_mob = user
@@ -233,7 +233,7 @@
 		visible_message("<span class='danger'>[src] pushes [M] back with its shield!</span>")
 	else
 		..()
-	if(target_mob != M || !(user in friends) ||  user == master)
+	if(target_mob != M || !(user in friends) ||  user != master)
 		if(M == hostage)
 			audible_emote("[emote_hear]["This is your warning!"]")
 			target_mob = M
