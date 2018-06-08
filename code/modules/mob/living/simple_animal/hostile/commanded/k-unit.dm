@@ -26,8 +26,8 @@
 
 	// Talking
 	speak = list("What's, pal!", "We should be careful!", "Let's see what we have here?","Hmm, maybe I should do something?!")
-	speak_emote = list("states")
-	emote_hear = list("states")
+	speak_emote = "states"
+	emote_hear = "states"
 
 
 	// Health and attack
@@ -35,7 +35,7 @@
 	a_intent = I_HURT
 	maxHealth = 200
 	health = 200
-	harm_intent_damage = 5
+	harm_intent_damage = 8
 	melee_damage_lower = 20
 	melee_damage_upper = 25
 	density = 0
@@ -138,11 +138,11 @@
 
 	if (ismob(P.firer) && target_mob != P.firer || !(user in friends) || user == master)
 		if(P.firer == hostage)
-			audible_emote("This is your warning!")
+			audible_emote("[emote_hear]["This is your warning!"]")
 			target_mob = P.firer
 			AttackTarget()
 			return
-		audible_emote("You know that I am more accurate then you?")
+		audible_emote("[emote_hear]["You know that I am more accurate then you?"]")
 		if(attack_mode == "melee")
 			switch_mode()
 		target_mob = P.firer
@@ -168,12 +168,12 @@
 		..()
 	if(target_mob != user || !(user in friends) || user == master)
 		if(user == hostage)
-			audible_emote("This is your warning!")
+			audible_emote("[emote_hear]["This is your warning!"]")
 			target_mob = user
 			AttackTarget()
 			return
-		if(attack_mode == "ranged")
-			audible_emote("I am excellent in hand combat")
+		if(ranged)
+			audible_emote("[emote_hear]["I am excellent in hand combat"]")
 			switch_mode()
 		attacktext = "slashed"
 		target_mob = user
@@ -201,11 +201,11 @@
 			..()
 		if((target_mob != O.thrower) && ismob(O.thrower) || !(user in friends) || user == master)
 			if(O.thrower == hostage)
-				audible_emote("This is your warning!")
+				audible_emote("[emote_hear]["This is your warning!"]")
 				target_mob = O.thrower
 				AttackTarget()
 				return
-			audible_emote("You wanna juggle things with me?!")
+			audible_emote("[emote_hear]["You wanna juggle things with me?!"]")
 			target_mob = O.thrower
 			stance = HOSTILE_STANCE_ATTACK
 	else
@@ -213,25 +213,33 @@
 
 
 /mob/living/simple_animal/hostile/commanded/kunit/attack_generic(var/mob/user, var/damage, var/attack_message)
-	..()
+	if(shield)
+		visible_message("<span class='danger'>[src] pushes [user] back with its shield!</span>")
+		return
+	else
+		..()
+
 	if(target_mob != user || !(user in friends) || user == master)
 		if(user == hostage)
-			audible_emote("This is your warning!")
+			audible_emote("[emote_hear]["This is your warning!"]")
 			target_mob = user
 			AttackTarget()
-			return
+			return 1
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
 
 /mob/living/simple_animal/hostile/commanded/kunit/attack_hand(mob/living/carbon/human/M as mob)
-	..()
+	if(shield)
+		visible_message("<span class='danger'>[src] pushes [M] back with its shield!</span>")
+	else
+		..()
 	if(target_mob != M || !(user in friends) ||  user == master)
 		if(M == hostage)
-			audible_emote("This is your warning!")
+			audible_emote("[emote_hear]["This is your warning!"]")
 			target_mob = M
 			AttackTarget()
 			return
-		audible_emote("Hey, don't touch me asshole!")
+		audible_emote("[emote_hear]["Hey, don't touch me asshole!"]")
 		target_mob = M
 		stance = HOSTILE_STANCE_ATTACK
 
@@ -241,8 +249,8 @@
 
 	// Proc that switches guns between bullets burst rifle and laser rifle.
 /mob/living/simple_animal/hostile/commanded/kunit/proc/switch_gun()
-	if(ranged)
-		audible_emote("Sorry pal, I am in melee mode!")
+	if(!ranged)
+		audible_emote("[emote_hear]["Sorry pal, I am in melee mode!"]")
 		return 0
 	weapon2 = null
 	shield = FALSE
@@ -291,8 +299,8 @@
 
 	// Proce that switches attack mode from melee to range and vice versa.
 /mob/living/simple_animal/hostile/commanded/kunit/proc/switch_mode()
-	if(attack_mode == "melee")
-		visible_message("<span class='warning'>[src] Retracts back energy shield and sword, putting them away. </span>")
+	if(!ranged)
+		visible_message("<span class='warning'>[src] Retracts back energy shield and sword, putting them away.3 </span>")
 		pull_gun()
 		icon_state = "syndicaterangedpsace"
 		attack_mode = "ranged"
@@ -318,8 +326,7 @@
 
 	var/list/T = get_targets_by_name(text, filter_friendlies = 1)
 	allowed_targets += T
-	if(emote_hear && emote_hear.len)
-		audible_emote("[pick(emote_hear)].",0)
+	audible_emote("Roger, attacking [target_mob.name], in [attack_mode] mode")
 	return T.len != 0
 
 ////////////////////////////////
@@ -334,6 +341,8 @@
 		if(ranged)
 			if(get_dist(src, target_mob) >= 9)
 				walk_to(src, target_mob, 1, move_to_delay)
+			else
+				stance = HOSTILE_STANCE_ATTACKING
 		else
 			stance = HOSTILE_STANCE_ATTACKING
 			walk_to(src, target_mob, 1, move_to_delay)
