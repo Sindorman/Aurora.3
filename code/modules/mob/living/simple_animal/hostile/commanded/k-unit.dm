@@ -349,7 +349,7 @@
 	var/list/T = get_targets_by_name(text, filter_friendlies = 1)
 	allowed_targets += T
 	speed = 8
-	move_delay = 4
+	move_to_delay = 4
 	audible_emote("Roger, attacking [T[1]], in [attack_mode] mode")
 	return T.len != 0
 
@@ -365,7 +365,7 @@
 		return 0
 
 	speed = 6
-	move_delay = 3
+	move_to_delay = 3
 	audible_emote("[emote_hear] \"Roger that, following [targets[1]]\"")
 	stance = COMMANDED_FOLLOW //GOT SOMEBODY. BETTER FOLLOW EM.
 	target_mob = targets[1] //YEAH GOOD IDEA
@@ -401,15 +401,15 @@
 /mob/living/simple_animal/hostile/commanded/kunit/proc/speed_command(var/mob/speaker, var/text)
 	if(findtext(text,"slow"))
 		speed = 4
-		move_delay = 4
+		move_to_delay = 4
 		audible_emote("[emote_hear] \"Setting acutators speed to slow\"")
 	else if(findtext(text,"average"))
 		speed = 6
-		move_delay = 3
+		move_to_delay = 3
 		audible_emote("[emote_hear] \"Setting acutators speed to balanced\"")
 	else if(findtext(text,"fast"))
 		speed = 8
-		move_delay = 2
+		move_to_delay = 2
 		audible_emote("[emote_hear] \"Setting acutators speed to fast\"")
 	else
 		speed = 6
@@ -472,3 +472,4 @@
 		var/obj/machinery/bot/B = target_mob
 		B.attack_generic(src,rand(melee_damage_lower,melee_damage_upper),attacktext)
 		return B
+
