@@ -13,7 +13,7 @@
 	stance = COMMANDED_STOP
 	short_name = null
 	command_buffer = list()
-	known_commands = list("stay", "stop", "attack", "follow", "switch gun", "switch mode")
+	known_commands = list("stay", "stop", "attack", "follow", "switch gun", "switch mode", "patrol", "speed")
 	master = null //undisputed master. Their commands hold ultimate sway and ultimate power.
 	allowed_targets = list() //WHO CAN I KILL D:
 	retribution = 1 //whether or not they will attack us if we attack them like some kinda dick.
@@ -80,10 +80,10 @@
 		if(findtext(text,command))
 			switch(command)
 				if("stay")
-					if(stay_command(speaker,text)) //find a valid command? Stop. Dont try and find more.
+					if(stay_command()) //find a valid command? Stop. Dont try and find more.
 						break
 				if("stop")
-					if(stop_command(speaker,text))
+					if(stop_command())
 						break
 				if("attack")
 					if(attack_command(speaker,text))
@@ -96,6 +96,12 @@
 						break
 				if("switch mode")
 					if(switch_mode())
+						break
+				if("patrol")
+					if(patrol_command())
+						break
+				if("speed")
+					if(speed_command(speaker, text))
 						break
 				else
 					misc_command(speaker,text) //for specific commands
@@ -112,13 +118,13 @@
 		var/mob/living/carbon/human/H = usr
 		if(istype(H))
 			master = usr
-			audible_emote("states \"I got your back, pal!\"",0)
+			audible_emote("[emote_hear] \"I got your back, pal!\"",0)
 			. = 1
 	else if(usr == master)
 		. = 1 //already friends, but show success anyways
 
 	else
-		usr << "<span class='notice'>[src] ignores you.</span>"
+		to_chat(usr, "<span class='notice'>[src] ignores you.</span>")
 
 	return
 
@@ -135,18 +141,21 @@
 			visible_message("<span class='danger'>[src] blocks [P] with its shield!</span>")
 	else
 		..()
-
-	if (ismob(P.firer) && target_mob != P.firer || !(user in friends) || user != master)
-		if(P.firer == hostage)
-			audible_emote("[emote_hear]["This is your warning!"]")
+	if(ismob(P.firer))
+		if (target_mob != P.firer && !(user in friends) && user != master)
+			if(P.firer == hostage)
+				audible_emote("[emote_hear][" \"This is your warning!\""]")
+				target_mob = P.firer
+				AttackTarget()
+				return
+			audible_emote("[emote_hear] \"You know that I am more accurate then you?\"")
+			if(attack_mode == "melee")
+				switch_mode()
 			target_mob = P.firer
-			AttackTarget()
-			return
-		audible_emote("[emote_hear]["You know that I am more accurate then you?"]")
-		if(attack_mode == "melee")
-			switch_mode()
-		target_mob = P.firer
-		stance = HOSTILE_STANCE_ATTACK
+			stance = HOSTILE_STANCE_ATTACK
+		else if(P.firer == master || P.firer in friends)
+			target_mob = null
+			stance = HOSTILE_STANCE_IDLE
 	return 0
 
 /mob/living/simple_animal/hostile/commanded/kunit/attackby(var/obj/item/O, var/mob/user)
@@ -162,22 +171,25 @@
 				visible_message("<span class='danger'>[src] blocks the [O] with its shield!</span>")
 			//user.do_attack_animation(src)
 		else
-			usr << "<span class='warning'>This weapon is ineffective, it does no damage.</span>"
+			to_chat(user, "<span class='warning'>This weapon is ineffective, it does no damage.</span>")
 			visible_message("<span class='warning'>[user] gently taps [src] with the [O].</span>")
 	else
 		..()
-	if(target_mob != user || !(user in friends) || user != master)
+	if(target_mob != user && !(user in friends) && user != master)
 		if(user == hostage)
-			audible_emote("[emote_hear]["This is your warning!"]")
+			audible_emote("[emote_hear] \"This is your warning!\"")
 			target_mob = user
 			AttackTarget()
 			return
 		if(ranged)
-			audible_emote("[emote_hear]["I am excellent in hand combat"]")
+			audible_emote("[emote_hear] \"I am excellent in hand combat\"")
 			switch_mode()
 		attacktext = "slashed"
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
+	else if(user == master || user in friends)
+		target_mob = null
+		stance = HOSTILE_STANCE_IDLE
 
 /mob/living/simple_animal/hostile/commanded/kunit/hitby(atom/movable/AM as mob|obj,var/speed = THROWFORCE_SPEED_DIVISOR)//Standardization and logging -Sieve
 	if(istype(AM,/obj/))
@@ -194,20 +206,24 @@
 					visible_message("<span class='danger'>[src] blocks the [O] with its shield!</span>")
 				//user.do_attack_animation(src)
 			else
-				usr << "<span class='warning'>This weapon is ineffective, it does no damage.</span>"
+				to_chat(user, "<span class='warning'>This weapon is ineffective, it does no damage.</span>")
 				visible_message("<span class='warning'>[user] gently taps [src] with the [O].</span>")
 
 		else
 			..()
-		if((target_mob != O.thrower) && ismob(O.thrower) || !(user in friends) || user != master)
-			if(O.thrower == hostage)
-				audible_emote("[emote_hear]["This is your warning!"]")
+		if(ismob(O.thrower))
+			if((target_mob != O.thrower) && !(user in friends) && user != master)
+				if(O.thrower == hostage)
+					audible_emote("[emote_hear] \"This is your warning!\"")
+					target_mob = O.thrower
+					AttackTarget()
+					return
+				audible_emote("[emote_hear] \"You wanna juggle things with me?!\"")
 				target_mob = O.thrower
-				AttackTarget()
-				return
-			audible_emote("[emote_hear]["You wanna juggle things with me?!"]")
-			target_mob = O.thrower
-			stance = HOSTILE_STANCE_ATTACK
+				stance = HOSTILE_STANCE_ATTACK
+			else if(O.thrower == master || O.thrower in friends)
+				target_mob = null
+				stance = HOSTILE_STANCE_IDLE
 	else
 		..()
 
@@ -219,29 +235,35 @@
 	else
 		..()
 
-	if(target_mob != user || !(user in friends) || user != master)
+	if(target_mob != user && !(user in friends) && user != master)
 		if(user == hostage)
-			audible_emote("[emote_hear]["This is your warning!"]")
+			audible_emote("[emote_hear] \"This is your warning!\"")
 			target_mob = user
 			AttackTarget()
 			return 1
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
+	else if(user == master || user in friends)
+		target_mob = null
+		stance = HOSTILE_STANCE_IDLE
 
 /mob/living/simple_animal/hostile/commanded/kunit/attack_hand(mob/living/carbon/human/M as mob)
 	if(shield)
 		visible_message("<span class='danger'>[src] pushes [M] back with its shield!</span>")
 	else
 		..()
-	if(target_mob != M || !(user in friends) ||  user != master)
+	if(target_mob != M && !(user in friends) &&  user != master)
 		if(M == hostage)
-			audible_emote("[emote_hear]["This is your warning!"]")
+			audible_emote("[emote_hear] \"This is your warning!\"")
 			target_mob = M
 			AttackTarget()
 			return
-		audible_emote("[emote_hear]["Hey, don't touch me asshole!"]")
+		audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
 		target_mob = M
 		stance = HOSTILE_STANCE_ATTACK
+	else if(user == master || user in friends)
+		target_mob = null
+		stance = HOSTILE_STANCE_IDLE
 
 ////////////////////////////////
 ////////////COMMANDS////////////
@@ -316,7 +338,7 @@
 		update_icon()
 	return 1
 
-/mob/living/simple_animal/hostile/commanded/kunit/attack_command(var/mob/speaker,var/text)
+/mob/living/simple_animal/hostile/commanded/kunit/attack_command(var/mob/speaker, var/text)
 	target_mob = null //want me to attack something? Well I better forget my old target.
 	walk_to(src,0)
 	stance = HOSTILE_STANCE_ATTACK
@@ -326,8 +348,73 @@
 
 	var/list/T = get_targets_by_name(text, filter_friendlies = 1)
 	allowed_targets += T
-	audible_emote("Roger, attacking [target_mob.name], in [attack_mode] mode")
+	speed = 8
+	move_delay = 4
+	audible_emote("Roger, attacking [T[1]], in [attack_mode] mode")
 	return T.len != 0
+
+/mob/living/simple_animal/hostile/commanded/kunit/follow_command(var/mob/speaker, var/text)
+	//we can assume 'stop following' is handled by stop_command
+	if(findtext(text,"me"))
+		stance = COMMANDED_FOLLOW
+		target_mob = speaker //this wont bite me in the ass later.
+		audible_emote("[emote_hear] \"Following you, boss!\"")
+		return 1
+	var/list/targets = get_targets_by_name(text)
+	if(targets.len > 1 || !targets.len) //CONFUSED. WHO DO I FOLLOW?
+		return 0
+
+	speed = 6
+	move_delay = 3
+	audible_emote("[emote_hear] \"Roger that, following [targets[1]]\"")
+	stance = COMMANDED_FOLLOW //GOT SOMEBODY. BETTER FOLLOW EM.
+	target_mob = targets[1] //YEAH GOOD IDEA
+
+	return 1
+
+/mob/living/simple_animal/hostile/commanded/kunit/stay_command()
+	target_mob = null
+	stance = COMMANDED_STOP
+	stop_automated_movement = 1
+	walk_to(src,0)
+	audible_emote("[emote_hear] \"Roger that, staying here\"")
+	return 1
+
+/mob/living/simple_animal/hostile/commanded/kunit/proc/patrol_command()
+	target_mob = null
+	stance = HOSTILE_STANCE_IDLE
+	stop_automated_movement = 0
+	walk_to(src,0)
+	audible_emote("[emote_hear] \"Roger that, patrolling the area\"")
+	return 1
+
+/mob/living/simple_animal/hostile/commanded/kunit/stop_command()
+	allowed_targets = list()
+	walk_to(src,0)
+	target_mob = null //gotta stop SOMETHIN
+	stance = HOSTILE_STANCE_IDLE
+	stop_automated_movement = 0
+	audible_emote("[emote_hear] \"Alright, I will stop\"")
+	return 1
+
+// We can be slow, average, fast.
+/mob/living/simple_animal/hostile/commanded/kunit/proc/speed_command(var/mob/speaker, var/text)
+	if(findtext(text,"slow"))
+		speed = 4
+		move_delay = 4
+		audible_emote("[emote_hear] \"Setting acutators speed to slow\"")
+	else if(findtext(text,"average"))
+		speed = 6
+		move_delay = 3
+		audible_emote("[emote_hear] \"Setting acutators speed to balanced\"")
+	else if(findtext(text,"fast"))
+		speed = 8
+		move_delay = 2
+		audible_emote("[emote_hear] \"Setting acutators speed to fast\"")
+	else
+		speed = 6
+		audible_emote("[emote_hear] \"Sorry pal, but I did not understand speed setting. Setting acutators speed to balanced.\"")
+	return 1
 
 ////////////////////////////////
 ////////////BACK-END////////////
