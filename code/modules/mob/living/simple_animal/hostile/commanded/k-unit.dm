@@ -272,7 +272,7 @@
 	// Proc that switches guns between bullets burst rifle and laser rifle.
 /mob/living/simple_animal/hostile/commanded/kunit/proc/switch_gun()
 	if(!ranged)
-		audible_emote("[emote_hear]["Sorry pal, I am in melee mode!"]")
+		audible_emote("[emote_hear] \"Sorry pal, I am in melee mode!\"")
 		return 0
 	weapon2 = null
 	shield = FALSE
@@ -322,11 +322,12 @@
 	// Proce that switches attack mode from melee to range and vice versa.
 /mob/living/simple_animal/hostile/commanded/kunit/proc/switch_mode()
 	if(!ranged)
-		visible_message("<span class='warning'>[src] Retracts back energy shield and sword, putting them away.3 </span>")
+		visible_message("<span class='warning'>[src] Retracts back energy shield and sword, putting them away. </span>")
 		pull_gun()
 		icon_state = "syndicaterangedpsace"
 		attack_mode = "ranged"
 		update_icon()
+		walk_to(src, src, 0, move_to_delay)
 	else
 		visible_message("<span class='warning'>[src] Puts his gun into integrated storage and grabs in one hand energy sword, and another energy shield</span>")
 		ranged = 0
@@ -426,8 +427,8 @@
 		LoseTarget()
 	if(target_mob in targets)
 		if(ranged)
-			if(get_dist(src, target_mob) >= 9)
-				walk_to(src, target_mob, 1, move_to_delay)
+			if(get_dist(src, target_mob) >= 7)
+				walk_to(src, target_mob, 7, move_to_delay)
 			else
 				stance = HOSTILE_STANCE_ATTACKING
 		else
@@ -451,10 +452,14 @@
 			attacked_times += 1
 			return 1
 	else
-		if(get_dist(src, target_mob) <= 9)
+		if(get_dist(src, target_mob) <= 8)
 			OpenFire(target_mob)
 			attacked_times += 1
 			return 1
+
+/mob/living/simple_animal/hostile/commanded/kunit/LoseTarget()
+	..()
+	audible_emote("[emote_hear] \"I lost my target.\"")
 
 /mob/living/simple_animal/hostile/commanded/kunit/AttackingTarget()
 	setClickCooldown(attack_delay)
@@ -473,3 +478,21 @@
 		B.attack_generic(src,rand(melee_damage_lower,melee_damage_upper),attacktext)
 		return B
 
+/mob/living/simple_animal/hostile/commanded/kunit/OpenFire(target_mob)
+	var/target = target_mob
+	visible_message("<span class='warning'> <b>[src]</b> fires at [target]!</span>")
+
+	if(rapid)
+		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target, loc, src)
+		addtimer(shoot_cb, 1)
+		addtimer(shoot_cb, 4)
+		addtimer(shoot_cb, 6)
+
+	else
+		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target, loc, src)
+		addtimer(shoot_cb, 1)
+		addtimer(shoot_cb, 25)
+
+	stance = HOSTILE_STANCE_IDLE
+	target_mob = null
+	return
