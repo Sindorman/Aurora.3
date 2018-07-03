@@ -48,6 +48,10 @@
 	ranged = 1
 	rapid = 1
 	var/gun_type = "bullets"
+	var/max_ammo = 60 // Max ammo we can have
+	var/stored_ammo = 60 // Currently stored in storage
+	var/loaded_ammo = 30 // currently loaded in our gun
+	var/ammo = TRUE // used to stop from switching guns
 
 	casingtype = /obj/item/ammo_casing/t40
 	projectilesound = 'sound/weapons/Gunshot_light.ogg'
@@ -273,7 +277,10 @@
 /mob/living/simple_animal/hostile/commanded/kunit/proc/switch_gun()
 	if(!ranged)
 		audible_emote("[emote_hear] \"Sorry pal, I am in melee mode!\"")
-		return 0
+		return 1
+	if(!ammo)
+		audible_emote("[emote_hear] \"I have no ammo! Give me some.\"")
+		return 1
 	weapon2 = null
 	shield = FALSE
 	ranged = 1
@@ -338,6 +345,14 @@
 		attack_mode = "melee"
 		update_icon()
 	return 1
+
+/mob/living/simple_animal/hostile/commanded/kunit/proc/reload()
+	if(!stored_ammo)
+		return 0
+	else
+		sleep(5)
+		loaded_ammo = ((stored_ammo - 30) > 0) ? (30) : (stored_ammo)
+		return 1
 
 /mob/living/simple_animal/hostile/commanded/kunit/attack_command(var/mob/speaker, var/text)
 	target_mob = null //want me to attack something? Well I better forget my old target.
@@ -427,7 +442,7 @@
 		LoseTarget()
 	if(target_mob in targets)
 		if(ranged)
-			if(get_dist(src, target_mob) >= 7)
+			if(get_dist(src, target_mob) >= 8)
 				walk_to(src, target_mob, 7, move_to_delay)
 			else
 				stance = HOSTILE_STANCE_ATTACKING
@@ -480,19 +495,35 @@
 
 /mob/living/simple_animal/hostile/commanded/kunit/OpenFire(target_mob)
 	var/target = target_mob
-	visible_message("<span class='warning'> <b>[src]</b> fires at [target]!</span>")
+
+	// Check if we have ammo loaded, and we we do not check if have stored ammo. If no ammo at all - switch to laser rifle.
+	if(!loaded_ammo && stored_ammo)
+		if(!reload())
+			audible_emote("[emote_hear] \"I am out of ammo.\"")
+			switch_gun()
+		else
+			audible_emote("[emote_hear] \"Reloading\"")
+		ammo = FALSE
 
 	if(rapid)
+		for(var/mob/M in check_trajectory(target_mob, src, pass_flags=PASSTABLE))
+			if((M in friends) || M == master)
+				return
 		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target, loc, src)
 		addtimer(shoot_cb, 1)
 		addtimer(shoot_cb, 4)
 		addtimer(shoot_cb, 6)
 
+		loaded_ammo -= 3
+
 	else
+		for(var/mob/M in check_trajectory(target_mob, src, pass_flags=PASSTABLE|PASSGLASS|PASSGRILLE))
+			if((M in friends) || M == master)
+				return
 		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target, loc, src)
 		addtimer(shoot_cb, 1)
 		addtimer(shoot_cb, 25)
-
+	visible_message("<span class='warning'> <b>[src]</b> fires at [target]!</span>")
 	stance = HOSTILE_STANCE_IDLE
 	target_mob = null
 	return
