@@ -41,6 +41,7 @@
 	density = 0
 	var/shield = FALSE
 	var/attack_mode = "ranged"
+	var/attack_hostage = FALSE
 
 	// Gun vars
 	var/weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
@@ -139,18 +140,22 @@
 /mob/living/simple_animal/hostile/commanded/kunit/bullet_act(var/obj/item/projectile/P, var/def_zone)
 	if(!P)	return
 	if(shield)
-		if(prob(65))
+		if(prob(60))
 			src.health -= P.damage
 		else
 			visible_message("<span class='danger'>[src] blocks [P] with its shield!</span>")
 	else
 		..()
 	if(ismob(P.firer))
-		if (target_mob != P.firer && !(user in friends) && user != master)
+		if (target_mob != P.firer && !(P.firer in friends) && P.firer != master)
 			if(P.firer == hostage)
 				audible_emote("[emote_hear][" \"This is your warning!\""]")
 				target_mob = P.firer
+				attack_hostage = TRUE
 				AttackTarget()
+				attack_hostage = FALSE
+				target_mob = null
+				stance = HOSTILE_STANCE_IDLE
 				return
 			audible_emote("[emote_hear] \"You know that I am more accurate then you?\"")
 			if(attack_mode == "melee")
@@ -165,7 +170,7 @@
 /mob/living/simple_animal/hostile/commanded/kunit/attackby(var/obj/item/O, var/mob/user)
 	if(shield)
 		if(O.force)
-			if(prob(80))
+			if(prob(35))
 				var/damage = O.force
 				if (O.damtype == HALLOSS)
 					damage = 0
@@ -183,7 +188,11 @@
 		if(user == hostage)
 			audible_emote("[emote_hear] \"This is your warning!\"")
 			target_mob = user
+			attack_hostage = TRUE
 			AttackTarget()
+			attack_hostage = FALSE
+			target_mob = null
+			stance = HOSTILE_STANCE_IDLE
 			return
 		if(ranged)
 			audible_emote("[emote_hear] \"I am excellent in hand combat\"")
@@ -200,7 +209,7 @@
 		var/obj/O = AM
 		if(shield)
 			if(O.force)
-				if(prob(80))
+				if(prob(15))
 					var/damage = O.force
 					if (O.damtype == HALLOSS)
 						damage = 0
@@ -216,11 +225,15 @@
 		else
 			..()
 		if(ismob(O.thrower))
-			if((target_mob != O.thrower) && !(user in friends) && user != master)
+			if((target_mob != O.thrower) && !(O.thrower in friends) && O.thrower != master)
 				if(O.thrower == hostage)
 					audible_emote("[emote_hear] \"This is your warning!\"")
 					target_mob = O.thrower
+					attack_hostage = TRUE
 					AttackTarget()
+					attack_hostage = FALSE
+					target_mob = null
+					stance = HOSTILE_STANCE_IDLE
 					return
 				audible_emote("[emote_hear] \"You wanna juggle things with me?!\"")
 				target_mob = O.thrower
@@ -243,10 +256,15 @@
 		if(user == hostage)
 			audible_emote("[emote_hear] \"This is your warning!\"")
 			target_mob = user
+			attack_hostage = TRUE
 			AttackTarget()
+			attack_hostage = FALSE
+			target_mob = null
+			stance = HOSTILE_STANCE_IDLE
 			return 1
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
+		audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
 	else if(user == master || user in friends)
 		target_mob = null
 		stance = HOSTILE_STANCE_IDLE
@@ -256,11 +274,15 @@
 		visible_message("<span class='danger'>[src] pushes [M] back with its shield!</span>")
 	else
 		..()
-	if(target_mob != M && !(user in friends) &&  user != master)
+	if(target_mob != M && !(M in friends) &&  M != master)
 		if(M == hostage)
 			audible_emote("[emote_hear] \"This is your warning!\"")
 			target_mob = M
+			attack_hostage = TRUE
 			AttackTarget()
+			attack_hostage = FALSE
+			target_mob = null
+			stance = HOSTILE_STANCE_IDLE
 			return
 		audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
 		target_mob = M
@@ -326,8 +348,9 @@
 		update_icon()
 	return 1
 
-	// Proce that switches attack mode from melee to range and vice versa.
+	// Proc that switches attack mode from melee to range and vice versa.
 /mob/living/simple_animal/hostile/commanded/kunit/proc/switch_mode()
+	shield = FALSE
 	if(!ranged)
 		visible_message("<span class='warning'>[src] Retracts back energy shield and sword, putting them away. </span>")
 		pull_gun()
@@ -507,7 +530,7 @@
 
 	if(rapid)
 		for(var/mob/M in check_trajectory(target_mob, src, pass_flags=PASSTABLE))
-			if((M in friends) || M == master)
+			if((M.faction == faction) || M == master || (M == hostage && !attack_hostage))
 				return
 		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target, loc, src)
 		addtimer(shoot_cb, 1)
