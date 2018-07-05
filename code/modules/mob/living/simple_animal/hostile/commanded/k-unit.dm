@@ -42,6 +42,7 @@
 	var/shield = FALSE
 	var/attack_mode = "ranged"
 	var/attack_hostage = FALSE
+	var/distance = null
 
 	// Gun vars
 	var/weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
@@ -170,7 +171,7 @@
 /mob/living/simple_animal/hostile/commanded/kunit/attackby(var/obj/item/O, var/mob/user)
 	if(shield)
 		if(O.force)
-			if(prob(35))
+			if(prob(20))
 				var/damage = O.force
 				if (O.damtype == HALLOSS)
 					damage = 0
@@ -209,7 +210,7 @@
 		var/obj/O = AM
 		if(shield)
 			if(O.force)
-				if(prob(15))
+				if(prob(10))
 					var/damage = O.force
 					if (O.damtype == HALLOSS)
 						damage = 0
@@ -250,7 +251,7 @@
 		visible_message("<span class='danger'>[src] pushes [user] back with its shield!</span>")
 		return
 	else
-		..()
+		..(user, damage/3, attack_message)
 
 	if(target_mob != user && !(user in friends) && user != master)
 		if(user == hostage)
@@ -261,7 +262,9 @@
 			attack_hostage = FALSE
 			target_mob = null
 			stance = HOSTILE_STANCE_IDLE
-			return 1
+			return
+		if(attack_mode == "melee")
+			switch_mode()
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
 		audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
@@ -284,6 +287,8 @@
 			target_mob = null
 			stance = HOSTILE_STANCE_IDLE
 			return
+		if(attack_mode == "melee")
+			switch_mode()
 		audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
 		target_mob = M
 		stance = HOSTILE_STANCE_ATTACK
@@ -464,14 +469,17 @@
 	if(QDELETED(target_mob) || SA_attackable(target_mob))
 		LoseTarget()
 	if(target_mob in targets)
+		distance = get_dist(src, target_mob)
 		if(ranged)
-			if(get_dist(src, target_mob) >= 8)
+			if(distance >= 8)
 				walk_to(src, target_mob, 7, move_to_delay)
+				distance = 7
 			else
 				stance = HOSTILE_STANCE_ATTACKING
 		else
 			stance = HOSTILE_STANCE_ATTACKING
 			walk_to(src, target_mob, 1, move_to_delay)
+			distance = 1
 
 /mob/living/simple_animal/hostile/commanded/kunit/AttackTarget()
 
@@ -520,7 +528,7 @@
 	var/target = target_mob
 
 	// Check if we have ammo loaded, and we we do not check if have stored ammo. If no ammo at all - switch to laser rifle.
-	if(!loaded_ammo && stored_ammo)
+	if((loaded_ammo <= 0) && stored_ammo)
 		if(!reload())
 			audible_emote("[emote_hear] \"I am out of ammo.\"")
 			switch_gun()
@@ -529,9 +537,23 @@
 		ammo = FALSE
 
 	if(rapid)
-		for(var/mob/M in check_trajectory(target_mob, src, pass_flags=PASSTABLE))
-			if((M.faction == faction) || M == master || (M == hostage && !attack_hostage))
-				return
+		for(var/atom/M in check_trajectory(target_mob, src, pass_flags=PASSTABLE))
+			if(ismob(M))
+				var/mob/L = M
+				if((L.faction == faction) || L == master || (L == hostage && !attack_hostage))
+					audible_emote("[emote_hear] \"Don't stand in my way [L].\"")
+					return
+			else if(istype(M, /obj/structure))
+				if(istype(M, /obj/structure/window))
+					audible_emote("[emote_hear] \"Laser will go through [M].\"")
+					switch_gun()
+				else if(distance > 1)
+					audible_emote("[emote_hear] \"I need to get closer to [target_mob].\"")
+					walk_to(src, target_mob, distance - 1, move_to_delay) // get closer
+
+					distance -= 1
+				else
+					switch_mode() // We can't shoot them, but we can attack them
 		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target, loc, src)
 		addtimer(shoot_cb, 1)
 		addtimer(shoot_cb, 4)
