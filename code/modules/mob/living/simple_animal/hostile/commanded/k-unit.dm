@@ -215,13 +215,14 @@
 					if (O.damtype == HALLOSS)
 						damage = 0
 					health -= damage
-					visible_message("<span class='danger'>[src] has been attacked with the [O] by [user].</span>")
+					visible_message("<span class='danger'>[src] has been attacked with the [O] by [O.thrower].</span>")
 				else
 					visible_message("<span class='danger'>[src] blocks the [O] with its shield!</span>")
 				//user.do_attack_animation(src)
 			else
-				to_chat(user, "<span class='warning'>This weapon is ineffective, it does no damage.</span>")
-				visible_message("<span class='warning'>[user] gently taps [src] with the [O].</span>")
+				if(ismob(O.thrower))
+					to_chat(O.thrower, "<span class='warning'>This weapon is ineffective, it does no damage.</span>")
+					visible_message("<span class='warning'>[O] bounces off shield.</span>")
 
 		else
 			..()
@@ -292,7 +293,7 @@
 		audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
 		target_mob = M
 		stance = HOSTILE_STANCE_ATTACK
-	else if(user == master || user in friends)
+	else if(M == master || M in friends)
 		target_mob = null
 		stance = HOSTILE_STANCE_IDLE
 
