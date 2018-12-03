@@ -7,13 +7,12 @@
 	icon_dead = "syndicate_dead" //placeholder, no sprites
 	icon_gib = "syndicate_gib" //placeholder, no sprites
 	faction = "syndicate"
-	var/mob/hostage = null
 
 	// Command vars
 	stance = COMMANDED_STOP
 	short_name = null
 	command_buffer = list()
-	known_commands = list("stay", "stop", "attack", "follow", "switch gun", "switch mode", "patrol", "speed")
+	known_commands = list("stay", "stop", "attack", "follow", "switch gun", "switch mode", "patrol", "change speed", "set hostage", "forget hostage")
 	master = null //undisputed master. Their commands hold ultimate sway and ultimate power.
 	allowed_targets = list() //WHO CAN I KILL D:
 	retribution = 1 //whether or not they will attack us if we attack them like some kinda dick.
@@ -25,7 +24,7 @@
 	stop_automated_movement_when_pulled = 0
 
 	// Talking
-	speak = list("What's, pal!", "We should be careful!", "Let's see what we have here?","Hmm, maybe I should do something?!")
+	speak = list("What's up, pal!", "We should be careful!", "Let's see what we have here?","Hmm, maybe I should do something?!")
 	speak_emote = "states"
 	emote_hear = "states"
 
@@ -43,6 +42,7 @@
 	var/attack_mode = "ranged"
 	var/attack_hostage = FALSE
 	var/distance = null
+	var/mob/hostage = null
 
 	// Gun vars
 	var/weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
@@ -55,9 +55,9 @@
 	var/loaded_ammo = 30 // currently loaded in our gun
 	var/ammo = TRUE // used to stop from switching guns
 
-	casingtype = /obj/item/ammo_casing/t40
-	projectilesound = 'sound/weapons/Gunshot_light.ogg'
-	projectiletype = /obj/item/projectile/bullet/pistol/medium
+	casingtype = /obj/item/ammo_casing/c9mm
+	projectilesound = 'sound/weapons/gunshot_pistol.ogg'
+	projectiletype = /obj/item/projectile/bullet/pistol
 
 	// Misc
 	min_oxy = 0
@@ -106,8 +106,14 @@
 				if("patrol")
 					if(patrol_command())
 						break
-				if("speed")
+				if("change speed")
 					if(speed_command(speaker, text))
+						break
+				if("set hostage")
+					if(hostage_set(speaker, text))
+						break
+				if("forget hostage")
+					if(hostage_forget())
 						break
 				else
 					misc_command(speaker,text) //for specific commands
@@ -315,9 +321,9 @@
 	if(gun_type == "laser")
 		visible_message("<span class='warning'>[src] Switches his gun from laser rifle to an automatic c20r</span>")
 		weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
-		casingtype = /obj/item/ammo_casing/t40
-		projectilesound = 'sound/weapons/Gunshot_light.ogg'
-		projectiletype = /obj/item/projectile/bullet/pistol/medium
+		casingtype = /obj/item/ammo_casing/c10mm
+		projectilesound = 'sound/weapons/gunshot_pistol.ogg'
+		projectiletype = /obj/item/projectile/bullet/pistol
 		rapid = 1
 		gun_type = "bullets"
 		update_icon()
@@ -339,9 +345,9 @@
 	if(gun_type == "bullets")
 		visible_message("<span class='warning'>[src] Pulls out c20r from internal storage</span>")
 		weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
-		casingtype = /obj/item/ammo_casing/t40
-		projectilesound = 'sound/weapons/Gunshot_light.ogg'
-		projectiletype = /obj/item/projectile/bullet/pistol/medium
+		casingtype = /obj/item/ammo_casing/c10mm
+		projectilesound = 'sound/weapons/gunshot_pistol.ogg'
+		projectiletype = /obj/item/projectile/bullet/pistol
 		rapid = 1
 		update_icon()
 	else
@@ -375,13 +381,17 @@
 		update_icon()
 	return 1
 
-/mob/living/simple_animal/hostile/commanded/kunit/proc/reload()
-	if(!stored_ammo)
+/mob/living/simple_animal/hostile/commanded/kunit/proc/hostage_set(var/mob/speaker, var/text)
+	var/list/T = get_targets_by_name(text, filter_friendlies = 1)
+	if(!T.len)
+		audible_emote("[emote_hear] \"What were their names again?\"")
 		return 0
-	else
-		sleep(5)
-		loaded_ammo = ((stored_ammo - 30) > 0) ? (30) : (stored_ammo)
-		return 1
+	hostage = T[1]
+	audible_emote("[emote_hear] \"Roger that, I will keep an eye on [hostage]. You asshole don't stand in my way or I might shoot you too.\"")
+
+/mob/living/simple_animal/hostile/commanded/kunit/proc/hostage_forget()
+	audible_emote("[emote_hear] \"[hostage] is nobody to me, boss!\"")
+	hostage = null
 
 /mob/living/simple_animal/hostile/commanded/kunit/attack_command(var/mob/speaker, var/text)
 	target_mob = null //want me to attack something? Well I better forget my old target.
@@ -392,10 +402,13 @@
 		return 1
 
 	var/list/T = get_targets_by_name(text, filter_friendlies = 1)
+	if(!T.len)
+		audible_emote("[emote_hear] \"What were their names again?\"")
+		return 0
 	allowed_targets += T
 	speed = 8
 	move_to_delay = 4
-	audible_emote("Roger, attacking [T[1]], in [attack_mode] mode")
+	audible_emote("[emote_hear] \"Roger, attacking [T[1]], in [attack_mode] mode\"")
 	return T.len != 0
 
 /mob/living/simple_animal/hostile/commanded/kunit/follow_command(var/mob/speaker, var/text)
@@ -477,6 +490,7 @@
 				distance = 7
 			else
 				stance = HOSTILE_STANCE_ATTACKING
+				OpenFire()
 		else
 			stance = HOSTILE_STANCE_ATTACKING
 			walk_to(src, target_mob, 1, move_to_delay)
@@ -491,8 +505,6 @@
 	if(!(target_mob in targets))
 		LoseTarget()
 		return 0
-	if(next_move >= world.time)
-		return 0
 	if(!ranged)
 		if(get_dist(src, target_mob) <= 1)	//Attacking
 			AttackingTarget()
@@ -500,7 +512,7 @@
 			return 1
 	else
 		if(get_dist(src, target_mob) <= 8)
-			OpenFire(target_mob)
+			OpenFire()
 			attacked_times += 1
 			return 1
 
@@ -525,8 +537,7 @@
 		B.attack_generic(src,rand(melee_damage_lower,melee_damage_upper),attacktext)
 		return B
 
-/mob/living/simple_animal/hostile/commanded/kunit/OpenFire(target_mob)
-	var/target = target_mob
+/mob/living/simple_animal/hostile/commanded/kunit/OpenFire()
 
 	// Check if we have ammo loaded, and we we do not check if have stored ammo. If no ammo at all - switch to laser rifle.
 	if((loaded_ammo <= 0) && stored_ammo)
@@ -536,11 +547,15 @@
 		else
 			audible_emote("[emote_hear] \"Reloading\"")
 		ammo = FALSE
-
+	if(!(target_mob in view(src)))
+		audible_emote("[emote_hear] \"Can't see the target.\"")
+		return
 	if(rapid)
 		for(var/atom/M in check_trajectory(target_mob, src, pass_flags=PASSTABLE))
 			if(ismob(M))
 				var/mob/L = M
+				if(L == target_mob)
+					break
 				if((L.faction == faction) || L == master || (L == hostage && !attack_hostage))
 					audible_emote("[emote_hear] \"Don't stand in my way [L].\"")
 					return
@@ -548,14 +563,17 @@
 				if(istype(M, /obj/structure/window))
 					audible_emote("[emote_hear] \"Laser will go through [M].\"")
 					switch_gun()
+					return
 				else if(distance > 1)
 					audible_emote("[emote_hear] \"I need to get closer to [target_mob].\"")
 					walk_to(src, target_mob, distance - 1, move_to_delay) // get closer
 
 					distance -= 1
+					return
 				else
 					switch_mode() // We can't shoot them, but we can attack them
-		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target, loc, src)
+					return
+		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target_mob, loc, src)
 		addtimer(shoot_cb, 1)
 		addtimer(shoot_cb, 4)
 		addtimer(shoot_cb, 6)
@@ -563,13 +581,34 @@
 		loaded_ammo -= 3
 
 	else
-		for(var/mob/M in check_trajectory(target_mob, src, pass_flags=PASSTABLE|PASSGLASS|PASSGRILLE))
-			if((M in friends) || M == master)
+		for(var/atom/M in check_trajectory(target_mob, src, pass_flags=PASSTABLE|PASSGLASS|PASSGRILLE))
+			if(ismob(M))
+				var/mob/L = M
+				if(L == target_mob)
+					break
+				if((L.faction == faction) || L == master || (L == hostage && !attack_hostage))
+					audible_emote("[emote_hear] \"Don't stand in my way [L].\"")
+					return
+				else if(distance > 1)
+					audible_emote("[emote_hear] \"I need to get closer to [target_mob].\"")
+					walk_to(src, target_mob, distance - 1, move_to_delay) // get closer
+
+					distance -= 1
+					return
+			else
 				return
-		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target, loc, src)
+		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target_mob, loc, src)
 		addtimer(shoot_cb, 1)
 		addtimer(shoot_cb, 25)
-	visible_message("<span class='warning'> <b>[src]</b> fires at [target]!</span>")
-	stance = HOSTILE_STANCE_IDLE
-	target_mob = null
+	visible_message("<span class='warning'> <b>[src]</b> fires at [target_mob]!</span>")
+	stance = HOSTILE_STANCE_ATTACK
 	return
+
+
+/mob/living/simple_animal/hostile/commanded/kunit/proc/reload()
+	if(!stored_ammo)
+		return 0
+	else
+		sleep(5)
+		loaded_ammo = ((stored_ammo - 30) > 0) ? (30) : (stored_ammo)
+		return 1
