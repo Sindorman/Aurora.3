@@ -39,7 +39,6 @@
 	melee_damage_upper = 25
 	density = 0
 	var/shield = FALSE
-	var/attack_mode = "ranged"
 	var/attack_hostage = FALSE
 	var/distance = null
 	var/mob/hostage = null
@@ -154,7 +153,9 @@
 	else
 		..()
 	if(ismob(P.firer))
-		if (target_mob != P.firer && !(P.firer in friends) && P.firer != master)
+		if(P.firer == master || (P.firer in friends))
+			return
+		if (target_mob != P.firer)
 			if(P.firer == hostage)
 				audible_emote("[emote_hear][" \"This is your warning!\""]")
 				target_mob = P.firer
@@ -164,14 +165,12 @@
 				target_mob = null
 				stance = HOSTILE_STANCE_IDLE
 				return
-			audible_emote("[emote_hear] \"You know that I am more accurate then you?\"")
-			if(attack_mode == "melee")
-				switch_mode()
+
 			target_mob = P.firer
 			stance = HOSTILE_STANCE_ATTACK
-		else if(P.firer == master || P.firer in friends)
-			target_mob = null
-			stance = HOSTILE_STANCE_IDLE
+		audible_emote("[emote_hear] \"You know that I am more accurate then you?\"")
+		if(!ranged)
+			switch_mode()
 	return 0
 
 /mob/living/simple_animal/hostile/commanded/kunit/attackby(var/obj/item/O, var/mob/user)
@@ -191,7 +190,9 @@
 			visible_message("<span class='warning'>[user] gently taps [src] with the [O].</span>")
 	else
 		..()
-	if(target_mob != user && !(user in friends) && user != master)
+	if(user == master || (user in friends))
+		return
+	if(target_mob != user)
 		if(user == hostage)
 			audible_emote("[emote_hear] \"This is your warning!\"")
 			target_mob = user
@@ -201,15 +202,12 @@
 			target_mob = null
 			stance = HOSTILE_STANCE_IDLE
 			return
-		if(ranged)
-			audible_emote("[emote_hear] \"I am excellent in hand combat\"")
-			switch_mode()
 		attacktext = "slashed"
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
-	else if(user == master || user in friends)
-		target_mob = null
-		stance = HOSTILE_STANCE_IDLE
+	if(ranged)
+		audible_emote("[emote_hear] \"I am excellent in hand combat\"")
+		switch_mode()
 
 /mob/living/simple_animal/hostile/commanded/kunit/hitby(atom/movable/AM as mob|obj,var/speed = THROWFORCE_SPEED_DIVISOR)//Standardization and logging -Sieve
 	if(istype(AM,/obj/))
@@ -233,7 +231,9 @@
 		else
 			..()
 		if(ismob(O.thrower))
-			if((target_mob != O.thrower) && !(O.thrower in friends) && O.thrower != master)
+			if(O.thrower == master || (O.thrower in friends))
+				return
+			if((target_mob != O.thrower))
 				if(O.thrower == hostage)
 					audible_emote("[emote_hear] \"This is your warning!\"")
 					target_mob = O.thrower
@@ -246,9 +246,6 @@
 				audible_emote("[emote_hear] \"You wanna juggle things with me?!\"")
 				target_mob = O.thrower
 				stance = HOSTILE_STANCE_ATTACK
-			else if(O.thrower == master || O.thrower in friends)
-				target_mob = null
-				stance = HOSTILE_STANCE_IDLE
 	else
 		..()
 
@@ -259,8 +256,9 @@
 		return
 	else
 		..(user, damage/3, attack_message)
-
-	if(target_mob != user && !(user in friends) && user != master)
+	if(user == master || (user in friends))
+		return
+	if(target_mob != user)
 		if(user == hostage)
 			audible_emote("[emote_hear] \"This is your warning!\"")
 			target_mob = user
@@ -270,21 +268,20 @@
 			target_mob = null
 			stance = HOSTILE_STANCE_IDLE
 			return
-		if(attack_mode == "melee")
-			switch_mode()
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
-		audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
-	else if(user == master || user in friends)
-		target_mob = null
-		stance = HOSTILE_STANCE_IDLE
+	audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
+	if(ranged)
+		switch_mode()
 
 /mob/living/simple_animal/hostile/commanded/kunit/attack_hand(mob/living/carbon/human/M as mob)
 	if(shield)
 		visible_message("<span class='danger'>[src] pushes [M] back with its shield!</span>")
 	else
 		..()
-	if(target_mob != M && !(M in friends) &&  M != master)
+	if(M == master || (M in friends))
+		return
+	if(target_mob != M)
 		if(M == hostage)
 			audible_emote("[emote_hear] \"This is your warning!\"")
 			target_mob = M
@@ -294,14 +291,11 @@
 			target_mob = null
 			stance = HOSTILE_STANCE_IDLE
 			return
-		if(attack_mode == "melee")
-			switch_mode()
-		audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
 		target_mob = M
 		stance = HOSTILE_STANCE_ATTACK
-	else if(M == master || M in friends)
-		target_mob = null
-		stance = HOSTILE_STANCE_IDLE
+	audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
+	if(ranged)
+		switch_mode()
 
 ////////////////////////////////
 ////////////COMMANDS////////////
@@ -367,7 +361,7 @@
 		visible_message("<span class='warning'>[src] Retracts back energy shield and sword, putting them away. </span>")
 		pull_gun()
 		icon_state = "syndicaterangedpsace"
-		attack_mode = "ranged"
+		ranged = 1
 		update_icon()
 		walk_to(src, src, 0, move_to_delay)
 	else
@@ -377,7 +371,7 @@
 		weapon2 = /obj/item/weapon/shield/energy
 		shield = TRUE
 		icon_state = "syndicatemeleespace"
-		attack_mode = "melee"
+		ranged = 0
 		update_icon()
 	return 1
 
@@ -408,7 +402,7 @@
 	allowed_targets += T
 	speed = 8
 	move_to_delay = 4
-	audible_emote("[emote_hear] \"Roger, attacking [T[1]], in [attack_mode] mode\"")
+	audible_emote("[emote_hear] \"Roger, attacking [T[1]], in [ranged ? "ranged" : "meleed"] mode\"")
 	return T.len != 0
 
 /mob/living/simple_animal/hostile/commanded/kunit/follow_command(var/mob/speaker, var/text)
@@ -573,6 +567,12 @@
 				else
 					switch_mode() // We can't shoot them, but we can attack them
 					return
+			else if(istype(M, /obj/machinery/door/airlock/glass))
+				audible_emote("[emote_hear] \"Laser will go through [M].\"")
+				switch_gun()
+				return
+			else
+				return
 		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target_mob, loc, src)
 		addtimer(shoot_cb, 1)
 		addtimer(shoot_cb, 4)
@@ -589,7 +589,7 @@
 				if((L.faction == faction) || L == master || (L == hostage && !attack_hostage))
 					audible_emote("[emote_hear] \"Don't stand in my way [L].\"")
 					return
-				else if(distance > 1)
+				else if(istype(M, /obj/structure) && !istype(M, /obj/structure/window) && distance > 1)
 					audible_emote("[emote_hear] \"I need to get closer to [target_mob].\"")
 					walk_to(src, target_mob, distance - 1, move_to_delay) // get closer
 
@@ -599,8 +599,7 @@
 				return
 		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target_mob, loc, src)
 		addtimer(shoot_cb, 1)
-		addtimer(shoot_cb, 25)
-	visible_message("<span class='warning'> <b>[src]</b> fires at [target_mob]!</span>")
+	visible_message("<span class='warning'> <b>[src]</b> fires at [target_mob] with [weapon1]!</span>")
 	stance = HOSTILE_STANCE_ATTACK
 	return
 
