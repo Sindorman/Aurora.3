@@ -82,17 +82,22 @@
 	if(istype(boots))
 		boots.refit_for_species(target_species)
 
-/obj/item/clothing/suit/space/void/equipped(mob/M)
-	..()
+/obj/item/clothing/suit/space/void/equipped(mob/M var/delay = TRUE)
 
+	if(!ishuman(M))
+		return
+
+	..(FALSE)
+
+	check_limb_support(M)
 	var/mob/living/carbon/human/H = M
 
-	if(!istype(H)) return
-
-	if(!do_after(H, 15)) // half of rig's time
-		if(H && H.wear_suit != src)
+	if(delay && !do_after(H, 15)) // half of rig's time
+		if(H && H.wear_suit == src)
 			if(!H.unEquip(src))
 				return
+		src.forceMove(get_turf(src))
+		return
 
 	if(boots)
 		if (H.equip_to_slot_if_possible(boots, slot_shoes))

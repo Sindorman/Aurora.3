@@ -80,9 +80,18 @@
 
 	var/list/supporting_limbs //If not-null, automatically splints breaks. Checked when removing the suit.
 
-/obj/item/clothing/suit/space/equipped(mob/M)
-	check_limb_support()
+/obj/item/clothing/suit/space/equipped(mob/M var/delay = TRUE)
+	if(!ishuman(M))
+		return
+	check_limb_support(M)
 	..()
+	var/mob/living/carbon/human/H = M
+	if(delay &&!do_after(H, 7.5)) // half of voidsuit's time
+		if(H && H.wear_suit == src)
+			if(!H.unEquip(src))
+				return
+		src.forceMove(get_turf(src))
+		return
 
 /obj/item/clothing/suit/space/dropped(var/mob/user)
 	check_limb_support(user)
