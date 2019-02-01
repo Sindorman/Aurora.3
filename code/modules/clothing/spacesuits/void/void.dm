@@ -89,8 +89,10 @@
 
 	if(!istype(H)) return
 
-	if(H.wear_suit != src)
-		return
+	if(!do_after(H, 15)) // half of rig's time
+		if(H && H.wear_suit != src)
+			if(!H.unEquip(src))
+				return
 
 	if(boots)
 		if (H.equip_to_slot_if_possible(boots, slot_shoes))
