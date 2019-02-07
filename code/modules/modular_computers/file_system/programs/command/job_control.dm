@@ -1,25 +1,25 @@
-// Need to use SSjobs.occupations for list of jobs
+// Need to use for list of jobs
 
-/datum/computer_file/program/card_mod
-	filename = "cardmod"
-	filedesc = "ID card modification program"
+/datum/computer_file/program/job_control
+	filename = "jobcontrol"
+	filedesc = "Job slots modification program"
 	nanomodule_path = /datum/nano_module/program/card_mod
 	program_icon_state = "id"
-	extended_desc = "Program for programming employee ID cards to access parts of the station."
+	extended_desc = "Program for modifying job slots and assigning demand."
 	required_access_run = access_change_ids
 	required_access_download = access_change_ids
 	usage_flags = PROGRAM_CONSOLE | PROGRAM_LAPTOP
-	requires_ntnet = 0
+	requires_ntnet = 1
 	size = 8
 	color = LIGHT_COLOR_BLUE
 
-/datum/nano_module/program/card_mod
-	name = "ID card modification program"
+/datum/nano_module/program/job_control
+	name = "Job slots modification program"
 	var/mod_mode = 1
 	var/is_centcom = 0
 	var/show_assignments = 0
 
-/datum/nano_module/program/card_mod/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = default_state)
+/datum/nano_module/program/job_control/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1, var/datum/topic_state/state = default_state)
 	var/list/data = host.initial_data()
 
 	data["src"] = "\ref[src]"
@@ -92,7 +92,7 @@
 		ui.set_initial_data(data)
 		ui.open()
 
-/datum/nano_module/program/card_mod/proc/format_jobs(list/jobs)
+/datum/nano_module/program/job_control/proc/format_jobs(list/jobs)
 	var/obj/item/weapon/card/id/id_card = program.computer.card_slot.stored_card
 	var/list/formatted = list()
 	for(var/job in jobs)
@@ -103,11 +103,7 @@
 
 	return formatted
 
-/datum/nano_module/program/card_mod/proc/get_accesses(var/is_centcom = 0)
-	return null
-
-
-/datum/computer_file/program/card_mod/Topic(href, href_list)
+/datum/computer_file/program/job_control/Topic(href, href_list)
 	if(..())
 		return 1
 
@@ -235,9 +231,3 @@
 
 	SSnanoui.update_uis(NM)
 	return 1
-
-/datum/computer_file/program/card_mod/proc/remove_nt_access(var/obj/item/weapon/card/id/id_card)
-	id_card.access -= get_access_ids(ACCESS_TYPE_STATION|ACCESS_TYPE_CENTCOM)
-
-/datum/computer_file/program/card_mod/proc/apply_access(var/obj/item/weapon/card/id/id_card, var/list/accesses)
-	id_card.access |= accesses
