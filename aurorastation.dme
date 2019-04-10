@@ -1897,6 +1897,7 @@
 #include "code\modules\modular_computers\file_system\programs\civilian\crusher_control.dm"
 #include "code\modules\modular_computers\file_system\programs\command\card.dm"
 #include "code\modules\modular_computers\file_system\programs\command\comm.dm"
+#include "code\modules\modular_computers\file_system\programs\command\job_control.dm"
 #include "code\modules\modular_computers\file_system\programs\engineering\_engineering.dm"
 #include "code\modules\modular_computers\file_system\programs\games\arcade.dm"
 #include "code\modules\modular_computers\file_system\programs\games\sudoku\helpers.dm"

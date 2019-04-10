@@ -97,7 +97,8 @@
 		new/datum/computer_file/program/digitalwarrant(),
 		new/datum/computer_file/program/civilian/cargocontrol(),
 		new/datum/computer_file/program/civilian/cargoorder(),
-		new/datum/computer_file/program/alarm_monitor()
+		new/datum/computer_file/program/alarm_monitor(),
+		new/datum/computer_file/program/job_control
 	)
 	return _prg_list
 
