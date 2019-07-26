@@ -404,3 +404,24 @@
 	playsound(H, 'sound/magic/LightningShock.ogg', 75, 1)
 	tesla_zap(H, 5, 5000)
 	return 1
+
+/obj/item/rig_module/rig_turret
+	name = "mounted tesla coil"
+	desc = "A mounted tesla coil that discharges a powerful lightning strike around the user."
+	use_power_cost = 30
+	module_cooldown = 0
+
+	usable = 1
+
+	category = MODULE_LIGHT_COMBAT
+
+	var/obj/machinery/porta_turret/rig
+
+/obj/item/rig_module/rig_turret/Initialize()
+	rig = new(src)
+
+/obj/item/rig_module/rig_turret/activate()
+	START_PROCESSING(SSprocessing, rig)
+
+/obj/item/rig_module/rig_turret/deactivate()
+	STOP_PROCESSING(SSprocessing, rig)

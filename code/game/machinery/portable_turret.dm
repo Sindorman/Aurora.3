@@ -486,7 +486,7 @@
 	targets = list()
 	secondarytargets = list()
 
-	for(var/v in view(world.view, src))
+	for(var/v in view(world.view, get_turf(src)))
 		if(isliving(v))
 			var/mob/living/L = v
 			assess_and_assign(L, targets, secondarytargets)
@@ -550,7 +550,7 @@
 	if(ispath(projectile, /obj/item/projectile/beam) || ispath(eprojectile, /obj/item/projectile/beam))
 		flags |= PASSTABLE|PASSGLASS|PASSGRILLE
 
-	if(!(L in check_trajectory(L, src, pass_flags=flags)))	//check if we have true line of sight
+	if(!(L in check_trajectory(L, get_turf(src), pass_flags=flags)))	//check if we have true line of sight
 		return TURRET_NOT_TARGET
 
 	if(emagged)		// If emagged not even the dead get a rest
@@ -684,10 +684,10 @@
 	var/obj/item/projectile/A
 	
 	if(emagged || lethal)
-		A = new eprojectile(loc)
+		A = new eprojectile(get_turf(src))
 		playsound(loc, eshot_sound, 75, 1)
 	else
-		A = new projectile(loc)
+		A = new projectile(get_turf(src))
 		playsound(loc, shot_sound, 75, 1)
 	
 	A.accuracy = max(installation.accuracy * 0.25 , installation.accuracy_wielded * 0.25, A.accuracy * 0.25)  // Because turrets should be better at shooting.
@@ -1112,6 +1112,22 @@
 	eshot_sound	= 'sound/weapons/gunshot/gunshot_saw.ogg'
 
 	req_one_access = list(access_syndicate)
+
+/obj/machinery/porta_turret/rig
+	egun = FALSE
+
+/obj/machinery/porta_turret/rig/target(var/mob/living/target)
+	if(disabled)
+		return
+	if(target)
+		last_target = target
+		popUp()				//pop the turret up if it's not already up.
+		var/d = get_dir(src, target)	//even if you can't shoot, follow the target
+		if(d != dir)
+			set_dir(d)
+		shootAt(target)
+		return 1
+	return
 
 #undef TURRET_PRIORITY_TARGET
 #undef TURRET_SECONDARY_TARGET
