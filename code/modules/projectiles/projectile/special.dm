@@ -290,3 +290,16 @@
 	damage = 10
 	armor_penetration = 10
 	incinerate = 5
+
+/obj/item/projectile/beam/civilian
+	name = "pacifying beam"
+	damage = 30
+
+/obj/item/projectile/beam/civilian/Collide(var/atom/A)
+	if(istype(A, /mob/living/simple_animal)) //Never do more than 50 damage to a living being per shot.
+		damage = min(damage, 50)
+	else if(ishuman(A))
+		damage = damage * 0.05
+	else
+		damage = 0
+	. = ..()

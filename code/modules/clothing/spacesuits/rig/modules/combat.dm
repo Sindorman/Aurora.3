@@ -406,22 +406,48 @@
 	return 1
 
 /obj/item/rig_module/rig_turret
-	name = "mounted tesla coil"
-	desc = "A mounted tesla coil that discharges a powerful lightning strike around the user."
+	name = "mounted personal turret"
+	desc = "A mounted personal turret that protects user within 360 degrees radius."
 	use_power_cost = 30
+	active_power_cost = 5
+	passive_power_cost = 0
 	module_cooldown = 0
 
-	usable = 1
+	toggleable = TRUE
+	usable = TRUE
+	selectable = TRUE
 
 	category = MODULE_LIGHT_COMBAT
 
-	var/obj/machinery/porta_turret/rig
+	var/obj/machinery/porta_turret/rig/T
 
 /obj/item/rig_module/rig_turret/Initialize()
-	rig = new(src)
+	T = new(src)
 
 /obj/item/rig_module/rig_turret/activate()
-	START_PROCESSING(SSprocessing, rig)
+	T.owner = WEAKREF(usr)
+	T.enabled = TRUE
+	START_PROCESSING(SSprocessing, T)
+	return 1
 
 /obj/item/rig_module/rig_turret/deactivate()
-	STOP_PROCESSING(SSprocessing, rig)
+	T.owner = null
+	T.enabled = FALSE
+	if(!T.fast_processing)
+		STOP_PROCESSING(SSprocessing, T)
+	else
+		STOP_PROCESSING(SSfast_process, T)
+	return 1
+
+/obj/item/rig_module/rig_turret/engage()
+	if(!T.egun)
+		return 0
+
+	T.lethal = !T.lethal
+	return 1
+
+/obj/item/rig_module/rig_turret/civilian
+	T = /obj/machinery/porta_turret/rig/civilian
+
+/obj/item/rig_module/rig_turret/civilian/Initialize()
+	T = new /obj/machinery/porta_turret/rig/civilian(src)

@@ -1114,7 +1114,13 @@
 	req_one_access = list(access_syndicate)
 
 /obj/machinery/porta_turret/rig
+	egun = TRUE
+	check_synth = TRUE
+	var/datum/weakref/owner
+
+/obj/machinery/porta_turret/rig/civilian
 	egun = FALSE
+	projectile = /obj/item/projectile/beam/civilian
 
 /obj/machinery/porta_turret/rig/target(var/mob/living/target)
 	if(disabled)
@@ -1128,6 +1134,16 @@
 		shootAt(target)
 		return 1
 	return
+
+/obj/machinery/porta_turret/rig/assess_living(var/mob/living/L)
+	var/mob/living/carbon/human/H
+	if(owner)
+		H = owner.resolve()
+
+	if(H && H == L)
+		return TURRET_NOT_TARGET
+	else
+		. = ..()
 
 #undef TURRET_PRIORITY_TARGET
 #undef TURRET_SECONDARY_TARGET
