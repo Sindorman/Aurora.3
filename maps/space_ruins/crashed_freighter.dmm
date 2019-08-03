@@ -674,6 +674,7 @@
 	dir = 1
 	},
 /obj/machinery/light,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor/tiled/dark,
 /area/derelict/ship)
 "cg" = (
@@ -2723,12 +2724,22 @@
 	icon_state = "diagonalWall3"
 	},
 /area/derelict/ship)
+"iT" = (
+/obj/effect/floor_decal/industrial/outline,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/tiled/dark,
+/area/derelict/ship)
 "jo" = (
 /turf/template_noop,
 /turf/simulated/shuttle/wall/dark{
 	dir = 6;
 	icon_state = "diagonalWall3"
 	},
+/area/derelict/ship)
+"kO" = (
+/obj/effect/floor_decal/industrial/outline,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/tiled/dark,
 /area/derelict/ship)
 "nh" = (
 /turf/template_noop,
@@ -2737,11 +2748,23 @@
 	icon_state = "diagonalWall3"
 	},
 /area/derelict/ship)
+"nS" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/plating,
+/area/derelict/ship)
+"uP" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/tiled/dark,
+/area/derelict/ship)
 "Ar" = (
 /obj/structure/shuttle/engine/propulsion{
 	icon_state = "propulsion_r"
 	},
 /turf/template_noop,
+/area/derelict/ship)
+"Gn" = (
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/tiled/dark,
 /area/derelict/ship)
 "JJ" = (
 /turf/template_noop,
@@ -30930,7 +30953,7 @@ aa
 aJ
 ai
 dQ
-aO
+Gn
 dV
 ai
 aJ
@@ -31215,7 +31238,7 @@ aa
 aJ
 ai
 eN
-aO
+uP
 bQ
 ai
 aH
@@ -31458,7 +31481,7 @@ aa
 aJ
 ai
 ej
-aO
+Gn
 dV
 ai
 aJ
@@ -31687,7 +31710,7 @@ aO
 eN
 eN
 eN
-cM
+nS
 aO
 aO
 aO
@@ -32932,7 +32955,7 @@ bo
 bw
 aO
 bM
-eN
+iT
 bo
 bo
 bd
@@ -32955,7 +32978,7 @@ aJ
 aJ
 bd
 eN
-eN
+kO
 eN
 bw
 bH
@@ -34484,7 +34507,7 @@ aJ
 be
 bo
 eN
-eN
+iT
 bw
 aO
 bM
@@ -34761,7 +34784,7 @@ aO
 bO
 eN
 eN
-eN
+kO
 ai
 aJ
 aJ
@@ -35757,7 +35780,7 @@ aJ
 aJ
 ai
 bz
-aO
+Gn
 bP
 ai
 aJ
@@ -36059,7 +36082,7 @@ aO
 cM
 aO
 aO
-aO
+uP
 aO
 ai
 aa
@@ -36084,7 +36107,7 @@ aa
 aJ
 ai
 eN
-aO
+uP
 es
 ai
 aJ
@@ -36355,7 +36378,7 @@ aa
 aJ
 ai
 eN
-aO
+Gn
 fo
 ai
 aH
@@ -36584,7 +36607,7 @@ aa
 aJ
 ai
 dU
-aO
+Gn
 ea
 ai
 aJ

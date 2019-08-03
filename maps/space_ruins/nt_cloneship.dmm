@@ -1557,11 +1557,11 @@
 /area/derelict/ship)
 "dF" = (
 /obj/structure/table/glass,
-/obj/item/weapon/disk/tech_disk,
 /obj/effect/floor_decal/corner/mauve{
 	icon_state = "corner_white";
 	dir = 9
 	},
+/obj/item/weapon/disk/tech_disk/random/hightech,
 /turf/simulated/floor/tiled/white,
 /area/derelict/ship)
 "dG" = (
@@ -2100,6 +2100,7 @@
 /obj/machinery/light{
 	dir = 4
 	},
+/obj/item/weapon/disk/tech_disk/random/hightech,
 /turf/simulated/floor/tiled/white,
 /area/derelict/ship)
 "eU" = (
@@ -4582,6 +4583,8 @@
 	dir = 4
 	},
 /obj/effect/floor_decal/corner/grey/diagonal,
+/obj/item/weapon/disk/tech_disk/random,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor/tiled/dark,
 /area/derelict/ship)
 "mj" = (

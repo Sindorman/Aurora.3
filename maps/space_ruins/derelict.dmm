@@ -835,6 +835,8 @@
 /area/template_noop)
 "cT" = (
 /obj/structure/table/standard,
+/obj/item/weapon/disk/tech_disk/random,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor/bluegrid,
 /area/derelict/hallway/northwest)
 "cU" = (
@@ -7924,6 +7926,11 @@
 	},
 /turf/simulated/floor/airless,
 /area/derelict/hallway/southwest)
+"EB" = (
+/obj/structure/table/standard,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/bluegrid,
+/area/derelict/hallway/northwest)
 "FM" = (
 /turf/template_noop,
 /area/shuttle/research/away)
@@ -32180,7 +32187,7 @@ cj
 cr
 cj
 bK
-cT
+EB
 ae
 ac
 ae
@@ -32437,7 +32444,7 @@ cj
 cs
 ct
 bK
-cT
+EB
 ae
 aa
 ae

@@ -341,6 +341,7 @@
 	dir = 8
 	},
 /obj/structure/table/steel,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/shuttle/floor{
 	icon_state = "floor7"
 	},
@@ -362,6 +363,7 @@
 "bk" = (
 /obj/structure/table/steel,
 /obj/random/junk,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/shuttle/floor{
 	icon_state = "floor7"
 	},
@@ -384,6 +386,26 @@
 "bp" = (
 /obj/item/toy/plushie/squid,
 /turf/simulated/floor/diona,
+/area/derelict)
+"mx" = (
+/obj/structure/table/steel,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
+/area/derelict)
+"rW" = (
+/obj/structure/table/steel,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
+/area/derelict)
+"vR" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
 /area/derelict)
 
 (1,1,1) = {"
@@ -55250,7 +55272,7 @@ ax
 aG
 ax
 bh
-aC
+rW
 at
 aa
 aa
@@ -55755,7 +55777,7 @@ aa
 aa
 at
 ax
-aC
+mx
 aF
 at
 aN
@@ -56531,7 +56553,7 @@ at
 aI
 aP
 aw
-ax
+vR
 aF
 at
 aa

@@ -111,6 +111,7 @@
 "ao" = (
 /obj/structure/table/reinforced/steel,
 /obj/random/highvalue,
+/obj/item/weapon/disk/tech_disk/random/hightech,
 /turf/simulated/floor/tiled/dark,
 /area/derelict/ship)
 "ap" = (
@@ -232,6 +233,7 @@
 "aI" = (
 /obj/structure/table/rack,
 /obj/random/voidsuit,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor/tiled/dark,
 /area/derelict/ship)
 "aJ" = (
@@ -372,6 +374,7 @@
 /obj/structure/table/rack,
 /obj/random/belt,
 /obj/random/belt,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor/tiled/dark,
 /area/derelict/ship)
 "bh" = (
@@ -915,6 +918,17 @@
 /obj/machinery/vending/tool,
 /turf/simulated/floor/tiled/dark,
 /area/derelict/ship)
+"lj" = (
+/obj/structure/table/rack,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/tiled/dark,
+/area/derelict/ship)
+"ml" = (
+/obj/random/voidsuit,
+/obj/structure/table/rack,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/tiled/dark,
+/area/derelict/ship)
 "sg" = (
 /obj/structure/shuttle/engine/propulsion{
 	icon_state = "propulsion_l"
@@ -935,6 +949,11 @@
 	icon_state = "diagonalWall3"
 	},
 /area/derelict/ship)
+"xK" = (
+/obj/structure/table/rack,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/tiled/dark,
+/area/derelict/ship)
 "zm" = (
 /obj/structure/shuttle/engine/propulsion{
 	icon_state = "propulsion_r"
@@ -954,6 +973,10 @@
 "Jr" = (
 /obj/structure/shuttle/engine/propulsion,
 /turf/template_noop,
+/area/derelict/ship)
+"QP" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/tiled/dark,
 /area/derelict/ship)
 "Yo" = (
 /turf/simulated/shuttle/wall/dark{
@@ -25781,7 +25804,7 @@ am
 am
 am
 am
-bD
+ml
 bD
 aq
 am
@@ -26562,7 +26585,7 @@ cn
 am
 am
 am
-cN
+xK
 cP
 cN
 cX
@@ -27333,7 +27356,7 @@ aq
 bG
 am
 am
-cN
+lj
 aq
 ab
 ab
@@ -27849,7 +27872,7 @@ am
 aY
 aq
 cQ
-cN
+lj
 cY
 dc
 df
@@ -28862,7 +28885,7 @@ ba
 ba
 br
 ba
-am
+QP
 aq
 am
 am

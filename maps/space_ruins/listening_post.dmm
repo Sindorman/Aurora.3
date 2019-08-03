@@ -660,8 +660,21 @@
 "cS" = (
 /turf/template_noop,
 /area/shuttle/research/away)
+"dP" = (
+/obj/structure/table/standard,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/lino,
+/area/derelict/ship)
+"lT" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/unsimulated/floor/asteroid/ash,
+/area/derelict/ship)
 "Ed" = (
 /turf/simulated/mineral/random/higher_chance,
+/area/derelict/ship)
+"IL" = (
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor,
 /area/derelict/ship)
 
 (1,1,1) = {"
@@ -30804,7 +30817,7 @@ ao
 ar
 as
 as
-ak
+lT
 ak
 ak
 ak
@@ -33918,7 +33931,7 @@ bu
 bC
 bJ
 bu
-bT
+dP
 bI
 bI
 bI
@@ -36745,7 +36758,7 @@ bx
 bx
 bx
 bu
-bx
+IL
 cc
 cc
 cc

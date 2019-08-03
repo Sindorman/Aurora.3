@@ -660,6 +660,7 @@
 /obj/structure/table/reinforced/steel,
 /obj/effect/decal/cleanable/dirt,
 /obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor/tiled,
 /area/derelict/bridge)
 "bH" = (
@@ -2782,6 +2783,7 @@
 /obj/random/tech_supply,
 /obj/item/mecha_parts/mecha_tracking,
 /obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor/tiled/dark,
 /area/derelict/arrival)
 "iH" = (
@@ -4431,6 +4433,7 @@
 "oi" = (
 /obj/structure/table/standard,
 /obj/effect/floor_decal/corner/black/diagonal,
+/obj/item/weapon/disk/tech_disk/random/hightech,
 /turf/simulated/floor/tiled/dark,
 /area/derelict/storage/engine_storage)
 "oj" = (
@@ -4853,12 +4856,41 @@
 /obj/structure/closet/emcloset,
 /turf/simulated/floor/tiled/dark,
 /area/derelict/bridge)
+"tY" = (
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/tiled,
+/area/derelict/bridge)
+"ux" = (
+/obj/structure/table/reinforced/steel,
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/tiled,
+/area/derelict/bridge)
+"vo" = (
+/obj/structure/table/reinforced/steel,
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/tiled,
+/area/derelict/bridge)
+"Bc" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/tiled,
+/area/derelict/bridge)
 "Pb" = (
 /obj/structure/shuttle/engine/propulsion{
 	icon_state = "propulsion_r"
 	},
 /turf/template_noop,
 /area/derelict/storage/engine_storage)
+"PP" = (
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor,
+/area/derelict/arrival)
+"RI" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/tiled/dark,
+/area/derelict/arrival)
 "TN" = (
 /obj/structure/shuttle/engine/propulsion{
 	icon_state = "propulsion_l"
@@ -23752,7 +23784,7 @@ dw
 cK
 cK
 dk
-cK
+PP
 cK
 cK
 dw
@@ -24000,7 +24032,7 @@ cK
 gy
 cS
 cK
-cK
+PP
 cK
 cK
 io
@@ -26557,7 +26589,7 @@ cC
 cK
 cK
 cS
-cK
+PP
 cK
 cC
 cK
@@ -27061,7 +27093,7 @@ aa
 aa
 cC
 cC
-cK
+PP
 cM
 cK
 dk
@@ -27347,7 +27379,7 @@ cC
 iK
 iV
 cZ
-cZ
+RI
 jI
 iK
 cC
@@ -33479,7 +33511,7 @@ ap
 ah
 bH
 ap
-ap
+Bc
 ap
 as
 ap
@@ -33737,7 +33769,7 @@ ah
 bI
 cc
 ap
-ap
+tY
 co
 cw
 cw
@@ -33994,7 +34026,7 @@ ah
 bJ
 cc
 ap
-ap
+tY
 cp
 cx
 cz
@@ -35005,7 +35037,7 @@ ak
 an
 aw
 bG
-bG
+ux
 pe
 ap
 aJ
@@ -35261,7 +35293,7 @@ ae
 aj
 ar
 aw
-bq
+vo
 bq
 aw
 aA

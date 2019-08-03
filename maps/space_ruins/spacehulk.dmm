@@ -2935,8 +2935,8 @@
 /area/derelict)
 "gW" = (
 /obj/effect/decal/cleanable/dirt,
-/obj/item/weapon/disk/tech_disk,
 /obj/structure/table/glass,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/shuttle/floor{
 	icon_state = "floor7"
 	},
@@ -3022,6 +3022,7 @@
 /obj/effect/decal/cleanable/dirt,
 /obj/structure/table/glass,
 /obj/item/rig_module/device/anomaly_scanner,
+/obj/item/weapon/disk/tech_disk/random/hightech,
 /turf/simulated/shuttle/floor{
 	icon_state = "floor6"
 	},
@@ -4806,6 +4807,7 @@
 	icon_state = "rwindow";
 	dir = 8
 	},
+/obj/item/weapon/disk/tech_disk/random/hightech,
 /turf/simulated/shuttle/floor{
 	icon_state = "floor7"
 	},
@@ -5720,6 +5722,117 @@
 "pp" = (
 /obj/structure/closet/secure_closet/engineering_electrical,
 /obj/effect/decal/cleanable/dirt,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
+/area/derelict)
+"rS" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor3"
+	},
+/area/derelict)
+"sC" = (
+/obj/structure/window/reinforced{
+	icon_state = "rwindow";
+	dir = 1
+	},
+/obj/structure/window/reinforced{
+	icon_state = "rwindow";
+	dir = 4
+	},
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
+/area/derelict)
+"we" = (
+/obj/structure/lattice,
+/obj/structure/lattice/catwalk/indoor,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor,
+/area/derelict)
+"BC" = (
+/obj/structure/window/reinforced{
+	icon_state = "rwindow";
+	dir = 1
+	},
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
+/area/derelict)
+"CT" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/structure/table/glass,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor3"
+	},
+/area/derelict)
+"Do" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor3"
+	},
+/area/derelict)
+"Eo" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
+/area/derelict)
+"Ft" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor6"
+	},
+/area/derelict)
+"Ij" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/structure/table/steel,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
+/area/derelict)
+"Ki" = (
+/obj/structure/window/reinforced,
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
+/area/derelict)
+"Pr" = (
+/obj/structure/lattice/catwalk/indoor,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor,
+/area/derelict)
+"QU" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/greengrid,
+/area/derelict)
+"YH" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/structure/table/steel,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
+/area/derelict)
+"YJ" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/effect/decal/cleanable/dirt,
+/obj/structure/table/steel,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/shuttle/floor{
 	icon_state = "floor7"
 	},
@@ -28043,7 +28156,7 @@ cb
 aN
 jq
 hU
-ee
+Do
 ee
 jA
 jH
@@ -28454,8 +28567,8 @@ nI
 nG
 aI
 aM
-aP
-aP
+YJ
+YJ
 bm
 ce
 ce
@@ -28710,7 +28823,7 @@ nI
 nI
 nI
 aI
-aM
+YH
 fh
 fh
 fh
@@ -29044,7 +29157,7 @@ gI
 gI
 ce
 ce
-ce
+Eo
 ce
 ce
 aN
@@ -29332,7 +29445,7 @@ aN
 aN
 jD
 hU
-ee
+Do
 aN
 jM
 aN
@@ -29500,7 +29613,7 @@ dq
 hG
 aN
 aN
-oL
+BC
 bz
 cU
 cZ
@@ -30593,7 +30706,7 @@ nP
 bW
 bW
 cj
-bW
+we
 bW
 cj
 bW
@@ -30772,7 +30885,7 @@ fh
 be
 fh
 fh
-aM
+Ij
 aN
 aN
 cr
@@ -30789,7 +30902,7 @@ oL
 ce
 ce
 ce
-oQ
+Ki
 aN
 aN
 aN
@@ -31029,7 +31142,7 @@ ce
 ce
 bv
 bG
-aM
+Ij
 aN
 aN
 cs
@@ -31608,7 +31721,7 @@ mQ
 bS
 ck
 gY
-ee
+rS
 ee
 ee
 ee
@@ -33155,7 +33268,7 @@ ee
 hu
 hi
 ee
-ec
+CT
 ck
 bS
 aN
@@ -35190,7 +35303,7 @@ bP
 bP
 bP
 aN
-ec
+CT
 ee
 ee
 ee
@@ -36220,7 +36333,7 @@ dR
 aN
 ec
 ee
-ee
+rS
 ee
 eh
 aN
@@ -36283,7 +36396,7 @@ dl
 nu
 mQ
 aN
-mK
+sC
 gz
 pj
 pm
@@ -42283,7 +42396,7 @@ bS
 fG
 gi
 gj
-gi
+QU
 bP
 aN
 oa
@@ -42545,7 +42658,7 @@ bP
 nP
 oa
 gD
-nW
+Ft
 nP
 oG
 oG
@@ -46922,7 +47035,7 @@ aN
 aN
 bS
 aN
-bP
+Pr
 bP
 bP
 bP
@@ -47179,7 +47292,7 @@ mQ
 bS
 bS
 aN
-bP
+Pr
 bX
 nr
 oK

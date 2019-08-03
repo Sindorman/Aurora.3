@@ -2217,6 +2217,7 @@
 /obj/random/glowstick,
 /obj/item/weapon/shield/energy,
 /obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random/hightech,
 /turf/simulated/shuttle/floor{
 	icon_state = "floor7"
 	},
@@ -2258,6 +2259,7 @@
 "gi" = (
 /obj/structure/table/rack,
 /obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random/hightech,
 /turf/simulated/shuttle/floor{
 	icon_state = "floor7"
 	},
@@ -2404,6 +2406,7 @@
 "gE" = (
 /obj/structure/table/reinforced,
 /obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random/hightech,
 /mob/living/simple_animal/cat{
 	desc = "A very suspicious cat. Looks to be genetically modified - it's quite large for a housecat.";
 	emote_hear = list("snarls","growls");
@@ -2568,12 +2571,24 @@
 	},
 /turf/simulated/shuttle/wall/dark,
 /area/derelict)
+"kG" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor4"
+	},
+/area/derelict)
 "lm" = (
 /obj/structure/lattice/catwalk,
 /obj/item/stack/material/plasteel{
 	amount = 10
 	},
 /turf/simulated/floor,
+/area/derelict)
+"lv" = (
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor7"
+	},
 /area/derelict)
 "mZ" = (
 /obj/structure/closet/secure_closet/engineering_personal,
@@ -2722,6 +2737,12 @@
 	icon_state = "diagonalWall3"
 	},
 /area/derelict)
+"AO" = (
+/obj/item/weapon/disk/tech_disk/random,
+/turf/unsimulated/floor{
+	icon_state = "white"
+	},
+/area/derelict)
 "BC" = (
 /obj/structure/lattice/catwalk,
 /obj/machinery/light{
@@ -2745,6 +2766,14 @@
 /obj/item/robot_parts/robot_component/diagnosis_unit,
 /turf/simulated/shuttle/floor{
 	icon_state = "floor7"
+	},
+/area/derelict)
+"KR" = (
+/obj/structure/table/reinforced,
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/shuttle/floor{
+	icon_state = "floor4"
 	},
 /area/derelict)
 "LR" = (
@@ -2911,6 +2940,12 @@
 	dir = 8;
 	icon_state = "diagonalWall3"
 	},
+/area/derelict)
+"Wz" = (
+/obj/machinery/light,
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk,
+/turf/simulated/floor/tiled/freezer,
 /area/derelict)
 "WB" = (
 /obj/structure/window/reinforced{
@@ -26158,7 +26193,7 @@ ag
 ct
 cu
 cu
-cX
+Wz
 ag
 ad
 ad
@@ -37228,7 +37263,7 @@ cg
 cq
 ag
 ag
-aL
+KR
 aB
 aB
 gW
@@ -38249,7 +38284,7 @@ dp
 bn
 bn
 bn
-bn
+AO
 bx
 ag
 dW
@@ -43628,7 +43663,7 @@ aq
 ag
 zk
 aS
-aS
+lv
 aS
 zV
 ag
@@ -45418,7 +45453,7 @@ Au
 zr
 vC
 Ol
-aq
+kG
 TL
 Au
 es

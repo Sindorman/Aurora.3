@@ -3241,6 +3241,7 @@
 "kq" = (
 /obj/structure/table/reinforced/steel,
 /obj/item/weapon/storage/box/toothpaste/red,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor/tiled/steel,
 /area/derelict/ship)
 "kr" = (
@@ -3530,6 +3531,7 @@
 "ll" = (
 /obj/structure/table/rack,
 /obj/random/medical,
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor,
 /area/derelict/ship)
 "lm" = (
@@ -4836,6 +4838,14 @@
 /obj/item/weapon/gun/projectile/automatic/rifle/sol,
 /turf/simulated/floor,
 /area/derelict/ship)
+"rr" = (
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/tiled/dark,
+/area/derelict/ship)
+"sO" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/tiled/dark,
+/area/derelict/ship)
 "to" = (
 /obj/structure/shuttle/engine/propulsion{
 	icon_state = "propulsion_l"
@@ -4860,6 +4870,16 @@
 /obj/structure/shuttle/engine/router,
 /turf/simulated/wall/r_wall,
 /area/derelict/ship)
+"xq" = (
+/obj/structure/table/reinforced/steel,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/tiled/steel,
+/area/derelict/ship)
+"xu" = (
+/obj/structure/table/reinforced/steel,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/tiled/steel,
+/area/derelict/ship)
 "yc" = (
 /turf/template_noop,
 /turf/simulated/shuttle/wall/dark{
@@ -4880,6 +4900,26 @@
 	},
 /turf/template_noop,
 /area/derelict/ship)
+"Ne" = (
+/obj/machinery/light{
+	dir = 8
+	},
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/carpet,
+/area/derelict/ship)
+"Om" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/greengrid,
+/area/derelict/ship)
+"Ou" = (
+/obj/structure/table/wood,
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor/wood,
+/area/derelict/ship)
+"OU" = (
+/obj/item/weapon/disk/tech_disk/random/hightech,
+/turf/simulated/floor,
+/area/derelict/ship)
 "PM" = (
 /turf/simulated/shuttle/wall/dark{
 	dir = 5;
@@ -4891,6 +4931,11 @@
 	dir = 4;
 	icon_state = "diagonalWall3"
 	},
+/area/derelict/ship)
+"RY" = (
+/obj/structure/table/rack,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor,
 /area/derelict/ship)
 "Wz" = (
 /obj/structure/shuttle/engine/heater,
@@ -28194,7 +28239,7 @@ ay
 bp
 bp
 ay
-bp
+sO
 pn
 ay
 bs
@@ -31801,7 +31846,7 @@ bs
 ay
 er
 et
-ko
+xq
 kp
 kp
 kK
@@ -32058,7 +32103,7 @@ gS
 ay
 gf
 ay
-ko
+xu
 kp
 kp
 kL
@@ -33343,7 +33388,7 @@ bs
 ay
 av
 ay
-ko
+xu
 kp
 kp
 kK
@@ -33858,7 +33903,7 @@ ay
 jS
 ay
 ko
-ko
+xq
 kp
 kN
 cR
@@ -36635,7 +36680,7 @@ cM
 av
 cS
 ay
-av
+OU
 av
 aX
 av
@@ -38185,7 +38230,7 @@ ay
 ay
 ay
 dP
-dV
+Ne
 da
 ej
 ay
@@ -38732,7 +38777,7 @@ bs
 bs
 is
 bp
-bp
+rr
 iV
 bs
 na
@@ -39485,7 +39530,7 @@ da
 da
 ay
 ay
-fG
+Om
 bp
 fV
 fG
@@ -39981,7 +40026,7 @@ dd
 dd
 dd
 dd
-dF
+Ou
 ay
 ay
 ay
@@ -42820,7 +42865,7 @@ eH
 eU
 fb
 dd
-dF
+Ou
 ay
 bs
 bs
@@ -45433,7 +45478,7 @@ av
 ff
 ay
 av
-fC
+RY
 kr
 av
 aX
