@@ -139,57 +139,68 @@ research holder datum.
 	var/desc = "description"			//General description of what it does and what it makes.
 	var/id = "id"						//An easily referenced ID. Must be alphanumeric, lower-case, and no symbols.
 	var/level = 1						//A simple number scale of the research level. Level 0 = Secret tech.
+	var/price							// Price of specific tech
 
 /datum/tech/materials
 	name = "Materials Research"
 	desc = "Development of new and improved materials."
 	id = TECH_MATERIAL
+	price = 50
 
 /datum/tech/engineering
 	name = "Engineering Research"
 	desc = "Development of new and improved engineering parts."
 	id = TECH_ENGINEERING
+	price = 75
 
 /datum/tech/phorontech
 	name = "Phoron Research"
 	desc = "Research into the mysterious substance colloqually known as 'phoron'."
 	id = TECH_PHORON
+	price = 175
 
 /datum/tech/powerstorage
 	name = "Power Manipulation Technology"
 	desc = "The various technologies behind the storage and generation of electicity."
 	id = TECH_POWER
+	price = 100
 
 /datum/tech/bluespace
 	name = "'Blue-space' Research"
 	desc = "Research into the sub-reality known as 'blue-space'"
 	id = TECH_BLUESPACE
+	price = 250
 
 /datum/tech/biotech
 	name = "Biological Technology"
 	desc = "Research into the deeper mysteries of life and organic substances."
 	id = TECH_BIO
+	price = 100
 
 /datum/tech/combat
 	name = "Combat Systems Research"
 	desc = "The development of offensive and defensive systems."
 	id = TECH_COMBAT
+	price = 125
 
 /datum/tech/magnets
 	name = "Electromagnetic Spectrum Research"
 	desc = "Research into the electromagnetic spectrum. No clue how they actually work, though."
 	id = TECH_MAGNET
+	price = 100
 
 /datum/tech/programming
 	name = "Data Theory Research"
 	desc = "The development of new computer and artificial intelligence and data storage systems."
 	id = TECH_DATA
+	price = 125
 
 /datum/tech/syndicate
 	name = "Illegal Technologies Research"
 	desc = "The study of technologies that violate standard government regulations."
 	id = TECH_ILLEGAL
 	level = 0
+	price = -200
 
 /datum/tech/arcane
 	name = "Arcane Research"
@@ -219,10 +230,19 @@ research holder datum.
 	
 	var/list/techs = typesof(/datum/tech)
 	techs -= /datum/tech
+	techs -= /datum/tech/arcane
 	var/datum/tech/T = pick(techs)
 	stored =  new T
 	stored.level = prob(10) ? pick(6, 8) : pick(3, 5)
 	..()
+
+/obj/item/weapon/disk/tech_disk/random/hightech
+	name = "shiny technology disk"
+	desc = "A disk for storing technology data for further research. This one seems to be of high quality, maybe it contains something useful."
+
+/obj/item/weapon/disk/tech_disk/random/hightech/Initialize()
+	..()
+	stored.level = pick(6, 8)
 
 /obj/item/weapon/disk/design_disk
 	name = "component design disk"
