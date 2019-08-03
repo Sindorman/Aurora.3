@@ -66606,6 +66606,11 @@
 /obj/effect/decal/remains/rat,
 /turf/simulated/floor/plating,
 /area/maintenance/civ)
+"mRf" = (
+/obj/effect/decal/cleanable/dirt,
+/obj/item/weapon/disk/tech_disk/random,
+/turf/simulated/floor/tiled/white,
+/area/maintenance/research_port)
 "mUs" = (
 /obj/machinery/atmospherics/pipe/simple/hidden/scrubbers{
 	dir = 6
@@ -67963,6 +67968,10 @@
 	pixel_y = 8
 	},
 /obj/effect/decal/cleanable/dirt,
+/turf/simulated/floor/plating,
+/area/maintenance/research_port)
+"tHq" = (
+/obj/item/weapon/disk/tech_disk/random,
 /turf/simulated/floor/plating,
 /area/maintenance/research_port)
 "tHM" = (
@@ -87677,7 +87686,7 @@ bNi
 bcY
 bbs
 bPm
-bPL
+mRf
 dBv
 bbs
 bPq
@@ -88199,7 +88208,7 @@ bPs
 bQh
 bQC
 bRo
-bcY
+tHq
 bSe
 bbs
 bcY
@@ -90209,7 +90218,7 @@ aXZ
 aQu
 baC
 aQq
-bcY
+tHq
 beD
 bfR
 aKT

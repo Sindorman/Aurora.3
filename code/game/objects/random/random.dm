@@ -835,7 +835,8 @@
 		/obj/item/weapon/storage/box/pineapple = 0.1,
 		/obj/item/weapon/flag/america = 0.1,
 		/obj/item/weapon/flag/america/l = 0.1,
-		/obj/item/weapon/razor = 0.5
+		/obj/item/weapon/razor = 0.5,
+		/obj/item/weapon/disk/tech_disk/random = 0.1
 	)
 
 /obj/random/hoodie
