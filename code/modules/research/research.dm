@@ -207,6 +207,15 @@ research holder datum.
 	matter = list(DEFAULT_WALL_MATERIAL = 30, "glass" = 10)
 	var/datum/tech/stored
 
+/obj/item/weapon/disk/tech_disk/random
+	name = "old technology disk"
+	desc "A disk for storing technology data for further research. This one seems to be old and used, maybe it contains something useful."
+
+/obj/item/weapon/disk/tech_disk/random/Initialize()
+	..()
+	var/list/techs = typesof(/datum/tech)
+	techs &= ~/datum/tech
+
 /obj/item/weapon/disk/tech_disk/New()
 	pixel_x = rand(-5.0, 5)
 	pixel_y = rand(-5.0, 5)
