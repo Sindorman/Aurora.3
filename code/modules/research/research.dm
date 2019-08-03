@@ -207,18 +207,22 @@ research holder datum.
 	matter = list(DEFAULT_WALL_MATERIAL = 30, "glass" = 10)
 	var/datum/tech/stored
 
-/obj/item/weapon/disk/tech_disk/random
-	name = "old technology disk"
-	desc "A disk for storing technology data for further research. This one seems to be old and used, maybe it contains something useful."
-
-/obj/item/weapon/disk/tech_disk/random/Initialize()
-	..()
-	var/list/techs = typesof(/datum/tech)
-	techs &= ~/datum/tech
-
-/obj/item/weapon/disk/tech_disk/New()
+/obj/item/weapon/disk/tech_disk/Initialize()
 	pixel_x = rand(-5.0, 5)
 	pixel_y = rand(-5.0, 5)
+
+/obj/item/weapon/disk/tech_disk/random
+	name = "old technology disk"
+	desc = "A disk for storing technology data for further research. This one seems to be old and used, maybe it contains something useful."
+
+/obj/item/weapon/disk/tech_disk/random/Initialize()
+	
+	var/list/techs = typesof(/datum/tech)
+	techs -= /datum/tech
+	var/datum/tech/T = pick(techs)
+	stored =  new T
+	stored.level = prob(10) ? pick(6, 8) : pick(3, 5)
+	..()
 
 /obj/item/weapon/disk/design_disk
 	name = "component design disk"
@@ -230,6 +234,6 @@ research holder datum.
 	matter = list(DEFAULT_WALL_MATERIAL = 30, "glass" = 10)
 	var/datum/design/blueprint
 
-/obj/item/weapon/disk/design_disk/New()
+/obj/item/weapon/disk/design_disk/Initialize()
 	pixel_x = rand(-5.0, 5)
 	pixel_y = rand(-5.0, 5)
