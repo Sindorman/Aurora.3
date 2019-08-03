@@ -13,7 +13,8 @@
 	idle_power_usage = 800
 	var/delay = 10
 	req_access = list(access_rd) //Only the R&D can change server settings.
-
+	var/list/techs_earned = list() // List of techs and their level that has been uploaded to cash out
+	var/total_earned = 0
 	component_types = list(
 		/obj/item/weapon/circuitboard/rdserver,
 		/obj/item/weapon/stock_parts/scanning_module,
@@ -38,6 +39,9 @@
 /obj/machinery/r_n_d/server/proc/setup()
 	if(!files)
 		files = new /datum/research(src)
+		for(var/v in files.known_tech)
+			var/datum/tech/T = v
+			techs_earned[T.type] = 0
 	var/list/temp_list
 	if(!id_with_upload.len)
 		temp_list = list()
@@ -175,12 +179,12 @@
 	if(href_list["main"])
 		screen = 0
 
-	else if(href_list["access"] || href_list["data"] || href_list["transfer"])
+	else if(href_list["access"] || href_list["data"] || href_list["transfer"] || href_list["upload"])
 		temp_server = null
 		consoles = list()
 		servers = list()
 		for(var/obj/machinery/r_n_d/server/S in SSmachinery.all_machines)
-			if(S.server_id == text2num(href_list["access"]) || S.server_id == text2num(href_list["data"]) || S.server_id == text2num(href_list["transfer"]))
+			if(S.server_id == text2num(href_list["access"]) || S.server_id == text2num(href_list["data"]) || S.server_id == text2num(href_list["transfer"]) || S.server_id == text2num(href_list["upload"]))
 				temp_server = S
 				break
 		if(href_list["access"])
@@ -196,6 +200,8 @@
 				if(S == src)
 					continue
 				servers += S
+		else if(href_list["upload"])
+			screen = 4
 
 	else if(href_list["upload_toggle"])
 		var/num = text2num(href_list["upload_toggle"])
@@ -228,6 +234,24 @@
 					temp_server.files.known_designs -= D
 					break
 		temp_server.files.RefreshResearch()
+	
+	else if(href_list["upload_research"])
+		if(ntnet_global.check_function(NTNET_COMMUNICATION))
+			var/earned = 0
+			for(var/v in temp_server.files.known_tech)
+				var/datum/tech/T = v
+				var/diff = T.level - temp_server.techs_earned[T.type]
+				if(diff <= 0)
+					continue
+				for(var/count = T.level + 1, count < T.level + diff, count++)
+					earned += diff * T.price
+				temp_server.techs_earned[T.type] = T.level
+			var/datum/money_account/research_account = SSeconomy.get_department_account("Science")
+			research_account.money += earned
+			temp_server.total_earned += earned
+			to_chat(usr, span("notice", "Research has been trasnmitted. Total funding earned: [earned]"))
+		else
+			to_chat(usr, span("warning", "Warning: unable to establish connecting to NT NET!"))
 
 	updateUsrDialog()
 	return
@@ -247,8 +271,9 @@
 					continue
 				dat += "[S.name] || "
 				dat += "<A href='?src=\ref[src];access=[S.server_id]'> Access Rights</A> | "
-				dat += "<A href='?src=\ref[src];data=[S.server_id]'>Data Management</A>"
+				dat += "<A href='?src=\ref[src];data=[S.server_id]'>Data Management</A> | "
 				if(badmin) dat += " | <A href='?src=\ref[src];transfer=[S.server_id]'>Server-to-Server Transfer</A>"
+				dat += "<A href='?src=\ref[src];upload=[S.server_id]'>Uploading Data</A>"
 				dat += "<BR>"
 
 		if(1) //Access rights menu
@@ -289,6 +314,14 @@
 			for(var/obj/machinery/r_n_d/server/S in servers)
 				dat += "[S.name] <A href='?src=\ref[src];send_to=[S.server_id]'> (Transfer)</A><BR>"
 			dat += "<HR><A href='?src=\ref[src];main=1'>Main Menu</A>"
+
+		if(4) // Upload tech for cash
+			dat += "[temp_server.name] Upload Technology to Nanotrasen global server.<BR><BR>"
+			dat += "Upload now?<BR>"
+			dat += "Total funding earned: [temp_server.total_earned]"
+			dat += "<A href='?src=\ref[src];upload_research=[TRUE]'> (Upload)</A><BR>"
+			dat += "<HR><A href='?src=\ref[src];main=1'>Main Menu</A>"
+
 	user << browse("<TITLE>R&D Server Control</TITLE><HR>[dat]", "window=server_control;size=575x400")
 	onclose(user, "server_control")
 	return
