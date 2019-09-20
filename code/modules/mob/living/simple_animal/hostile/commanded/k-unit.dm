@@ -1,3 +1,6 @@
+#define LASER_GUN 0
+#define BULLET_GUN 1
+
 // Code for K unit
 /mob/living/simple_animal/hostile/commanded/kunit
 	name = "k-unit"
@@ -12,7 +15,9 @@
 	stance = COMMANDED_STOP
 	short_name = null
 	command_buffer = list()
-	known_commands = list("stay", "stop", "attack", "follow", "switch gun", "switch mode", "patrol", "change speed", "set hostage", "forget hostage")
+	known_commands = list(
+							"stay", "stop", "attack", "follow", "switch gun", "switch mode", "patrol", "change speed", "set hostage", "forget hostage", "aggressive mode",
+							"passive mode")
 	master = null //undisputed master. Their commands hold ultimate sway and ultimate power.
 	allowed_targets = list() //WHO CAN I KILL D:
 	retribution = 1 //whether or not they will attack us if we attack them like some kinda dick.
@@ -44,18 +49,18 @@
 	var/mob/hostage = null
 
 	// Gun vars
-	var/weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
-	var/weapon2 = null
+	var/obj/item/weapon/weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
+	var/obj/item/weapon/weapon2 = null
 	ranged = 1
 	rapid = 1
-	var/gun_type = "bullets"
+	var/gun_type = BULLET_GUN
 	var/max_ammo = 60 // Max ammo we can have
 	var/stored_ammo = 60 // Currently stored in storage
 	var/loaded_ammo = 30 // currently loaded in our gun
 	var/ammo = TRUE // used to stop from switching guns
 
 	casingtype = /obj/item/ammo_casing/c9mm
-	projectilesound = 'sound/weapons/gunshot_pistol.ogg'
+	projectilesound = 'sound/weapons/gunshot/gunshot_pistol.ogg'
 	projectiletype = /obj/item/projectile/bullet/pistol
 
 	// Misc
@@ -72,13 +77,19 @@
 	turns_per_move = 5
 
 	status_flags = CANPUSH
-
+	var/aggressive_mode = FALSE
 	tameable = FALSE
 
 /mob/living/simple_animal/hostile/commanded/kunit/Initialize()
 	..()
 	if(!short_name)
 		short_name = name
+	new /obj/item/weapon/gun/projectile/automatic/c20r(src)
+	new /obj/item/weapon/gun/energy/laser(src)
+	new /obj/item/weapon/melee/energy/sword/red(src)
+	new /obj/item/weapon/shield/energy(src)
+	zone_sel = new /obj/screen/zone_sel(src)
+	zone_sel.selecting = "chest"
 
 /mob/living/simple_animal/hostile/commanded/kunit/listen(var/mob/speaker, var/text)
 	for(var/command in known_commands)
@@ -114,10 +125,22 @@
 				if("forget hostage")
 					if(hostage_forget())
 						break
+				if("aggressive mode")
+					if(aggressive_mode())
+						break
+				if("passive mode")
+					if(passive_mode())
+						break
 				else
 					misc_command(speaker,text) //for specific commands
 
 	return 1
+
+/mob/living/simple_animal/hostile/commanded/kunit/think()
+	..()
+	if(!aggressive_mode)
+		target_mob = null
+		stance = HOSTILE_STANCE_IDLE
 
 // For testing
 /mob/living/simple_animal/hostile/commanded/kunit/verb/befriend()
@@ -129,6 +152,7 @@
 		var/mob/living/carbon/human/H = usr
 		if(istype(H))
 			master = usr
+			faction = master.faction
 			audible_emote("[emote_hear] \"I got your back, pal!\"",0)
 			. = 1
 	else if(usr == master)
@@ -168,6 +192,7 @@
 
 			target_mob = P.firer
 			stance = HOSTILE_STANCE_ATTACK
+			aggressive_mode = TRUE
 		audible_emote("[emote_hear] \"You know that I am more accurate then you?\"")
 		if(!ranged)
 			switch_mode()
@@ -205,6 +230,7 @@
 		attacktext = "slashed"
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
+		aggressive_mode = TRUE
 	if(ranged)
 		audible_emote("[emote_hear] \"I am excellent in hand combat\"")
 		switch_mode()
@@ -246,6 +272,7 @@
 				audible_emote("[emote_hear] \"You wanna juggle things with me?!\"")
 				target_mob = O.thrower
 				stance = HOSTILE_STANCE_ATTACK
+				aggressive_mode = TRUE
 	else
 		..()
 
@@ -270,6 +297,7 @@
 			return
 		target_mob = user
 		stance = HOSTILE_STANCE_ATTACK
+		aggressive_mode = TRUE
 	audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
 	if(ranged)
 		switch_mode()
@@ -293,6 +321,7 @@
 			return
 		target_mob = M
 		stance = HOSTILE_STANCE_ATTACK
+		aggressive_mode = TRUE
 	audible_emote("[emote_hear] \"Hey, don't touch me asshole!\"")
 	if(ranged)
 		switch_mode()
@@ -301,34 +330,44 @@
 ////////////COMMANDS////////////
 ////////////////////////////////
 
+/mob/living/simple_animal/hostile/commanded/kunit/proc/aggressive_mode()
+	audible_emote("[emote_hear] \"Roger that, aggressive mode initiated!\"")
+	aggressive_mode = TRUE
+	return TRUE
+
+/mob/living/simple_animal/hostile/commanded/kunit/proc/passive_mode()
+	audible_emote("[emote_hear] \"Roger that, passive mode initiated!\"")
+	aggressive_mode = FALSE
+	return TRUE
+
 	// Proc that switches guns between bullets burst rifle and laser rifle.
 /mob/living/simple_animal/hostile/commanded/kunit/proc/switch_gun()
 	if(!ranged)
 		audible_emote("[emote_hear] \"Sorry pal, I am in melee mode!\"")
 		return 1
-	if(!ammo)
+	if(!ammo && gun_type)
 		audible_emote("[emote_hear] \"I have no ammo! Give me some.\"")
 		return 1
 	weapon2 = null
 	shield = FALSE
 	ranged = 1
-	if(gun_type == "laser")
+	if(!gun_type)
 		visible_message("<span class='warning'>[src] Switches his gun from laser rifle to an automatic c20r</span>")
-		weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
+		weapon1 = locate(/obj/item/weapon/gun/projectile/automatic/c20r, src)
 		casingtype = /obj/item/ammo_casing/c10mm
-		projectilesound = 'sound/weapons/gunshot_pistol.ogg'
+		projectilesound = 'sound/weapons/gunshot/gunshot_pistol.ogg'
 		projectiletype = /obj/item/projectile/bullet/pistol
 		rapid = 1
-		gun_type = "bullets"
+		gun_type = BULLET_GUN
 		update_icon()
 	else
 		visible_message("<span class='warning'>[src] Switches his gun from automatic c20r to laser rifle</span>")
-		weapon1 = /obj/item/weapon/gun/energy/laser
+		weapon1 = locate(/obj/item/weapon/gun/energy/laser, src)
 		casingtype = null
 		projectilesound = 'sound/weapons/Laser.ogg'
 		projectiletype = /obj/item/projectile/beam/midlaser
 		rapid = 0
-		gun_type = "laser"
+		gun_type = LASER_GUN
 		update_icon()
 	return 1
 
@@ -336,17 +375,17 @@
 	weapon2 = null
 	shield = FALSE
 	ranged = 1
-	if(gun_type == "bullets")
+	if(gun_type)
 		visible_message("<span class='warning'>[src] Pulls out c20r from internal storage</span>")
-		weapon1 = /obj/item/weapon/gun/projectile/automatic/c20r
+		weapon1 = locate(/obj/item/weapon/gun/projectile/automatic/c20r, src)
 		casingtype = /obj/item/ammo_casing/c10mm
-		projectilesound = 'sound/weapons/gunshot_pistol.ogg'
+		projectilesound = 'sound/weapons/gunshot/gunshot_pistol.ogg'
 		projectiletype = /obj/item/projectile/bullet/pistol
 		rapid = 1
 		update_icon()
 	else
 		visible_message("<span class='warning'>[src] Pulls out laser rifle from internal storage</span>")
-		weapon1 = /obj/item/weapon/gun/energy/laser
+		weapon1 = locate(/obj/item/weapon/gun/energy/laser, src)
 		casingtype = null
 		projectilesound = 'sound/weapons/Laser.ogg'
 		projectiletype = /obj/item/projectile/beam/midlaser
@@ -359,19 +398,23 @@
 	shield = FALSE
 	if(!ranged)
 		visible_message("<span class='warning'>[src] Retracts back energy shield and sword, putting them away. </span>")
+		var/obj/item/weapon/melee/energy/sword/e = weapon1
+		e.deactivate(src)
 		pull_gun()
 		icon_state = "syndicaterangedpsace"
-		ranged = 1
+		ranged = TRUE
 		update_icon()
 		walk_to(src, src, 0, move_to_delay)
 	else
 		visible_message("<span class='warning'>[src] Puts his gun into integrated storage and grabs in one hand energy sword, and another energy shield</span>")
 		ranged = 0
-		weapon1 = /obj/item/weapon/melee/energy/sword/red
-		weapon2 = /obj/item/weapon/shield/energy
+		weapon1 = locate(/obj/item/weapon/melee/energy/sword/red, src)
+		weapon2 = locate( /obj/item/weapon/shield/energy, src)
+		var/obj/item/weapon/melee/energy/sword/e = weapon1
 		shield = TRUE
 		icon_state = "syndicatemeleespace"
-		ranged = 0
+		ranged = FALSE
+		e.activate(src)
 		update_icon()
 	return 1
 
@@ -379,13 +422,15 @@
 	var/list/T = get_targets_by_name(text, filter_friendlies = 1)
 	if(!T.len)
 		audible_emote("[emote_hear] \"What were their names again?\"")
-		return 0
+		return FALSE
 	hostage = T[1]
 	audible_emote("[emote_hear] \"Roger that, I will keep an eye on [hostage]. You asshole don't stand in my way or I might shoot you too.\"")
+	return TRUE
 
 /mob/living/simple_animal/hostile/commanded/kunit/proc/hostage_forget()
 	audible_emote("[emote_hear] \"[hostage] is nobody to me, boss!\"")
 	hostage = null
+	return TRUE
 
 /mob/living/simple_animal/hostile/commanded/kunit/attack_command(var/mob/speaker, var/text)
 	target_mob = null //want me to attack something? Well I better forget my old target.
@@ -393,12 +438,12 @@
 	stance = HOSTILE_STANCE_ATTACK
 	if(text == "attack" || findtext(text,"everyone") || findtext(text,"anybody") || findtext(text, "somebody") || findtext(text, "someone")) //if its just 'attack' then just attack anybody, same for if they say 'everyone', somebody, anybody. Assuming non-pickiness.
 		allowed_targets = list("everyone")//everyone? EVERYONE
-		return 1
+		return TRUE
 
 	var/list/T = get_targets_by_name(text, filter_friendlies = 1)
 	if(!T.len)
 		audible_emote("[emote_hear] \"What were their names again?\"")
-		return 0
+		return FALSE
 	allowed_targets += T
 	speed = 8
 	move_to_delay = 4
@@ -411,10 +456,10 @@
 		stance = COMMANDED_FOLLOW
 		target_mob = speaker //this wont bite me in the ass later.
 		audible_emote("[emote_hear] \"Following you, boss!\"")
-		return 1
+		return TRUE
 	var/list/targets = get_targets_by_name(text)
 	if(targets.len > 1 || !targets.len) //CONFUSED. WHO DO I FOLLOW?
-		return 0
+		return FALSE
 
 	speed = 6
 	move_to_delay = 3
@@ -422,7 +467,7 @@
 	stance = COMMANDED_FOLLOW //GOT SOMEBODY. BETTER FOLLOW EM.
 	target_mob = targets[1] //YEAH GOOD IDEA
 
-	return 1
+	return TRUE
 
 /mob/living/simple_animal/hostile/commanded/kunit/stay_command()
 	target_mob = null
@@ -430,7 +475,7 @@
 	stop_automated_movement = 1
 	walk_to(src,0)
 	audible_emote("[emote_hear] \"Roger that, staying here\"")
-	return 1
+	return TRUE
 
 /mob/living/simple_animal/hostile/commanded/kunit/proc/patrol_command()
 	target_mob = null
@@ -438,7 +483,7 @@
 	stop_automated_movement = 0
 	walk_to(src,0)
 	audible_emote("[emote_hear] \"Roger that, patrolling the area\"")
-	return 1
+	return TRUE
 
 /mob/living/simple_animal/hostile/commanded/kunit/stop_command()
 	allowed_targets = list()
@@ -447,7 +492,7 @@
 	stance = HOSTILE_STANCE_IDLE
 	stop_automated_movement = 0
 	audible_emote("[emote_hear] \"Alright, I will stop\"")
-	return 1
+	return TRUE
 
 // We can be slow, average, fast.
 /mob/living/simple_animal/hostile/commanded/kunit/proc/speed_command(var/mob/speaker, var/text)
@@ -466,81 +511,25 @@
 	else
 		speed = 6
 		audible_emote("[emote_hear] \"Sorry pal, but I did not understand speed setting. Setting acutators speed to balanced.\"")
-	return 1
+	return TRUE
 
 ////////////////////////////////
 ////////////BACK-END////////////
 ////////////////////////////////
 
-/mob/living/simple_animal/hostile/commanded/kunit/MoveToTarget()
-	stop_automated_movement = 1
-	if(QDELETED(target_mob) || SA_attackable(target_mob))
-		LoseTarget()
-	if(target_mob in targets)
-		distance = get_dist(src, target_mob)
-		if(ranged)
-			if(distance >= 8)
-				walk_to(src, target_mob, 7, move_to_delay)
-				distance = 7
-			else
-				stance = HOSTILE_STANCE_ATTACKING
-				OpenFire()
-		else
-			stance = HOSTILE_STANCE_ATTACKING
-			walk_to(src, target_mob, 1, move_to_delay)
-			distance = 1
-
-/mob/living/simple_animal/hostile/commanded/kunit/AttackTarget()
-
-	stop_automated_movement = 1
-	if(QDELETED(target_mob) || SA_attackable(target_mob))
-		LoseTarget()
-		return 0
-	if(!(target_mob in targets))
-		LoseTarget()
-		return 0
-	if(!ranged)
-		if(get_dist(src, target_mob) <= 1)	//Attacking
-			AttackingTarget()
-			attacked_times += 1
-			return 1
-	else
-		if(get_dist(src, target_mob) <= 8)
-			OpenFire()
-			attacked_times += 1
-			return 1
-
 /mob/living/simple_animal/hostile/commanded/kunit/LoseTarget()
 	..()
 	audible_emote("[emote_hear] \"I lost my target.\"")
 
-/mob/living/simple_animal/hostile/commanded/kunit/AttackingTarget()
-	setClickCooldown(attack_delay)
-	if(!Adjacent(target_mob))
-		return
-	if(isliving(target_mob))
-		var/mob/living/L = target_mob
-		L.attack_generic(src,rand(melee_damage_lower,melee_damage_upper),attacktext)
-		return L
-	if(istype(target_mob,/obj/mecha))
-		var/obj/mecha/M = target_mob
-		M.attack_generic(src,rand(melee_damage_lower,melee_damage_upper),attacktext)
-		return M
-	if(istype(target_mob,/obj/machinery/bot))
-		var/obj/machinery/bot/B = target_mob
-		B.attack_generic(src,rand(melee_damage_lower,melee_damage_upper),attacktext)
-		return B
-
 /mob/living/simple_animal/hostile/commanded/kunit/OpenFire()
 
 	// Check if we have ammo loaded, and we we do not check if have stored ammo. If no ammo at all - switch to laser rifle.
-	if((loaded_ammo <= 0) && stored_ammo)
+	if(gun_type == BULLET_GUN && loaded_ammo <= 0)
 		if(!reload())
 			audible_emote("[emote_hear] \"I am out of ammo.\"")
 			switch_gun()
-		else
-			audible_emote("[emote_hear] \"Reloading\"")
-		ammo = FALSE
+			ammo = FALSE
+			
 	if(!(target_mob in view(src)))
 		audible_emote("[emote_hear] \"Can't see the target.\"")
 		return
@@ -603,11 +592,41 @@
 	stance = HOSTILE_STANCE_ATTACK
 	return
 
+/mob/living/simple_animal/hostile/commanded/kunit/AttackingTarget()
+	setClickCooldown(attack_delay)
+	if(!Adjacent(target_mob))
+		return
+	if(!see_target())
+		LoseTarget()
+	zone_sel.selecting = pick("chest", "head", "l_arm", "r_arm", "l_leg", "r_leg")
+	if(isliving(target_mob))
+		var/mob/living/L = target_mob
+		L.attackby(weapon1, src)
+		return L
+	if(istype(target_mob, /obj/mecha))
+		var/obj/mecha/M = target_mob
+		M.attackby(weapon1, src)
+		return M
+	if(istype(target_mob, /obj/machinery/bot))
+		var/obj/machinery/bot/B = target_mob
+		B.attackby(weapon1, src)
+		return B
+	if(istype(target_mob, /obj/machinery/porta_turret))
+		var/obj/machinery/porta_turret/T = target_mob
+		src.do_attack_animation(T)
+		T.attackby(weapon1, src)
+		visible_message("<span class='danger'>[src] [attacktext] \the [T]!</span>")
+		return T
 
 /mob/living/simple_animal/hostile/commanded/kunit/proc/reload()
-	if(!stored_ammo)
-		return 0
+	if(stored_ammo <= 0)
+		return FALSE
 	else
-		sleep(5)
+		audible_emote("[emote_hear] \"Reloading\"")
+		sleep(15)
 		loaded_ammo = ((stored_ammo - 30) > 0) ? (30) : (stored_ammo)
-		return 1
+		stored_ammo -= loaded_ammo
+		return TRUE
+
+#undef LASER_GUN
+#undef BULLET_GUN
