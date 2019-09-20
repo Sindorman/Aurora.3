@@ -138,7 +138,7 @@ var/datum/controller/subsystem/atlas/SSatlas
 
 	admin_departments = list(
 		"[current_map.boss_name]",
-		"[current_map.system_name] Government",
+		"External Routing",
 		"Supply"
 	)
 
@@ -184,7 +184,7 @@ var/datum/controller/subsystem/atlas/SSatlas
 
 	if (world.name != sname)
 		world.name = sname
-		world.log << "Set world.name to [sname]."
+		world.log <<  "Set world.name to [sname]."
 
 /proc/system_name()
 	ASSERT(current_map)

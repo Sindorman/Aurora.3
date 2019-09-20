@@ -2,6 +2,7 @@
 	name = "rock"
 	icon = 'icons/obj/mining.dmi'
 	icon_state = "ore1"
+	randpixel = 8
 	w_class = 2
 	throwforce = 10
 	var/datum/geosample/geologic_data
@@ -37,7 +38,7 @@
 	..()
 	var/mob/living/carbon/human/H = hit_atom
 	if(istype(H) && H.has_eyes() && prob(85))
-		H << "<span class='danger'>Some of \the [src] gets in your eyes!</span>"
+		to_chat(H, "<span class='danger'>Some of \the [src] gets in your eyes!</span>")
 		H.eye_blind += 5
 		H.eye_blurry += 10
 		spawn(1)
@@ -85,9 +86,7 @@
 	material = null
 
 /obj/item/weapon/ore/New()
-	pixel_x = rand(0,16)-8
-	pixel_y = rand(0,8)-8
-	if(icon_state == "ore1")
+	if((randpixel_xy()) && icon_state == "ore1")
 		icon_state = "ore[pick(1,2,3)]"
 
 /obj/item/weapon/ore/attackby(obj/item/weapon/W as obj, mob/user as mob)

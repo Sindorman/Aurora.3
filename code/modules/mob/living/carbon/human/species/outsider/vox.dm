@@ -70,7 +70,7 @@
 
 	default_h_style = "Short Vox Quills"
 
-/datum/species/vox/equip_survival_gear(var/mob/living/carbon/human/H)
+/datum/species/vox/before_equip(mob/living/carbon/human/H, visualsOnly, datum/job/J)
 	H.equip_to_slot_or_del(new /obj/item/clothing/mask/breath(H), slot_wear_mask)
 	if(H.backbag == 1)
 		H.equip_to_slot_or_del(new /obj/item/weapon/tank/nitrogen(H), slot_back)
@@ -144,7 +144,7 @@
 					continue
 				if(target.species.flags & NO_BREATHE)
 					continue
-			M << "<span class='danger'>A terrible stench emanates from \the [H].</span>"
+			to_chat(M, "<span class='danger'>A terrible stench emanates from \the [H].</span>")
 
 /datum/species/vox/pariah/get_bodytype()
 	return "Vox"
@@ -196,6 +196,7 @@
 		/mob/living/carbon/human/proc/leap,
 		/mob/living/carbon/human/proc/gut,
 		/mob/living/carbon/human/proc/commune,
-		/mob/living/carbon/human/proc/quillboar
+		/mob/living/carbon/human/proc/quillboar,
+		/mob/living/carbon/human/proc/sonar_ping
 		)
 

@@ -12,7 +12,7 @@
 
 /obj/item/weapon/bee_smoker/examine(mob/user)
 	if(..(user, 0))
-		user << text("\icon[] [] contains []/[] units of fuel!", src, src.name, get_fuel(),src.max_fuel )
+		to_chat(user, text("\icon[] [] contains []/[] units of fuel!", src, src.name, get_fuel(),src.max_fuel ))
 
 /obj/item/weapon/bee_smoker/New()
 	..()
@@ -22,15 +22,15 @@
 	//Bee smoker intentionally spawns empty. Fill it at a weldertank before use
 
 //I would prefer to rename this to attack(), but that would involve touching hundreds of files.
-/obj/item/weapon/bee_smoker/resolve_attackby(atom/A, mob/user)
+/obj/item/weapon/bee_smoker/resolve_attackby(atom/A, mob/user, var/click_parameters)
 	if (istype(A, /obj/structure/reagent_dispensers/fueltank) && get_dist(src,A) <= 1)
 		A.reagents.trans_to_obj(src, max_fuel)
-		user << "<span class='notice'>Smoker refilled!</span>"
+		to_chat(user, "<span class='notice'>Smoker refilled!</span>")
 		playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
 	else if (istype(A, /obj/machinery/beehive/))
 		var/obj/machinery/beehive/B = A
 		if(B.closed)
-			user << "<span class='notice'>You need to open \the [B] with a crowbar before smoking the bees.</span>"
+			to_chat(user, "<span class='notice'>You need to open \the [B] with a crowbar before smoking the bees.</span>")
 			return 1
 
 		if (!remove_fuel(1,user))
@@ -41,7 +41,7 @@
 		return 1
 	else
 		smoke_at(A)
-	..()
+	..(A, user, click_parameters)
 	return 1
 
 
@@ -61,7 +61,7 @@
 		return 1
 	else
 		if(M)
-			M << "<span class='notice'>You need more welding fuel to complete this task.</span>"
+			to_chat(M, "<span class='notice'>You need more welding fuel to complete this task.</span>")
 		return 0
 
 /obj/item/weapon/bee_smoker/proc/smoke_at(var/atom/A)

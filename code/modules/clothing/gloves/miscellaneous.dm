@@ -24,6 +24,11 @@
 	heat_protection = HANDS
 	max_heat_protection_temperature = GLOVES_MAX_HEAT_PROTECTION_TEMPERATURE
 
+/obj/item/clothing/gloves/swat/tactical
+	name = "\improper tactical gloves"
+	icon_state = "black_leather"
+	item_state = "black_leather_gloves"
+
 /obj/item/clothing/gloves/combat //Combined effect of SWAT gloves and insulated gloves
 	desc = "These tactical gloves are somewhat fire and impact resistant."
 	name = "combat gloves"
@@ -31,6 +36,20 @@
 	item_state = "swat_gl"
 	siemens_coefficient = 0
 	permeability_coefficient = 0.05
+	cold_protection = HANDS
+	min_cold_protection_temperature = GLOVES_MIN_COLD_PROTECTION_TEMPERATURE
+	heat_protection = HANDS
+	max_heat_protection_temperature = GLOVES_MAX_HEAT_PROTECTION_TEMPERATURE
+
+/obj/item/clothing/ring/ninja
+	desc = "A pair of plain black infiltration gloves. Too thin to protect anything, but can fit underneath a hardsuit gauntlet."
+	name = "black slipgloves"
+	icon = 'icons/obj/clothing/gloves.dmi'
+	icon_state = "s-ninja"
+	item_state = "s-ninja"
+	siemens_coefficient = 0
+	permeability_coefficient = 0.05
+	undergloves = 1
 	cold_protection = HANDS
 	min_cold_protection_temperature = GLOVES_MIN_COLD_PROTECTION_TEMPERATURE
 	heat_protection = HANDS
@@ -45,6 +64,7 @@
 	permeability_coefficient = 0.01
 	germ_level = 0
 	fingerprint_chance = 75
+	drop_sound = 'sound/items/drop/rubber.ogg'
 
 /obj/item/clothing/gloves/latex/nitrile
 	name = "nitrile gloves"
@@ -69,6 +89,7 @@
 	item_state = "ggloves"
 	permeability_coefficient = 0.05
 	siemens_coefficient = 0.50 //thick work gloves
+	drop_sound = 'sound/items/drop/leather.ogg'
 
 /obj/item/clothing/gloves/botanic_leather/unathi
 	name = "unathi leather gloves"
@@ -89,6 +110,8 @@
 	gender = NEUTER
 	body_parts_covered = null
 	fingerprint_chance = 100
+	var/flipped = 0
+	drop_sound = 'sound/items/drop/accessory.ogg'
 
 /obj/item/clothing/gloves/watch/verb/checktime()
 	set category = "Object"
@@ -96,13 +119,13 @@
 	set src in usr
 
 	if(wired && !clipped)
-		usr << "You check your watch, spotting a digital collection of numbers reading '[worldtime2text()]'. Today's date is '[time2text(world.time, "Month DD")]. [game_year]'."
+		to_chat(usr, "You check your watch, spotting a digital collection of numbers reading '[worldtime2text()]'. Today's date is '[time2text(world.time, "Month DD")]. [game_year]'.")
 		if (emergency_shuttle.get_status_panel_eta())
-			usr << "<span class='warning'>The shuttle's status is reported as: [emergency_shuttle.get_status_panel_eta()].</span>"
+			to_chat(usr, "<span class='warning'>The shuttle's status is reported as: [emergency_shuttle.get_status_panel_eta()].</span>")
 	else if(wired && clipped)
-		usr << "You check your watch realising it's still open"
+		to_chat(usr, "You check your watch realising it's still open")
 	else
-		usr << "You check your watch as it dawns on you that it's broken"
+		to_chat(usr, "You check your watch as it dawns on you that it's broken")
 
 /obj/item/clothing/gloves/watch/verb/pointatwatch()
 	set category = "Object"
@@ -115,6 +138,22 @@
 		usr.visible_message ("<span class='notice'>[usr] taps their foot on the floor, arrogantly pointing at the [src] on their wrist with a look of derision in their eyes, not noticing it's open</span>", "<span class='notice'>You point down at the [src], an arrogant look about your eyes.</span>")
 	else
 		usr.visible_message ("<span class='notice'>[usr] taps their foot on the floor, arrogantly pointing at the [src] on their wrist with a look of derision in their eyes, not noticing it's broken</span>", "<span class='notice'>You point down at the [src], an arrogant look about your eyes.</span>")
+
+/obj/item/clothing/gloves/watch/verb/swapwrists()
+	set category = "Object"
+	set name = "Flip watch wrist"
+	set src in usr
+
+	if (usr.stat || usr.restrained())
+		return
+
+	src.flipped = !src.flipped
+	if(src.flipped)
+		src.item_state = "[item_state]_alt"
+	else
+		src.item_state = initial(item_state)
+	to_chat(usr, "You change \the [src] to be on your [src.flipped ? "left" : "right"] hand.")
+	update_clothing_icon()
 
 /obj/item/clothing/gloves/watch/examine(mob/user)
 	..()
@@ -136,20 +175,20 @@
 	if(W.iscoil())
 		var/obj/item/stack/cable_coil/C = W
 		if (!clipped)
-			user << "<span class='notice'>The [src] is not open.</span>"
+			to_chat(user, "<span class='notice'>The [src] is not open.</span>")
 			return
 
 		if(wired)
-			user << "<span class='notice'>The [src] are already wired.</span>"
+			to_chat(user, "<span class='notice'>The [src] are already wired.</span>")
 			return
 
 		if(C.amount < 2)
-			user << "<span class='notice'>There is not enough wire to cover the [src].</span>"
+			to_chat(user, "<span class='notice'>There is not enough wire to cover the [src].</span>")
 			return
 
 		C.use(2)
 		wired = 1
-		user << "<span class='notice'>You repair some wires in the [src].</span>"
+		to_chat(user, "<span class='notice'>You repair some wires in the [src].</span>")
 		return
 
 /obj/item/clothing/gloves/watch/emp_act(severity)
@@ -164,6 +203,7 @@
 	item_state = "cobalt_armchains"
 	siemens_coefficient = 1.0
 	fingerprint_chance = 100
+	drop_sound = 'sound/items/drop/accessory.ogg'
 
 /obj/item/clothing/gloves/armchain/emerald
 	name = "emerald arm chains"
@@ -184,6 +224,7 @@
 	item_state = "cobalt_bracers"
 	siemens_coefficient = 1.0
 	fingerprint_chance = 100
+	drop_sound = 'sound/items/drop/accessory.ogg'
 
 /obj/item/clothing/gloves/goldbracer/emerald
 	name = "emerald bracers"
@@ -210,6 +251,7 @@
 	item_state = "force_glove"
 	siemens_coefficient = 0.6
 	permeability_coefficient = 0.05
+	drop_sound = 'sound/items/drop/metalboots.ogg'
 
 	cold_protection = HANDS
 	min_cold_protection_temperature = GLOVES_MIN_COLD_PROTECTION_TEMPERATURE
@@ -241,6 +283,7 @@
 	force = 5
 	punch_force = 5
 	clipped = 1
+	drop_sound = 'sound/items/drop/metalboots.ogg'
 
 /obj/item/clothing/gloves/powerfist
 	name = "power fist"
@@ -254,6 +297,8 @@
 	punch_force = 10
 	clipped = 1
 	species_restricted = list("exclude","Golem","Vaurca Breeder","Vaurca Warform")
+	drop_sound = 'sound/items/drop/metalboots.ogg'
+	gender = NEUTER
 
 /obj/item/clothing/gloves/powerfist/Touch(atom/A, mob/living/user, proximity)
 	if(!proximity)
@@ -264,7 +309,7 @@
 
 	var/mob/living/L = A
 
-	if(prob(50))
+	if(prob(50) && (user.a_intent == I_HURT))
 		playsound(user, 'sound/weapons/beartrap_shut.ogg', 50, 1, -1)
 		user.visible_message("<span class='danger'>\The [user] slams \the [L] away with \the [src]!</span>")
 		var/T = get_turf(user)
@@ -286,3 +331,84 @@
 	clipped = 1
 	sharp = 1
 	edge = 1
+	drop_sound = 'sound/items/drop/metalboots.ogg'
+
+/obj/item/clothing/gloves/offworlder
+	name = "starmitts"
+	desc = "Thick arm warmers and mittens that reach past the elbow."
+	icon_state = "starmittens"
+	item_state = "starmittens"
+
+/obj/item/clothing/gloves/ballistic
+	name = "ballistic gauntlet"
+	desc = "A metal gauntlet armed with a wrist-mounted shotgun."
+	icon_state = "ballisticfist"
+	item_state = "ballisticfist"
+	siemens_coefficient = 1
+	fingerprint_chance = 50
+	siemens_coefficient = 1
+	clipped = 1
+	species_restricted = list("exclude","Golem","Vaurca Breeder","Vaurca Warform")
+	drop_sound = 'sound/items/drop/metalboots.ogg'
+	gender = NEUTER
+	var/obj/item/weapon/gun/projectile/mounted
+	var/gun_type = /obj/item/weapon/gun/projectile/shotgun/doublebarrel/pellet
+
+/obj/item/clothing/gloves/ballistic/Initialize()
+	. = ..()
+	if(!mounted)
+		var/obj/item/weapon/gun/projectile/new_gun = new gun_type (src)
+		mounted = new_gun
+		mounted.name = "wrist-mounted [initial(new_gun.name)]"
+
+/obj/item/clothing/gloves/ballistic/Destroy()
+	if(mounted)
+		QDEL_NULL(mounted)
+	return ..()
+
+/obj/item/clothing/gloves/ballistic/Touch(atom/A, mob/living/user, proximity)
+	if(!proximity)
+		return
+
+	if(!isliving(A))
+		return
+
+	var/mob/living/L = A
+
+	if(user.a_intent == I_HURT)
+		if(mounted)
+			spark(user, 3, alldirs)
+			mounted.Fire(L, user)
+
+/obj/item/clothing/gloves/ballistic/attackby(obj/item/W, mob/user)
+	..()
+	if(mounted)
+		mounted.load_ammo(W, user)
+		return
+
+/obj/item/clothing/gloves/ballistic/verb/unload_shells()
+	set name = "Unload Ballistic Gauntlet "
+	set desc = "Unload the shells from the gauntlet's mounted gun."
+	set category = "Object"
+	set src in usr
+
+	if(usr.stat || usr.restrained() || usr.incapacitated())
+		return
+
+	if(mounted)
+		mounted.unload_ammo(usr)
+
+/obj/item/clothing/gloves/ballistic/attack_self(mob/user as mob)
+	unload_shells()
+
+/obj/item/clothing/gloves/ballistic/double
+	name = "ballistic gauntlets"
+	icon_state = "dual-ballisticfist"
+	item_state = "dual-ballisticfist"
+	fingerprint_chance = 0
+	gender = PLURAL
+
+/obj/item/clothing/gloves/ballistic/double/Initialize()
+	. = ..()
+	if(mounted)
+		mounted.switch_firemodes()

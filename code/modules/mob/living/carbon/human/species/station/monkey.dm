@@ -20,7 +20,10 @@
 
 	gibbed_anim = "gibbed-m"
 	dusted_anim = "dust-m"
+
 	death_message = "lets out a faint chimper as it collapses and stops moving..."
+	death_message_range = 7
+
 	tail = "chimptail"
 
 	unarmed_types = list(/datum/unarmed_attack/bite, /datum/unarmed_attack/claws)
@@ -33,6 +36,7 @@
 	brute_mod = 1.5
 	burn_mod = 1.5
 	fall_mod = 0.5
+	grab_mod = 2
 	natural_climbing = 1
 
 	spawn_flags = IS_RESTRICTED

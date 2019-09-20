@@ -284,7 +284,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 
 
 
-//This will update a mob's name, real_name, mind.name, data_core records, pda and id
+//This will update a mob's name, real_name, mind.name, SSrecords records, pda and id
 //Calling this proc without an oldname will only update the mob and skip updating the pda, id and records ~Carn
 /mob/proc/fully_replace_character_name(var/oldname,var/newname)
 	if(!newname)	return 0
@@ -297,11 +297,10 @@ Turf and target are seperate in case you want to teleport some distance from a t
 
 	if(oldname)
 		//update the datacore records! This is goig to be a bit costly.
-		for(var/list/L in list(data_core.general,data_core.medical,data_core.security,data_core.locked))
-			for(var/datum/data/record/R in L)
-				if(R.fields["name"] == oldname)
-					R.fields["name"] = newname
-					break
+		for(var/datum/record/general/R in list(SSrecords.records, SSrecords.records_locked))
+			if(R.name == oldname)
+				R.name = newname
+				break
 
 		//update our pda and id if we have them on our person
 		var/list/searching = GetAllContents(searchDepth = 3)
@@ -351,7 +350,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 				break
 		if(newname)
 			break	//That's a suitable name!
-		src << "Sorry, that [role]-name wasn't appropriate, please try another. It's possibly too long/short, has bad characters or is already taken."
+		to_chat(src, "Sorry, that [role]-name wasn't appropriate, please try another. It's possibly too long/short, has bad characters or is already taken.")
 
 	if(!newname)	//we'll stick with the oldname then
 		return
@@ -1131,33 +1130,36 @@ var/list/wall_items = typecacheof(list(
 
 	if (NOT_FLAG(USE_ALLOW_NON_ADJACENT) && !Adjacent(user))
 		if (show_messages)
-			user << "<span class='notice'>You're too far away from [src] to do that.</span>"
+			to_chat(user, "<span class='notice'>You're too far away from [src] to do that.</span>")
 		return USE_FAIL_NON_ADJACENT
 
 	if (NOT_FLAG(USE_ALLOW_DEAD) && user.stat == DEAD)
 		if (show_messages)
-			user << "<span class='notice'>How do you expect to do that when you're dead?</span>"
+			to_chat(user, "<span class='notice'>How do you expect to do that when you're dead?</span>")
 		return USE_FAIL_DEAD
 
 	if (NOT_FLAG(USE_ALLOW_INCAPACITATED) && (user.incapacitated()))
 		if (show_messages)
-			user << "<span class='notice'>You cannot do that in your current state.</span>"
+			to_chat(user, "<span class='notice'>You cannot do that in your current state.</span>")
 		return USE_FAIL_INCAPACITATED
 
 	if (NOT_FLAG(USE_ALLOW_NON_ADV_TOOL_USR) && !user.IsAdvancedToolUser())
 		if (show_messages)
-			user << "<span class='notice'>You don't know how to operate [src].</span>"
+			to_chat(user, "<span class='notice'>You don't know how to operate [src].</span>")
 		return USE_FAIL_NON_ADV_TOOL_USR
 
 	if (HAS_FLAG(USE_DISALLOW_SILICONS) && issilicon(user))
 		if (show_messages)
-			user << "<span class='notice'>How do you propose doing that without hands?</span>"
+			to_chat(user, "<span class='notice'>How do you propose doing that without hands?</span>")
 		return USE_FAIL_IS_SILICON
 
 	if (HAS_FLAG(USE_FORCE_SRC_IN_USER) && !(src in user))
 		if (show_messages)
-			user << "<span class='notice'>You need to be holding [src] to do that.</span>"
+			to_chat(user, "<span class='notice'>You need to be holding [src] to do that.</span>")
 		return USE_FAIL_NOT_IN_USER
+
+/atom/proc/use_check_and_message(mob/user, use_flags = 0)
+	. = use_check(user, use_flags, TRUE)
 
 /obj/proc/iswrench()
 	return FALSE
@@ -1178,6 +1180,9 @@ var/list/wall_items = typecacheof(list(
 	return FALSE
 
 /obj/proc/iscoil()
+	return FALSE
+
+/obj/proc/ispen()
 	return FALSE
 
 #undef NOT_FLAG

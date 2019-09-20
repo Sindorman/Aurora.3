@@ -30,18 +30,18 @@
 
 	examine(mob/user)
 		if(..(user, 1))
-			user << text("The service panel is [src.open ? "open" : "closed"].")
+			to_chat(user, text("The service panel is [src.open ? "open" : "closed"]."))
 
 	attackby(obj/item/weapon/W as obj, mob/user as mob)
 		if(locked)
 			if (istype(W, /obj/item/weapon/melee/energy/blade) && emag_act(INFINITY, user, "You slice through the lock of \the [src]"))
 				W:spark_system.queue()
-				playsound(src.loc, 'sound/weapons/blade1.ogg', 50, 1)
+				playsound(src.loc, 'sound/weapons/blade.ogg', 50, 1)
 				playsound(src.loc, "sparks", 50, 1)
 				return
 
 			if (W.isscrewdriver())
-				if (do_after(user, 20))
+				if (do_after(user, 20/W.toolspeed))
 					src.open =! src.open
 					user.show_message(text("<span class='notice'>You [] the service panel.</span>", (src.open ? "open" : "close")))
 				return
@@ -133,7 +133,7 @@
 		cut_overlays()
 		add_overlay(icon_locking)
 		locked = 0
-		user << (feedback ? feedback : "You short out the lock of \the [src].")
+		to_chat(user, (feedback ? feedback : "You short out the lock of \the [src]."))
 		return 1
 
 // -----------------------------
@@ -152,7 +152,7 @@
 
 	attack_hand(mob/user as mob)
 		if ((src.loc == user) && (src.locked == 1))
-			usr << "<span class='warning'>[src] is locked and cannot be opened!</span>"
+			to_chat(usr, "<span class='warning'>[src] is locked and cannot be opened!</span>")
 		else if ((src.loc == user) && (!src.locked))
 			src.open(usr)
 		else
@@ -180,11 +180,7 @@
 	anchored = 1.0
 	density = 0
 	cant_hold = list(/obj/item/weapon/storage/secure/briefcase)
-
-	New()
-		..()
-		new /obj/item/weapon/paper(src)
-		new /obj/item/weapon/pen(src)
+	starts_with = list(/obj/item/weapon/paper = 1, /obj/item/weapon/pen = 1)
 
 	attack_hand(mob/user as mob)
 		return attack_self(user)

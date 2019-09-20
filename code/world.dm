@@ -153,7 +153,7 @@ var/list/world_api_rate_limit = list()
 		response["response"] = "Not Implemented"
 		return json_encode(response)
 
-	var/unauthed = api_do_auth_check(addr,auth,command)
+	var/unauthed = command.check_auth(addr, auth)
 	if (unauthed)
 		if (unauthed == 3)
 			log_debug("API: Request denied - Auth Service Unavailable")
@@ -188,10 +188,8 @@ var/list/world_api_rate_limit = list()
 		return json_encode(response)
 
 
-/world/Reboot(var/reason)
-	var/hard_reset = FALSE
-
-	if (world.TgsAvailable())
+/world/Reboot(reason, hard_reset = FALSE)
+	if (!hard_reset && world.TgsAvailable())
 		switch (config.rounds_until_hard_restart)
 			if (-1)
 				hard_reset = FALSE
@@ -204,6 +202,8 @@ var/list/world_api_rate_limit = list()
 				else
 					hard_reset = FALSE
 					SSpersist_config.rounds_since_hard_restart++
+	else if (!world.TgsAvailable() && hard_reset)
+		hard_reset = FALSE
 
 	SSpersist_config.save_to_file("data/persistent_config.json")
 	Master.Shutdown()
@@ -393,9 +393,9 @@ var/list/world_api_rate_limit = list()
 	dbcon = initialize_database_object("config/dbconfig.txt")
 
 	if (!setup_database_connection(dbcon))
-		world.log << "Your server failed to establish a connection with the feedback database."
+		world.log <<  "Your server failed to establish a connection with the feedback database."
 	else
-		world.log << "Feedback database connection established."
+		world.log <<  "Feedback database connection established."
 	return 1
 
 /proc/initialize_database_object(var/filename)
@@ -458,7 +458,7 @@ var/list/world_api_rate_limit = list()
 		error("Database connection failed with message:")
 		error(con.ErrorMsg())
 #else
-		world.log << con.ErrorMsg()
+		world.log <<  con.ErrorMsg()
 #endif
 
 	return .

@@ -15,10 +15,11 @@ emp_act
 	if(species_check)
 		return species_check
 
-	if(martial_art && martial_art.deflection_chance)
-		if(prob(martial_art.deflection_chance))
-			src.visible_message("<span class='danger'>\The [src] deflects \the [P]!</span>")
-			return 0
+	if(!is_physically_disabled())
+		if(martial_art && martial_art.deflection_chance)
+			if(prob(martial_art.deflection_chance))
+				src.visible_message("<span class='danger'>\The [src] deflects \the [P]!</span>")
+				return 0
 
 	def_zone = check_zone(def_zone)
 	if(!has_organ(def_zone))
@@ -223,7 +224,7 @@ emp_act
 
 	var/obj/item/organ/external/affecting = get_organ(hit_zone)
 	if (!affecting || affecting.is_stump())
-		user << "<span class='danger'>They are missing that limb!</span>"
+		to_chat(user, "<span class='danger'>They are missing that limb!</span>")
 		return null
 
 	return hit_zone
@@ -326,12 +327,12 @@ emp_act
 /mob/living/carbon/human/emag_act(var/remaining_charges, mob/user, var/emag_source)
 	var/obj/item/organ/external/affecting = get_organ(user.zone_sel.selecting)
 	if(!affecting || !(affecting.status & ORGAN_ROBOT))
-		user << "<span class='warning'>That limb isn't robotic.</span>"
+		to_chat(user, "<span class='warning'>That limb isn't robotic.</span>")
 		return -1
 	if(affecting.sabotaged)
-		user << "<span class='warning'>[src]'s [affecting.name] is already sabotaged!</span>"
+		to_chat(user, "<span class='warning'>[src]'s [affecting.name] is already sabotaged!</span>")
 		return -1
-	user << "<span class='notice'>You sneakily slide [emag_source] into the dataport on [src]'s [affecting.name] and short out the safeties.</span>"
+	to_chat(user, "<span class='notice'>You sneakily slide [emag_source] into the dataport on [src]'s [affecting.name] and short out the safeties.</span>")
 	affecting.sabotaged = 1
 	return 1
 
@@ -381,8 +382,8 @@ emp_act
 		var/obj/item/organ/external/affecting = get_organ(zone)
 		var/hit_area = affecting.name
 
-		src.visible_message("<span class='warning'>[src] has been hit in the [hit_area] by [O].</span>")
-		var/armor = run_armor_check(affecting, "melee", O.armor_penetration, "Your armor has protected your [hit_area].", "Your armor has softened hit to your [hit_area].") //I guess "melee" is the best fit here
+		src.visible_message("<span class='warning'>[src] has been hit in the [hit_area] by [O].</span>", "<span class='warning'><font size='2'>You're hit in the [hit_area] by [O]!</font></span>")
+		var/armor = run_armor_check(affecting, "melee", O.armor_penetration, "Your armor has protected your [hit_area].", "Your armor has softened the hit to your [hit_area].") //I guess "melee" is the best fit here
 
 		if(armor < 100)
 			apply_damage(throw_damage, dtype, zone, armor, is_sharp(O), has_edge(O), O)
@@ -393,7 +394,7 @@ emp_act
 			if(assailant)
 				src.attack_log += text("\[[time_stamp()]\] <font color='orange'>Has been hit with a [O], thrown by [M.name] ([assailant.ckey])</font>")
 				M.attack_log += text("\[[time_stamp()]\] <font color='red'>Hit [src.name] ([src.ckey]) with a thrown [O]</font>")
-				if(!istype(src,/mob/living/simple_animal/mouse))
+				if(!istype(src,/mob/living/simple_animal/rat))
 					msg_admin_attack("[src.name] ([src.ckey]) was hit by a [O], thrown by [M.name] ([assailant.ckey]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[src.x];Y=[src.y];Z=[src.z]'>JMP</a>)",ckey=key_name(M),ckey_target=key_name(src))
 
 		//thrown weapon embedded object code.
@@ -527,7 +528,7 @@ emp_act
 
 	for(var/obj/item/weapon/grab/G in user.grabbed_by)
 		if(G.assailant == user)
-			user << "<span class='notice'>You already grabbed [src].</span>"
+			to_chat(user, "<span class='notice'>You already grabbed [src].</span>")
 			return
 
 	if (!attempt_grab(user))
@@ -538,7 +539,7 @@ emp_act
 
 	var/obj/item/weapon/grab/G = new /obj/item/weapon/grab(user, src)
 	if(buckled)
-		user << "<span class='notice'>You cannot grab [src], \he is buckled in!</span>"
+		to_chat(user, "<span class='notice'>You cannot grab [src], \he is buckled in!</span>")
 	if(!G)	//the grab will delete itself in New if affecting is anchored
 		return
 	user.put_in_active_hand(G)
@@ -550,6 +551,8 @@ emp_act
 	if(user.gloves && istype(user.gloves,/obj/item/clothing/gloves/force/syndicate)) //only antag gloves can do this for now
 		G.state = GRAB_AGGRESSIVE
 		G.icon_state = "grabbed1"
+		G.hud.icon_state = "reinforce1"
+		G.last_action = world.time
 		visible_message("<span class='warning'>[user] gets a strong grip on [src]!</span>")
 		return 1
 	visible_message("<span class='warning'>[user] has grabbed [src] passively!</span>")

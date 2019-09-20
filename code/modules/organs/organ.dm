@@ -1,6 +1,7 @@
 /obj/item/organ
 	name = "organ"
 	icon = 'icons/obj/surgery.dmi'
+	drop_sound = 'sound/items/drop/flesh.ogg'
 	default_action_type = /datum/action/item_action/organ
 	var/dead_icon
 	var/mob/living/carbon/human/owner = null
@@ -173,11 +174,11 @@
 /obj/item/organ/examine(mob/user)
 	..(user)
 	if(status & ORGAN_DEAD)
-		user << "<span class='notice'>The decay has set in.</span>"
+		to_chat(user, "<span class='notice'>The decay has set in.</span>")
 
 /obj/item/organ/proc/handle_germ_effects()
 	//** Handle the effects of infections
-	var/antibiotics = owner.reagents.get_reagent_amount("spaceacillin")
+	var/antibiotics = owner.reagents.get_reagent_amount("thetamycin")
 
 	if (germ_level > 0 && germ_level < INFECTION_LEVEL_ONE/2 && prob(30))
 		germ_level--
@@ -238,7 +239,7 @@
 
 //Germs
 /obj/item/organ/proc/handle_antibiotics()
-	var/antibiotics = owner.reagents.get_reagent_amount("spaceacillin")
+	var/antibiotics = owner.reagents.get_reagent_amount("thetamycin")
 
 	if (!germ_level || antibiotics < 5)
 		return
@@ -318,7 +319,7 @@
 		if(3.0)
 			take_damage(rand(3) * emp_coeff * organ_fragility)
 
-/obj/item/organ/proc/removed(var/mob/living/user)
+/obj/item/organ/proc/removed(var/mob/living/carbon/human/target,var/mob/living/user)
 
 	if(!istype(owner))
 		return
@@ -352,6 +353,9 @@
 
 	owner.update_action_buttons()
 	owner = null
+
+	if(!owner.isonlifesupport())
+		owner.death()
 
 /obj/item/organ/proc/replaced(var/mob/living/carbon/human/target,var/obj/item/organ/external/affected)
 

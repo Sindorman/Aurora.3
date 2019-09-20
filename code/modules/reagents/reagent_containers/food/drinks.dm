@@ -5,6 +5,7 @@
 	name = "drink"
 	desc = "yummy"
 	icon = 'icons/obj/drinks.dmi'
+	drop_sound = 'sound/items/drop/bottle.ogg'
 	icon_state = null
 	flags = OPENCONTAINER
 	amount_per_transfer_from_this = 5
@@ -18,14 +19,14 @@
 	playsound(user.loc, 'sound/items/drink.ogg', rand(10, 50), 1)
 
 /obj/item/weapon/reagent_containers/food/drinks/self_feed_message(var/mob/user)
-	user << "<span class='notice'>You drink from \the [src].</span>"
+	to_chat(user, "<span class='notice'>You drink from \the [src].</span>")
 
 /obj/item/weapon/reagent_containers/food/drinks/attack_self(mob/user as mob)
 	if(!is_open_container())
 		if(user.a_intent == I_HURT && !shaken)
 			shaken = 1
 			user.visible_message("[user] shakes \the [src]!", "You shake \the [src]!")
-			playsound(loc,'sound/items/Shaking_Soda_Can.ogg', rand(10,50), 1)
+			playsound(loc,'sound/items/soda_shaking.ogg', rand(10,50), 1)
 			return
 		if(shaken)
 			boom(user)
@@ -39,7 +40,7 @@
 
 /obj/item/weapon/reagent_containers/food/drinks/proc/boom(mob/user as mob)
 	user.visible_message("<span class='danger'>\The [src] explodes all over [user] as they open it!</span>","<span class='danger'>\The [src] explodes all over you as you open it!</span>","You can hear a soda can explode.")
-	playsound(loc,'sound/items/Soda_Burst.ogg', rand(20,50), 1)
+	playsound(loc,'sound/items/soda_burst.ogg', rand(20,50), 1)
 	QDEL_NULL(reagents)
 	flags |= OPENCONTAINER
 	shaken = 0
@@ -51,19 +52,19 @@
 
 /obj/item/weapon/reagent_containers/food/drinks/standard_feed_mob(var/mob/user, var/mob/target)
 	if(!is_open_container())
-		user << "<span class='notice'>You need to open \the [src]!</span>"
+		to_chat(user, "<span class='notice'>You need to open \the [src]!</span>")
 		return 1
 	return ..()
 
 /obj/item/weapon/reagent_containers/food/drinks/standard_dispenser_refill(var/mob/user, var/obj/structure/reagent_dispensers/target)
 	if(!is_open_container())
-		user << "<span class='notice'>You need to open \the [src]!</span>"
+		to_chat(user, "<span class='notice'>You need to open \the [src]!</span>")
 		return 1
 	return ..()
 
 /obj/item/weapon/reagent_containers/food/drinks/standard_pour_into(var/mob/user, var/atom/target)
 	if(!is_open_container())
-		user << "<span class='notice'>You need to open \the [src]!</span>"
+		to_chat(user, "<span class='notice'>You need to open \the [src]!</span>")
 		return 1
 	return ..()
 
@@ -71,15 +72,15 @@
 	if(!..(user, 1))
 		return
 	if(!reagents || reagents.total_volume == 0)
-		user << "<span class='notice'>\The [src] is empty!</span>"
+		to_chat(user, "<span class='notice'>\The [src] is empty!</span>")
 	else if (reagents.total_volume <= volume * 0.25)
-		user << "<span class='notice'>\The [src] is almost empty!</span>"
+		to_chat(user, "<span class='notice'>\The [src] is almost empty!</span>")
 	else if (reagents.total_volume <= volume * 0.66)
-		user << "<span class='notice'>\The [src] is half full!</span>"
+		to_chat(user, "<span class='notice'>\The [src] is half full!</span>")
 	else if (reagents.total_volume <= volume * 0.90)
-		user << "<span class='notice'>\The [src] is almost full!</span>"
+		to_chat(user, "<span class='notice'>\The [src] is almost full!</span>")
 	else
-		user << "<span class='notice'>\The [src] is full!</span>"
+		to_chat(user, "<span class='notice'>\The [src] is full!</span>")
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,6 +110,7 @@
 	desc = "It's milk. White and nutritious goodness!"
 	icon_state = "milk"
 	item_state = "carton"
+	drop_sound = 'sound/items/drop/box.ogg'
 	center_of_mass = list("x"=16, "y"=9)
 	Initialize()
 		. = ..()
@@ -119,6 +121,7 @@
 	desc = "It's soy milk. White and nutritious goodness!"
 	icon_state = "soymilk"
 	item_state = "carton"
+	drop_sound = 'sound/items/drop/box.ogg'
 	center_of_mass = list("x"=16, "y"=9)
 	Initialize()
 		. = ..()
@@ -128,7 +131,9 @@
 	name = "Robust coffee"
 	desc = "Careful, the beverage you're about to enjoy is extremely hot."
 	icon_state = "coffee"
-	center_of_mass = list("x"=15, "y"=10)
+	item_state = "cont_vapour"
+	drop_sound = 'sound/items/drop/box.ogg'
+	center_of_mass = list("x"=16, "y"=11)
 	Initialize()
 		. = ..()
 		reagents.add_reagent("coffee", 30)
@@ -137,7 +142,8 @@
 	name = "Seasonal Pumpkin Spice Latte"
 	desc = "A limited edition pumpkin spice coffee drink!"
 	icon_state = "psl_vended"
-	center_of_mass = list("x"=15, "y"=10)
+	drop_sound = 'sound/items/drop/box.ogg'
+	center_of_mass = list("x"=16, "y"=11)
 	Initialize()
 		. = ..()
 		reagents.add_reagent("sadpslatte", 30)
@@ -185,6 +191,7 @@
 	name = "paper cup"
 	desc = "A paper water cup."
 	icon_state = "water_cup_e"
+	drop_sound = 'sound/items/drop/paper.ogg'
 	possible_transfer_amounts = null
 	volume = 10
 	center_of_mass = list("x"=16, "y"=12)
@@ -196,6 +203,45 @@
 		else
 			icon_state = "water_cup_e"
 
+/obj/item/weapon/reagent_containers/food/drinks/medcup
+	name = "medicine cup"
+	desc = "A plastic medicine cup. Like a shot glass for medicine."
+	icon = 'icons/obj/chemical.dmi'
+	icon_state = "medcup"
+	drop_sound = 'sound/items/drop/glass.ogg'
+	possible_transfer_amounts = null
+	volume = 15
+
+/obj/item/weapon/reagent_containers/food/drinks/medcup/on_reagent_change()
+	update_icon()
+
+/obj/item/weapon/reagent_containers/food/drinks/medcup/pickup(mob/user)
+	..()
+	update_icon()
+
+/obj/item/weapon/reagent_containers/food/drinks/medcup/dropped(mob/user)
+	..()
+	update_icon()
+
+/obj/item/weapon/reagent_containers/food/drinks/medcup/update_icon()
+	cut_overlays()
+
+	if(reagents.total_volume)
+		var/image/filling = image('icons/obj/reagentfillings.dmi', src, "[icon_state]25")
+
+		var/percent = round((reagents.total_volume / volume) * 100)
+		switch(percent) // offset by about 12.5 so it seems more gradual
+			if(0 to 37)
+				filling.icon_state = "[icon_state]25"
+			if(38 to 62)
+				filling.icon_state = "[icon_state]50"
+			if(63 to 87)
+				filling.icon_state = "[icon_state]75"
+			if(87 to INFINITY)
+				filling.icon_state = "[icon_state]100"
+
+		filling.color = reagents.get_color()
+		add_overlay(filling)
 
 //////////////////////////drinkingglass and shaker//
 //Note by Darem: This code handles the mixing of drinks. New drinks go in three places: In Chemistry-Reagents.dm (for the drink
@@ -208,7 +254,7 @@
 	icon_state = "shaker"
 	amount_per_transfer_from_this = 10
 	volume = 120
-	center_of_mass = list("x"=17, "y"=10)
+	center_of_mass = list("x"=16, "y"=8)
 
 /obj/item/weapon/reagent_containers/food/drinks/teapot
 	name = "teapot"

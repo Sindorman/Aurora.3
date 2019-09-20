@@ -226,9 +226,9 @@
 				user.visible_message("<b>[user]</b> checks [src]'s pulse.", "You check [src]'s pulse.")
 				if (do_mob(user, src, 15))
 					if(pulse == PULSE_NONE)
-						user << "<span class='deadsay'>[T.He] [T.has] no pulse[src.client ? "" : " and [T.his] soul has departed"]...</span>"
+						to_chat(user, "<span class='deadsay'>[T.He] [T.has] no pulse[src.client ? "" : " and [T.his] soul has departed"]...</span>")
 					else
-						user << "<span class='deadsay'>[T.He] [T.has] a pulse!</span>"
+						to_chat(user, "<span class='deadsay'>[T.He] [T.has] a pulse!</span>")
 
 	else if (src.stat)
 		msg += span("warning", "[T.He] [T.is] not responding to anything around [T.him].\n")
@@ -238,28 +238,20 @@
 	if(on_fire)
 		msg += "<span class='danger'>[T.He] [T.is] on fire!</span>\n"
 	msg += "<span class='warning'>"
-	if (!(src.species.flags & NO_CHUBBY) && max_nutrition > 0)
-		if(nutrition / max_nutrition <= CREW_NUTRITION_VERYHUNGRY)
-			msg += "[T.He] [T.is] severely malnourished.\n"
-		else if(nutrition / max_nutrition >= CREW_NUTRITION_OVEREATEN)
-			msg += "[T.He] [T.is] quite chubby.\n"
-	if(max_hydration > 0)
-		if(hydration / max_hydration <= CREW_HYDRATION_VERYTHIRSTY)
-			msg += "[T.He] [T.is] severely dehydrated.\n"
 
 	msg += "</span>"
 
 	if(getBrainLoss() >= 60)
 		msg += "[T.He] [T.has] a stupid expression on [T.his] face.\n"
-	
+
 	var/have_client = client
 	var/inactivity = client ? client.inactivity : null
-	
+
 	if(bg)
 		disconnect_time = bg.disconnect_time
 		have_client = bg.client
 		inactivity =  have_client ? bg.client.inactivity : null
-		
+
 
 	if(species.show_ssd && (!species.has_organ["brain"] || has_brain()) && stat != DEAD)
 		if(!key)
@@ -342,11 +334,9 @@
 			perpname = name
 
 		if(perpname)
-			for (var/datum/data/record/E in data_core.general)
-				if(E.fields["name"] == perpname)
-					for (var/datum/data/record/R in data_core.security)
-						if(R.fields["id"] == E.fields["id"])
-							criminal = R.fields["criminal"]
+			var/datum/record/general/R = SSrecords.find_record("name", perpname)
+			if(istype(R) && istype(R.security))
+				criminal = R.security.criminal
 
 			msg += "<span class = 'deptradio'>Criminal status:</span> <a href='?src=\ref[src];criminal=1'>\[[criminal]\]</a>\n"
 			msg += "<span class = 'deptradio'>Security records:</span> <a href='?src=\ref[src];secrecord=`'>\[View\]</a>  <a href='?src=\ref[src];secrecordadd=`'>\[Add comment\]</a>\n"
@@ -364,11 +354,9 @@
 		else
 			perpname = src.name
 
-		for (var/datum/data/record/E in data_core.general)
-			if (E.fields["name"] == perpname)
-				for (var/datum/data/record/R in data_core.general)
-					if (R.fields["id"] == E.fields["id"])
-						medical = R.fields["p_stat"]
+		var/datum/record/general/R = SSrecords.find_record("name", perpname)
+		if(istype(R))
+			medical = R.phisical_status
 
 		msg += "<span class = 'deptradio'>Physical status:</span> <a href='?src=\ref[src];medical=1'>\[[medical]\]</a>\n"
 		msg += "<span class = 'deptradio'>Medical records:</span> <a href='?src=\ref[src];medrecord=`'>\[View\]</a> <a href='?src=\ref[src];medrecordadd=`'>\[Add comment\]</a>\n"
@@ -382,7 +370,7 @@
 			pose = addtext(pose,".") //Makes sure all emotes end with a period.
 		msg += "\n[T.He] [pose]"
 
-	user << msg.Join()
+	to_chat(user, msg.Join())
 
 //Helper procedure. Called by /mob/living/carbon/human/examine() and /mob/living/carbon/human/Topic() to determine HUD access to security and medical records.
 /proc/hasHUD(mob/M as mob, hudtype)

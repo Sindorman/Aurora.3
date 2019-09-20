@@ -28,23 +28,23 @@ mob/living/carbon/proc/pain(var/partname, var/amount, var/force, var/burning = 0
 				msg = "<span class='danger'>Your [partname] burns.</span>"
 			if(11 to 90)
 				flash_weak_pain()
-				msg = "<span class='danger'><font size=2>Your [partname] burns horribly!</font></span>"
+				msg = "<span class='danger'><font size=3>Your [partname] burns horribly!</font></span>"
 			if(91 to 10000)
 				flash_pain()
-				msg = "<span class='danger'><font size=3>Your [partname] feels like it's on fire!</font></span>"
+				msg = "<span class='danger'><font size=4>Your [partname] feels like it's on fire!</font></span>"
 	else
 		switch(amount)
-			if(1 to 10)
+			if(5 to 14)
 				msg = "<b>Your [partname] hurts.</b>"
-			if(11 to 90)
+			if(15 to 90)
 				flash_weak_pain()
-				msg = "<b><font size=2>Your [partname] hurts badly!</font></b>"
+				msg = "<b><font size=3>Your [partname] hurts badly!</font></b>"
 			if(91 to 10000)
 				flash_pain()
-				msg = "<b><font size=3>Your [partname] is screaming out in pain!</font></b>"
+				msg = "<b><font size=4>Your [partname] is screaming out in pain!</font></b>"
 	if(msg && (msg != last_pain_message || prob(10)))
 		last_pain_message = msg
-		src << msg
+		to_chat(src, msg)
 	next_pain_time = world.time + (100 - amount)
 
 
@@ -68,7 +68,7 @@ mob/living/carbon/human/proc/custom_pain(var/message, var/flash_strength)
 	// Anti message spam checks
 	if(msg && ((msg != last_pain_message) || (world.time >= next_pain_time)))
 		last_pain_message = msg
-		src << msg
+		to_chat(src, msg)
 	next_pain_time = world.time + 100
 
 mob/living/carbon/human/proc/handle_pain()

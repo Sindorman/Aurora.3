@@ -23,7 +23,8 @@ var/global/list/minevendor_list = list( //keep in order of price
 	new /datum/data/mining_equipment("Emergency Floodlight",		/obj/item/weapon/floodlight_diy, 							-1,					150,	1),
 	new /datum/data/mining_equipment("Premium Cigar",				/obj/item/clothing/mask/smokable/cigarette/cigar/havana, 	30,					150),
 	new /datum/data/mining_equipment("Seismic Charge",				/obj/item/weapon/plastique/seismic,							25,					150),
-	new /datum/data/mining_equipment("Lottery Chip",				/obj/item/weapon/spacecash/ewallet/lotto,					50,					200),
+	new /datum/data/mining_equipment("Deployable Ladder",			/obj/item/weapon/ladder_mobile,								5,					200),
+	new /datum/data/mining_equipment("Deployable Hoist Kit",		/obj/item/hoist_kit,										5,					200),
 	new /datum/data/mining_equipment("Ripley Paint Kit",			/obj/item/device/kit/paint/ripley/random,					15,					200),
 	new /datum/data/mining_equipment("Material Scanners",			/obj/item/clothing/glasses/material,						15,					200),
 	new /datum/data/mining_equipment("Mining Drill",				/obj/item/weapon/pickaxe/drill,								10,					200),
@@ -44,9 +45,8 @@ var/global/list/minevendor_list = list( //keep in order of price
 	new /datum/data/mining_equipment("Ore Magnet",					/obj/item/weapon/oremagnet,									10,					600),
 	new /datum/data/mining_equipment("Minecart",					/obj/vehicle/train/cargo/trolley/mining,					-1,					600,	1),
 	new /datum/data/mining_equipment("Resonator",					/obj/item/weapon/resonator,									10,					700),
-	new /datum/data/mining_equipment("Mining RIG",					/obj/item/weapon/rig/industrial,							5,					750),
 	new /datum/data/mining_equipment("Jaunter",						/obj/item/device/wormhole_jaunter,							20,					750),
-	new /datum/data/mining_equipment("100 credits",					/obj/item/weapon/spacecash/c100,							-1,					1000),
+	new /datum/data/mining_equipment("Mining RIG",					/obj/item/weapon/rig/industrial,							5,					1000),
 	new /datum/data/mining_equipment("Mass Driver",					/obj/item/weapon/mass_driver_diy,							5,					800),
 	new /datum/data/mining_equipment("Mining Drone",				/mob/living/silicon/robot/drone/mining,						15,					800),
 	new /datum/data/mining_equipment("Minecart Engine",				/obj/vehicle/train/cargo/engine/mining,						-1,					800,	1),
@@ -147,7 +147,7 @@ var/global/list/minevendor_list = list( //keep in order of price
 			if(istype(I))
 				usr.drop_from_inventory(I,src)
 				inserted_id = I
-			else usr << "<span class='danger'>No valid ID.</span>"
+			else to_chat(usr, "<span class='danger'>No valid ID.</span>")
 	if(href_list["purchase"])
 		if(istype(inserted_id))
 			var/datum/data/mining_equipment/prize = locate(href_list["purchase"])
@@ -162,7 +162,7 @@ var/global/list/minevendor_list = list( //keep in order of price
 					if(shuttle)
 						var/area/area_shuttle = shuttle.get_location_area()
 						if(!area_shuttle)
-							usr << "<span class='danger'>{ERR Code: NO_SHUTTLE} Order failed! Please try again.</span>"
+							to_chat(usr, "<span class='danger'>{ERR Code: NO_SHUTTLE} Order failed! Please try again.</span>")
 							return
 
 
@@ -180,7 +180,7 @@ var/global/list/minevendor_list = list( //keep in order of price
 							clear_turfs += T
 
 						if(!clear_turfs.len)
-							usr << "<span class='danger'>{ERR Code: NO_SHUTTLE_SPACE} Order failed! Please try again.</span>"
+							to_chat(usr, "<span class='danger'>{ERR Code: NO_SHUTTLE_SPACE} Order failed! Please try again.</span>")
 							return
 
 						var/i = rand(1,clear_turfs.len)
@@ -189,12 +189,12 @@ var/global/list/minevendor_list = list( //keep in order of price
 						if(pickedloc)
 							inserted_id.mining_points -= prize.cost
 							new prize.equipment_path(pickedloc)
-							usr << "<span class='danger'>Order passed. Your order has been placed on the next available supply shuttle.</span>"
+							to_chat(usr, "<span class='danger'>Order passed. Your order has been placed on the next available supply shuttle.</span>")
 						else
-							usr << "<span class='danger'>{ERR Code: NO_SHUTTLE_SPACE} Order failed! Please try again.</span>"
+							to_chat(usr, "<span class='danger'>{ERR Code: NO_SHUTTLE_SPACE} Order failed! Please try again.</span>")
 							return
 					else
-						usr << "<span class='danger'>{ERR Code: NO_SHUTTLE} Order failed! Please try again.</span>"
+						to_chat(usr, "<span class='danger'>{ERR Code: NO_SHUTTLE} Order failed! Please try again.</span>")
 						return
 				else
 					inserted_id.mining_points -= prize.cost

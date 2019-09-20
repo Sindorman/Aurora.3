@@ -6,6 +6,7 @@
 	icon = 'icons/obj/syringe.dmi'
 	item_state = "autoinjector"
 	icon_state = "inhaler1"
+	center_of_mass = list("x" = 16,"y" = 11)
 	var/empty_state = "inhaler0"
 	unacidable = 1
 	amount_per_transfer_from_this = 5
@@ -34,7 +35,7 @@
 		to_chat(user,"<span class='warning'>\The [src] is empty.</span>")
 		return
 
-	if ( ((CLUMSY in user.mutations) || (DUMB in user.mutations)) && prob(10))
+	if ( ((user.is_clumsy()) || (DUMB in user.mutations)) && prob(10))
 		to_chat(user,"<span class='danger'>Your hand slips from clumsiness!</span>")
 		eyestab(H,user)
 		if(H.reagents)
@@ -103,6 +104,14 @@
 		to_chat(user,"<span class='notice'>The reagents inside \the [src] are already secured.</span>")
 	return
 
+/obj/item/weapon/reagent_containers/inhaler/attackby(obj/item/weapon/W, mob/user)
+	if(W.isscrewdriver() && !is_open_container())
+		to_chat(user,"<span class='notice'>Using \the [W], you unsecure the inhaler's lid.</span>") // it locks shut after being secured
+		flags |= OPENCONTAINER
+		update_icon()
+		return
+	. = ..()
+
 /obj/item/weapon/reagent_containers/inhaler/update_icon()
 	if(reagents.total_volume > 0 && !is_open_container())
 		icon_state = initial(icon_state)
@@ -112,9 +121,9 @@
 /obj/item/weapon/reagent_containers/inhaler/examine(mob/user)
 	..(user)
 	if(reagents && reagents.reagent_list.len)
-		user << "<span class='notice'>It is currently loaded.</span>"
+		to_chat(user, "<span class='notice'>It is currently loaded.</span>")
 	else
-		user << "<span class='notice'>It is spent.</span>"
+		to_chat(user, "<span class='notice'>It is spent.</span>")
 
 /obj/item/weapon/reagent_containers/inhaler/dexalin
 	name = "autoinhaler (dexalin)"

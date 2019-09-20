@@ -21,6 +21,8 @@
 	var/signs = 0	//maximum capacity hardcoded below
 	var/has_items = 0//This is set true whenever the cart has anything loaded/mounted on it
 	var/dismantled = 0//This is set true after the object has been dismantled to avoid an infintie loop
+	var/driving
+	var/mob/living/pulling
 
 /obj/structure/janitorialcart/New()
 	..()
@@ -42,9 +44,9 @@
 	if(..(user, 1))
 		if (mybucket)
 			var/contains = mybucket.reagents.total_volume
-			user << "\icon[src] The bucket contains [contains] unit\s of liquid!"
+			to_chat(user, "\icon[src] The bucket contains [contains] unit\s of liquid!")
 		else
-			user << "\icon[src] There is no bucket mounted on it!"
+			to_chat(user, "\icon[src] There is no bucket mounted on it!")
 	//everything else is visible, so doesn't need to be mentioned
 
 
@@ -52,7 +54,7 @@
 	if (istype(O, /obj/structure/mopbucket) && !mybucket)
 		O.forceMove(src)
 		mybucket = O
-		user << "You mount the [O] on the janicart."
+		to_chat(user, "You mount the [O] on the janicart.")
 		update_icon()
 	else
 		..()
@@ -69,9 +71,9 @@
 			mymop = I
 			update_icon()
 			updateUsrDialog()
-			usr << "<span class='notice'>You put [I] into [src].</span>"
+			to_chat(usr, "<span class='notice'>You put [I] into [src].</span>")
 		else
-			usr << "<span class='notice'>The cart already has a mop attached</span>"
+			to_chat(usr, "<span class='notice'>The cart already has a mop attached</span>")
 		return
 	else if(istype(I, /obj/item/weapon/reagent_containers) && mybucket)
 		var/obj/item/weapon/reagent_containers/C = I
@@ -87,15 +89,17 @@
 		if (mybucket)
 			if(I.reagents.total_volume < I.reagents.maximum_volume)
 				if(mybucket.reagents.total_volume < 1)
-					user << "<span class='notice'>[mybucket] is empty!</span>"
+					to_chat(user, "<span class='notice'>[mybucket] is empty!</span>")
+					update_icon()
 				else
 					mybucket.reagents.trans_to_obj(I, 5)	//
-					user << "<span class='notice'>You wet [I] in [mybucket].</span>"
+					to_chat(user, "<span class='notice'>You wet [I] in [mybucket].</span>")
 					playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
+					update_icon()
 			else
-				user << "<span class='notice'>[I] can't absorb anymore liquid!</span>"
+				to_chat(user, "<span class='notice'>[I] can't absorb anymore liquid!</span>")
 		else
-			user << "<span class='notice'>There is no bucket mounted here to dip [I] into!</span>"
+			to_chat(user, "<span class='notice'>There is no bucket mounted here to dip [I] into!</span>")
 		return 1
 
 	else if(istype(I, /obj/item/weapon/reagent_containers/spray) && !myspray)
@@ -103,7 +107,7 @@
 		myspray = I
 		update_icon()
 		updateUsrDialog()
-		user << "<span class='notice'>You put [I] into [src].</span>"
+		to_chat(user, "<span class='notice'>You put [I] into [src].</span>")
 		return 1
 
 	else if(istype(I, /obj/item/device/lightreplacer) && !myreplacer)
@@ -111,7 +115,7 @@
 		myreplacer = I
 		update_icon()
 		updateUsrDialog()
-		user << "<span class='notice'>You put [I] into [src].</span>"
+		to_chat(user, "<span class='notice'>You put [I] into [src].</span>")
 		return 1
 
 	else if(istype(I, /obj/item/weapon/storage/bag/trash) && !mybag)
@@ -120,7 +124,7 @@
 		I.forceMove(src)
 		update_icon()
 		updateUsrDialog()
-		user << "<span class='notice'>You put [I] into [src].</span>"
+		to_chat(user, "<span class='notice'>You put [I] into [src].</span>")
 		return 1
 
 	else if(istype(I, /obj/item/weapon/caution))
@@ -129,9 +133,9 @@
 			signs++
 			update_icon()
 			updateUsrDialog()
-			user << "<span class='notice'>You put [I] into [src].</span>"
+			to_chat(user, "<span class='notice'>You put [I] into [src].</span>")
 		else
-			user << "<span class='notice'>[src] can't hold any more signs.</span>"
+			to_chat(user, "<span class='notice'>[src] can't hold any more signs.</span>")
 		return 1
 
 	else if(mybag)
@@ -238,29 +242,29 @@
 			if("garbage")
 				if(mybag)
 					user.put_in_hands(mybag)
-					user << "<span class='notice'>You take [mybag] from [src].</span>"
+					to_chat(user, "<span class='notice'>You take [mybag] from [src].</span>")
 					mybag = null
 			if("mop")
 				if(mymop)
 					user.put_in_hands(mymop)
-					user << "<span class='notice'>You take [mymop] from [src].</span>"
+					to_chat(user, "<span class='notice'>You take [mymop] from [src].</span>")
 					mymop = null
 			if("spray")
 				if(myspray)
 					user.put_in_hands(myspray)
-					user << "<span class='notice'>You take [myspray] from [src].</span>"
+					to_chat(user, "<span class='notice'>You take [myspray] from [src].</span>")
 					myspray = null
 			if("replacer")
 				if(myreplacer)
 					user.put_in_hands(myreplacer)
-					user << "<span class='notice'>You take [myreplacer] from [src].</span>"
+					to_chat(user, "<span class='notice'>You take [myreplacer] from [src].</span>")
 					myreplacer = null
 			if("sign")
 				if(signs)
 					var/obj/item/weapon/caution/Sign = locate() in src
 					if(Sign)
 						user.put_in_hands(Sign)
-						user << "<span class='notice'>You take \a [Sign] from [src].</span>"
+						to_chat(user, "<span class='notice'>You take \a [Sign] from [src].</span>")
 						signs--
 					else
 						warning("[src] signs ([signs]) didn't match contents")
@@ -268,12 +272,12 @@
 			if("bucket")
 				if(mybucket)
 					mybucket.forceMove(get_turf(user))
-					user << "<span class='notice'>You unmount [mybucket] from [src].</span>"
+					to_chat(user, "<span class='notice'>You unmount [mybucket] from [src].</span>")
+					mybucket.update_icon()
 					mybucket = null
 
 	update_icon()
 	updateUsrDialog()
-
 
 /obj/structure/janitorialcart/update_icon()
 	cut_overlays()
@@ -281,6 +285,8 @@
 	if(mybucket)
 		add_overlay("cart_bucket")
 		has_items = 1
+		if(mybucket.reagents.total_volume > 0)
+			add_overlay("cart_water")
 	if(mybag)
 		add_overlay("cart_garbage")
 		has_items = 1
@@ -299,3 +305,78 @@
 	if(signs)
 		add_overlay("cart_sign[signs]")
 		has_items = 1
+
+//Shamelessly copied from wheelchair code
+/obj/structure/janitorialcart/relaymove(mob/user, direction)
+	if(user.stat || user.stunned || user.weakened || user.paralysis || user.lying || user.restrained())
+		if(user==pulling)
+			pulling = null
+			user.pulledby = null
+			to_chat(user, "<span class='warning'>You lost your grip!</span>")
+		return
+	if(user.pulling && (user == pulling))
+		pulling = null
+		user.pulledby = null
+		return
+	if(pulling && (get_dist(src, pulling) > 1))
+		pulling = null
+		user.pulledby = null
+		if(user==pulling)
+			return
+	if(pulling && (get_dir(src.loc, pulling.loc) == direction))
+		to_chat(user, "<span class='warning'>You cannot go there.</span>")
+		return
+
+	driving = 1
+	var/turf/T = null
+	if(pulling)
+		T = pulling.loc
+		if(get_dist(src, pulling) >= 1)
+			step(pulling, get_dir(pulling.loc, src.loc))
+	step(src, direction)
+	set_dir(direction)
+	if(pulling)
+		if(pulling.loc == src.loc)
+			pulling.forceMove(T)
+		else
+			spawn(0)
+			if(get_dist(src, pulling) > 1)
+				pulling = null
+				user.pulledby = null
+			pulling.set_dir(get_dir(pulling, src))
+	driving = 0
+
+/obj/structure/janitorialcart/Move()
+	. = ..()
+	if (pulling && (get_dist(src, pulling) > 1))
+		pulling.pulledby = null
+		to_chat(pulling, "<span class='warning'>You lost your grip!</span>")
+		pulling = null
+
+/obj/structure/janitorialcart/CtrlClick(var/mob/user)
+	if(in_range(src, user))
+		if(!ishuman(user))	return
+		if(!pulling)
+			pulling = user
+			user.pulledby = src
+			if(user.pulling)
+				user.stop_pulling()
+			user.set_dir(get_dir(user, src))
+			to_chat(user, "You grip \the [name]'s handles.")
+		else
+			to_chat(usr, "You let go of \the [name]'s handles.")
+			pulling.pulledby = null
+			pulling = null
+		return
+
+/obj/structure/janitorialcart/CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
+	if(air_group || (height==0)) return 1
+	if(istype(mover) && mover.checkpass(PASSTABLE))
+		return 1
+	if(istype(mover, /mob/living) && mover == pulling)
+		return 1
+	else
+		if(istype(mover, /obj/item/projectile))
+			return prob(30)
+		else
+			return !density

@@ -41,12 +41,12 @@
 /datum/gear/eyes/mesonaviators
 	display_name = "aviators, meson"
 	path = /obj/item/clothing/glasses/meson/aviator
-	allowed_roles = list("Station Engineer","Atmospheric Technician","Chief Engineer","Engineering Apprentice", "Research Director","Scientist")
+	allowed_roles = list("Station Engineer","Atmospheric Technician","Chief Engineer","Engineering Apprentice", "Research Director","Scientist", "Shaft Miner")
 
 /datum/gear/eyes/mesonprescription
 	display_name = "meson goggles, prescription"
 	path = /obj/item/clothing/glasses/meson/prescription
-	allowed_roles = list("Station Engineer","Atmospheric Technician","Chief Engineer","Engineering Apprentice", "Research Director","Scientist")
+	allowed_roles = list("Station Engineer","Atmospheric Technician","Chief Engineer","Engineering Apprentice", "Research Director","Scientist", "Shaft Miner")
 
 /datum/gear/eyes/security
 	display_name = "security HUD"
@@ -60,7 +60,7 @@
 /datum/gear/eyes/medical
 	display_name = "medical HUD"
 	path = /obj/item/clothing/glasses/hud/health
-	allowed_roles = list("Medical Doctor", "Chief Medical Officer", "Chemist", "Paramedic", "Psychiatrist", "Medical Resident")
+	allowed_roles = list("Medical Doctor", "Chief Medical Officer", "Pharmacist", "Paramedic", "Psychiatrist", "Medical Resident")
 
 /datum/gear/eyes/medical/aviator
 	display_name = "aviators, medical"
@@ -104,7 +104,7 @@
 /datum/gear/eyes/medpatch
 	display_name = "HUDpatch, Medical"
 	path = /obj/item/clothing/glasses/eyepatch/hud/medical
-	allowed_roles = list("Medical Doctor", "Chief Medical Officer", "Chemist", "Paramedic", "Psychiatrist", "Medical Resident")
+	allowed_roles = list("Medical Doctor", "Chief Medical Officer", "Pharmacist", "Paramedic", "Psychiatrist", "Medical Resident")
 	cost = 2
 
 /datum/gear/eyes/mespatch
@@ -133,3 +133,7 @@
 /datum/gear/eyes/spiffygogs
 	display_name = "orange goggles"
 	path = /obj/item/clothing/glasses/spiffygogs
+
+/datum/gear/eyes/circuitry
+	display_name = "goggles, circuitry (empty)"
+	path = /obj/item/clothing/glasses/circuitry

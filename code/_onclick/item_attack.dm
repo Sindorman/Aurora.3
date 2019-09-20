@@ -28,13 +28,13 @@ avoid code duplication. This includes items that may sometimes act as a standard
 	return
 
 //I would prefer to rename this to attack(), but that would involve touching hundreds of files.
-/obj/item/proc/resolve_attackby(atom/A, mob/user)
+/obj/item/proc/resolve_attackby(atom/A, mob/user, var/click_parameters)
 	pre_attack(A, user)
 	add_fingerprint(user)
-	return A.attackby(src, user)
+	return A.attackby(src, user, click_parameters)
 
 // No comment
-/atom/proc/attackby(obj/item/W, mob/user)
+/atom/proc/attackby(obj/item/W, mob/user, var/click_parameters)
 	return
 
 /atom/movable/attackby(obj/item/W, mob/user)
@@ -91,10 +91,17 @@ avoid code duplication. This includes items that may sometimes act as a standard
 	var/power = force
 	if(HULK in user.mutations)
 		power *= 2
-	if(istype(user, /mob/living/carbon/human))
+	if(ishuman(user))
 		var/mob/living/carbon/human/X = user
 		if(X.gloves && istype(X.gloves,/obj/item/clothing/gloves/force))
 			var/obj/item/clothing/gloves/force/G = X.gloves
 			power *= G.amplification
+
+		if(ishuman(target))
+			if(X.martial_art && X.martial_art.weapon_affinity && istype(src, X.martial_art.weapon_affinity))
+				perform_technique(target, X, hit_zone)
+
 	return target.hit_with_weapon(src, user, power, hit_zone)
 
+/obj/item/proc/perform_technique(var/mob/living/carbon/human/target, var/mob/living/carbon/human/user, var/target_zone)	//used when weapons have special interactions with martial arts
+	return

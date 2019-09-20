@@ -95,11 +95,11 @@
 	if(health < maxhealth)
 		switch(health / maxhealth)
 			if(0.0 to 0.5)
-				user << "<span class='warning'>It looks severely damaged!</span>"
+				to_chat(user, "<span class='warning'>It looks severely damaged!</span>")
 			if(0.25 to 0.5)
-				user << "<span class='warning'>It looks damaged!</span>"
+				to_chat(user, "<span class='warning'>It looks damaged!</span>")
 			if(0.5 to 1.0)
-				user << "<span class='notice'>It has a few scrapes and dents.</span>"
+				to_chat(user, "<span class='notice'>It has a few scrapes and dents.</span>")
 
 /obj/structure/table/attackby(obj/item/weapon/W, mob/user)
 
@@ -128,7 +128,7 @@
 			queue_icon_update()
 			return 1
 		else
-			user << "<span class='warning'>You don't have enough carpet!</span>"
+			to_chat(user, "<span class='warning'>You don't have enough carpet!</span>")
 
 	if(!reinforced && !carpeted && material && W.iswrench())
 		remove_material(W, user)
@@ -148,9 +148,9 @@
 	if(health < maxhealth && W.iswelder())
 		var/obj/item/weapon/weldingtool/F = W
 		if(F.welding)
-			user << "<span class='notice'>You begin reparing damage to \the [src].</span>"
+			to_chat(user, "<span class='notice'>You begin reparing damage to \the [src].</span>")
 			playsound(src.loc, 'sound/items/Welder.ogg', 50, 1)
-			if(!do_after(user, 20) || !F.remove_fuel(1, user))
+			if(!do_after(user, 20/W.toolspeed) || !F.remove_fuel(1, user))
 				return
 			user.visible_message("<span class='notice'>\The [user] repairs some damage to \the [src].</span>",
 			                              "<span class='notice'>You repair some damage to \the [src].</span>")
@@ -166,6 +166,12 @@
 			update_material()
 		return 1
 
+	if(!material && can_plate && istype(W, /obj/item/weapon/reagent_containers/glass/beaker/bowl))
+		new /obj/structure/chemkit(loc)
+		qdel(W)
+		qdel(src)
+		return 1
+
 	return ..()
 
 /obj/structure/table/MouseDrop_T(obj/item/stack/material/what)
@@ -176,19 +182,19 @@
 
 /obj/structure/table/proc/reinforce_table(obj/item/stack/material/S, mob/user)
 	if(reinforced)
-		user << "<span class='warning'>\The [src] is already reinforced!</span>"
+		to_chat(user, "<span class='warning'>\The [src] is already reinforced!</span>")
 		return
 
 	if(!can_reinforce)
-		user << "<span class='warning'>\The [src] cannot be reinforced!</span>"
+		to_chat(user, "<span class='warning'>\The [src] cannot be reinforced!</span>")
 		return
 
 	if(!material)
-		user << "<span class='warning'>Plate \the [src] before reinforcing it!</span>"
+		to_chat(user, "<span class='warning'>Plate \the [src] before reinforcing it!</span>")
 		return
 
 	if(flipped)
-		user << "<span class='warning'>Put \the [src] back in place before reinforcing it!</span>"
+		to_chat(user, "<span class='warning'>Put \the [src] back in place before reinforcing it!</span>")
 		return
 
 	reinforced = common_material_add(S, user, "reinforc")
@@ -213,12 +219,12 @@
 /obj/structure/table/proc/common_material_add(obj/item/stack/material/S, mob/user, verb) // Verb is actually verb without 'e' or 'ing', which is added. Works for 'plate'/'plating' and 'reinforce'/'reinforcing'.
 	var/material/M = S.get_material()
 	if(!istype(M))
-		user << "<span class='warning'>You cannot [verb]e \the [src] with \the [S].</span>"
+		to_chat(user, "<span class='warning'>You cannot [verb]e \the [src] with \the [S].</span>")
 		return null
 
 	if(manipulating) return M
 	manipulating = 1
-	user << "<span class='notice'>You begin [verb]ing \the [src] with [M.display_name].</span>"
+	to_chat(user, "<span class='notice'>You begin [verb]ing \the [src] with [M.display_name].</span>")
 	if(!do_after(user, 20) || !S.use(1))
 		manipulating = 0
 		return null
@@ -229,7 +235,7 @@
 // Returns the material to set the table to.
 /obj/structure/table/proc/common_material_remove(mob/user, material/M, delay, what, type_holding, sound)
 	if(!M.stack_type)
-		user << "<span class='warning'>You are unable to remove the [what] from this table!</span>"
+		to_chat(user, "<span class='warning'>You are unable to remove the [what] from this table!</span>")
 		return M
 
 	if(manipulating) return M
@@ -251,15 +257,15 @@
 	reinforced = common_material_remove(user, reinforced, 40, "reinforcements", "screws", 'sound/items/Screwdriver.ogg')
 
 /obj/structure/table/proc/remove_material(obj/item/weapon/wrench/W, mob/user)
-	material = common_material_remove(user, material, 20, "plating", "bolts", 'sound/items/Ratchet.ogg')
+	material = common_material_remove(user, material, 20, "plating", "bolts", W.usesound)
 
 /obj/structure/table/proc/dismantle(obj/item/weapon/wrench/W, mob/user)
 	if(manipulating) return
 	manipulating = 1
 	user.visible_message("<span class='notice'>\The [user] begins dismantling \the [src].</span>",
 	                              "<span class='notice'>You begin dismantling \the [src].</span>")
-	playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
-	if(!do_after(user, 20))
+	playsound(src, W.usesound, 100, 1)
+	if(!do_after(user, 20/W.toolspeed))
 		manipulating = 0
 		return
 	user.visible_message("<span class='notice'>\The [user] dismantles \the [src].</span>",

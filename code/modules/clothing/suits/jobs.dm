@@ -19,6 +19,9 @@
 	icon_state = "overalls"
 	item_state = "overalls"
 
+obj/item/clothing/suit/apron/overalls/blue
+	color = "#3429d1"
+
 /obj/item/clothing/suit/apron/surgery
 	name = "surgical apron"
 	desc = "To keep their blood off while you knife them."
@@ -244,8 +247,8 @@
 
 
 //Internal Affairs
-/obj/item/clothing/suit/storage/toggle/internalaffairs
-	name = "internal affairs jacket"
+/obj/item/clothing/suit/storage/toggle/liaison
+	name = "liaison jacket"
 	desc = "A smooth black jacket."
 	icon_state = "ia_jacket_open"
 	item_state = "ia_jacket"

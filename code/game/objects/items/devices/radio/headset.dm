@@ -17,8 +17,7 @@
 
 	var/ks1type = /obj/item/device/encryptionkey
 	var/ks2type = null
-
-	sprite_sheets = list("Resomi" = 'icons/mob/species/resomi/ears.dmi')
+	var/radio_sound = null
 
 /obj/item/device/radio/headset/Initialize()
 	. = ..()
@@ -43,8 +42,8 @@
 	if(!(..(user, 1) && radio_desc))
 		return
 
-	user << "The following channels are available:"
-	user << radio_desc
+	to_chat(user, "The following channels are available:")
+	to_chat(user, radio_desc)
 
 /obj/item/device/radio/headset/handle_message_mode(mob/living/M as mob, message, channel)
 	if (channel == "special")
@@ -83,6 +82,11 @@
 	origin_tech = list(TECH_ILLEGAL = 2)
 	syndie = 1
 	ks1type = /obj/item/device/encryptionkey/raider
+
+/obj/item/device/radio/headset/ninja
+	origin_tech = list(TECH_ILLEGAL = 3)
+	syndie = 1
+	ks1type = /obj/item/device/encryptionkey/ninja
 
 /obj/item/device/radio/headset/binary
 	origin_tech = list(TECH_ILLEGAL = 3)
@@ -226,12 +230,12 @@
 	item_state = "headset"
 	ks2type = /obj/item/device/encryptionkey/onlyert
 
-/obj/item/device/radio/headset/ia
-	name = "internal affairs headset"
+/obj/item/device/radio/headset/representative
+	name = "representative headset"
 	desc = "The headset of your worst enemy."
 	icon_state = "com_headset"
 	item_state = "headset"
-	ks2type = /obj/item/device/encryptionkey/heads/hos
+	ks2type = /obj/item/device/encryptionkey/headset_com
 
 /obj/item/device/radio/headset/attackby(obj/item/weapon/W as obj, mob/user as mob)
 //	..()
@@ -263,14 +267,14 @@
 					keyslot2 = null
 
 			recalculateChannels()
-			user << "You pop out the encryption keys in the headset!"
+			to_chat(user, "You pop out the encryption keys in the headset!")
 
 		else
-			user << "This headset doesn't have any encryption keys!  How useless..."
+			to_chat(user, "This headset doesn't have any encryption keys!  How useless...")
 
 	if(istype(W, /obj/item/device/encryptionkey/))
 		if(keyslot1 && keyslot2)
-			user << "The headset can't hold another key!"
+			to_chat(user, "The headset can't hold another key!")
 			return
 
 		if(!keyslot1)

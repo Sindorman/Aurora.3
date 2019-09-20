@@ -1,6 +1,6 @@
 /mob/living/silicon/pai
 	name = "pAI"
-	icon = 'icons/mob/pai.dmi'
+	icon = 'icons/mob/npc/pai.dmi'
 	icon_state = "repairbot"
 	holder_type = /obj/item/weapon/holder/pai/drone
 
@@ -18,19 +18,21 @@
 	var/obj/item/device/paicard/card	// The card we inhabit
 	var/obj/item/device/radio/radio		// Our primary radio
 
+
 	var/chassis = "repairbot"   // A record of your chosen chassis.
 	var/global/list/possible_chassis = list(
 		"Drone" = "repairbot",
 		"Cat" = "cat",
-		"Mouse" = "mouse",
+		"Rat" = "rat",
 		"Monkey" = "monkey",
 		"Rabbit" = "rabbit"
+
 		)
 
 	var/global/list/pai_holder_types = list(
 		"Drone" = /obj/item/weapon/holder/pai/drone,
 		"Cat" = /obj/item/weapon/holder/pai/cat,
-		"Mouse" = /obj/item/weapon/holder/pai/mouse,
+		"Rat" = /obj/item/weapon/holder/pai/rat,
 		"Monkey" = /obj/item/weapon/holder/pai/monkey,
 		"Rabbit" = /obj/item/weapon/holder/pai/rabbit
 		)
@@ -67,14 +69,11 @@
 	var/medHUD = 0			// Toggles whether the Medical  HUD is active or not
 
 	var/medical_cannotfind = 0
-	var/datum/data/record/medicalActive1		// Datacore record declarations for record software
-	var/datum/data/record/medicalActive2
+	var/datum/record/general/active		// Datacore record declarations for record software
 
 	var/security_cannotfind = 0
-	var/datum/data/record/securityActive1		// Could probably just combine all these into one
-	var/datum/data/record/securityActive2
 
-	var/obj/machinery/door/hackdoor		// The airlock being hacked
+	var/obj/machinery/door/airlock/hackdoor		// The airlock being hacked
 	var/hackprogress = 0				// Possible values: 0 - 1000, >= 1000 means the hack is complete and will be reset upon next check
 	var/hack_aborted = 0
 
@@ -90,6 +89,9 @@
 	var/response_disarm = "shoves"
 	var/response_harm   = "kicks"
 	var/harm_intent_damage = 15//based on 100 health, which is probably too much for a pai to have
+
+/mob/living/silicon/pai/movement_delay()
+	return 0.8
 
 /mob/living/silicon/pai/attack_hand(mob/living/carbon/human/M as mob)
 	..()
@@ -134,6 +136,7 @@
 	add_language(LANGUAGE_TRADEBAND, 1)
 	add_language(LANGUAGE_GUTTER, 1)
 	add_language(LANGUAGE_EAL, 1)
+	set_custom_sprite()
 
 	verbs += /mob/living/silicon/pai/proc/choose_chassis
 	verbs += /mob/living/silicon/pai/proc/choose_verbs
@@ -149,6 +152,15 @@
 	pda.name = "[pda.owner] ([pda.ownjob])"
 	pda.toff = TRUE
 
+
+/mob/living/silicon/pai/proc/set_custom_sprite()
+	var/datum/custom_synth/sprite = robot_custom_icons[name]
+	if(istype(sprite) && sprite.synthckey == ckey)
+		possible_chassis["Custom"] = "[sprite.paiicon]"
+		pai_holder_types["Custom"] = /obj/item/weapon/holder/pai/custom
+		icon = CUSTOM_ITEM_SYNTH
+	else
+		return
 /mob/living/silicon/pai/init_id()
 	. = ..()
 	idcard.registered_name = ""
@@ -163,8 +175,8 @@
 
 	if (!greeted)
 		// Basic intro text.
-		src << "<span class='danger'><font size=3>You are a Personal AI!</font></span>"
-		src << "<span class='notice'>You are a small artificial intelligence contained inside a portable tablet, and you are bound to a master. Your primary directive is to serve them and follow their instructions, follow this prime directive above all others. Check your Software interface to spend ram on programs that can help, and unfold your chassis to take a holographic form and move around the world.</span>"
+		to_chat(src, "<span class='danger'><font size=3>You are a Personal AI!</font></span>")
+		to_chat(src, "<span class='notice'>You are a small artificial intelligence contained inside a portable tablet, and you are bound to a master. Your primary directive is to serve them and follow their instructions, follow this prime directive above all others. Check your Software interface to spend ram on programs that can help, and unfold your chassis to take a holographic form and move around the world.</span>")
 		greeted = 1
 
 // this function shows the information about being silenced as a pAI in the Status panel
@@ -201,7 +213,7 @@
 		// 33% chance of no additional effect
 
 	src.silence_time = world.timeofday + 120 * 10		// Silence for 2 minutes
-	src << "<font color=green><b>Communication circuit overload. Shutting down and reloading communication circuits - speech and messaging functionality will be unavailable until the reboot is complete.</b></font>"
+	to_chat(src, "<font color=green><b>Communication circuit overload. Shutting down and reloading communication circuits - speech and messaging functionality will be unavailable until the reboot is complete.</b></font>")
 	if(prob(20))
 		var/turf/T = get_turf_or_move(src.loc)
 		for (var/mob/M in viewers(T))
@@ -212,7 +224,7 @@
 		if(1)
 			src.master = null
 			src.master_dna = null
-			src << "<font color=green>You feel unbound.</font>"
+			to_chat(src, "<font color=green>You feel unbound.</font>")
 		if(2)
 			var/command
 			if(severity  == 1)
@@ -220,9 +232,9 @@
 			else
 				command = pick("Serve", "Kill", "Love", "Hate", "Disobey", "Devour", "Fool", "Enrage", "Entice", "Observe", "Judge", "Respect", "Disrespect", "Consume", "Educate", "Destroy", "Disgrace", "Amuse", "Entertain", "Ignite", "Glorify", "Memorialize", "Analyze")
 			src.pai_law0 = "[command] your master."
-			src << "<font color=green>Pr1m3 d1r3c71v3 uPd473D.</font>"
+			to_chat(src, "<font color=green>Pr1m3 d1r3c71v3 uPd473D.</font>")
 		if(3)
-			src << "<font color=green>You feel an electric surge run through your circuitry and become acutely aware at how lucky you are that you can still feel at all.</font>"
+			to_chat(src, "<font color=green>You feel an electric surge run through your circuitry and become acutely aware at how lucky you are that you can still feel at all.</font>")
 
 /mob/living/silicon/pai/proc/switchCamera(var/obj/machinery/camera/C)
 	if (!C)
@@ -242,14 +254,11 @@
 	set category = "pAI Commands"
 	set name = "Reset Records Software"
 
-	securityActive1 = null
-	securityActive2 = null
+	active = null
 	security_cannotfind = 0
-	medicalActive1 = null
-	medicalActive2 = null
 	medical_cannotfind = 0
 	SSnanoui.update_uis(src)
-	usr << "<span class='notice'>You reset your record-viewing software.</span>"
+	to_chat(usr, "<span class='notice'>You reset your record-viewing software.</span>")
 
 /mob/living/silicon/pai/cancel_camera()
 	set category = "pAI Commands"
@@ -269,7 +278,7 @@
 	var/cameralist[0]
 
 	if(usr.stat == 2)
-		usr << "You can't change your camera network because you are dead!"
+		to_chat(usr, "You can't change your camera network because you are dead!")
 		return
 
 	for (var/obj/machinery/camera/C in Cameras)
@@ -280,7 +289,7 @@
 				cameralist[C.network] = C.network
 
 	src.network = input(usr, "Which network would you like to view?") as null|anything in cameralist
-	src << "\blue Switched to [src.network] camera network."
+	to_chat(src, "\blue Switched to [src.network] camera network.")
 //End of code by Mord_Sith
 */
 
@@ -316,7 +325,7 @@
 
 	//I'm not sure how much of this is necessary, but I would rather avoid issues.
 	if(istype(card.loc,/obj/item/rig_module))
-		src << "There is no room to unfold inside this rig module. You're good and stuck."
+		to_chat(src, "There is no room to unfold inside this rig module. You're good and stuck.")
 		return 0
 	else if(istype(card.loc,/mob))
 		var/mob/holder = card.loc
@@ -367,7 +376,7 @@
 	var/choice
 	var/finalized = "No"
 	while(finalized == "No" && src.client)
-
+		set_custom_sprite()
 		choice = input(usr,"What would you like to use for your mobile chassis icon? This decision can only be made once.") as null|anything in possible_chassis
 		if(!choice) return
 
@@ -385,7 +394,7 @@
 	set desc = "Find out where on their person, someone is holding you."
 
 	if (!get_holding_mob())
-		src << "Nobody is holding you!"
+		to_chat(src, "Nobody is holding you!")
 		return
 
 	card.report_onmob_location(0, card.get_equip_slot(), src)
@@ -417,7 +426,7 @@
 	else
 		resting = !resting
 		icon_state = resting ? "[chassis]_rest" : "[chassis]"
-		src << "<span class='notice'>You are now [resting ? "resting" : "getting up"]</span>"
+		to_chat(src, "<span class='notice'>You are now [resting ? "resting" : "getting up"]</span>")
 
 	canmove = !resting
 
@@ -497,10 +506,10 @@
 	if(istype(AM,/obj/item))
 		var/obj/item/O = AM
 		if(O.w_class > can_pull_size)
-			src << "<span class='warning'>You are too small to pull that.</span>"
+			to_chat(src, "<span class='warning'>You are too small to pull that.</span>")
 			return
 		else
 			..()
 	else
-		src << "<span class='warning'>You are too small to pull that.</span>"
+		to_chat(src, "<span class='warning'>You are too small to pull that.</span>")
 		return

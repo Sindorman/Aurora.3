@@ -2,8 +2,8 @@
 	name = "Spanish inquisition Flu"
 	max_stages = 3
 	spread = "Airborne"
-	cure = "Spaceacillin & Anti-bodies to the common flu"
-	cure_id = "spaceacillin"
+	cure = "Deltamivir & Anti-bodies to the common flu"
+	cure_id = "deltamivir"
 	cure_chance = 10
 	agent = "1nqu1s1t10n flu virion"
 	affected_species = list("Human")
@@ -21,7 +21,7 @@
 			if(prob(5))
 				affected_mob.emote("cough")
 			if(prob(1))
-				affected_mob << "<span class='warning'>You're burning in your own skin!</span>"
+				to_chat(affected_mob, "<span class='warning'>You're burning in your own skin!</span>")
 				affected_mob.take_organ_damage(0,5)
 
 		if(3)
@@ -31,6 +31,6 @@
 			if(prob(5))
 				affected_mob.emote("cough")
 			if(prob(5))
-				affected_mob << "<span class='warning'>You're burning in your own skin!</span>"
+				to_chat(affected_mob, "<span class='warning'>You're burning in your own skin!</span>")
 				affected_mob.take_organ_damage(0,5)
 	return

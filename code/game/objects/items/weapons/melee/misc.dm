@@ -33,14 +33,14 @@
 /obj/item/weapon/melee/chainsword/attack_self(mob/user)
 	active= !active
 	if(active)
-		playsound(user, 'sound/weapons/chainsawstart.ogg', 50, 1)
-		user << span("notice", "\The [src] rumbles to life.")
+		playsound(user, 'sound/weapons/saw/chainsawstart.ogg', 50, 1)
+		to_chat(user, span("notice", "\The [src] rumbles to life."))
 		force = 35
-		hitsound = 'sound/weapons/chainsword.ogg'
+		hitsound = 'sound/weapons/saw/chainsword.ogg'
 		icon_state = "chainswordon"
 		slot_flags = null
 	else
-		user << span("notice", "\The [src] slowly powers down.")
+		to_chat(user, span("notice", "\The [src] slowly powers down."))
 		force = initial(force)
 		hitsound = initial(hitsound)
 		icon_state = initial(icon_state)
@@ -92,7 +92,7 @@
 	..()
 	if(prob(25))
 		if(!on)
-			user << "<span class='warning'>\The [src] buzzes!</span>"
+			to_chat(user, "<span class='warning'>\The [src] buzzes!</span>")
 			return
 		playsound(user, 'sound/weapons/beartrap_shut.ogg', 50, 1, -1)
 		user.visible_message("<span class='danger'>\The [user] slams \the [target] away with \the [src]!</span>")
@@ -147,3 +147,30 @@
 					target.drop_r_hand()
 			user.visible_message("<span class='danger'>\The [user] disarms \the [target] with \the [src]!</span>")
 		return
+
+/obj/item/weapon/melee/ceremonial_sword
+	name = "sol officer ceremonial sword"
+	desc = "A ceremonial sword issued to Sol navy officers as part of their dress uniform."
+	icon = 'icons/obj/sol_uniform.dmi'
+	icon_state = "officersword"
+	item_state = "officersword"
+	contained_sprite = 1
+	flags = CONDUCT
+	slot_flags = SLOT_BELT
+	force = 15
+	throwforce = 5
+	w_class = 4
+	sharp = 1
+	edge = 1
+	can_embed = 0
+	origin_tech = list(TECH_COMBAT = 4)
+	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
+	hitsound = 'sound/weapons/bladeslice.ogg'
+
+/obj/item/weapon/melee/ceremonial_sword/marine
+	name = "sol marine ceremonial sword"
+	desc = "A ceremonial sword issued to Sol marine officers as part of their dress uniform."
+	icon = 'icons/obj/sol_uniform.dmi'
+	icon_state = "marineofficersword"
+	item_state = "marineofficersword"
+	contained_sprite = 1

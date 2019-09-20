@@ -207,10 +207,10 @@
 	desc = "Construction Areas"
 	region = ACCESS_REGION_ENGINEERING
 
-/var/const/access_chemistry = 33
-/datum/access/chemistry
-	id = access_chemistry
-	desc = "Chemistry Lab"
+/var/const/access_pharmacy = 33
+/datum/access/pharmacy
+	id = access_pharmacy
+	desc = "Pharmacy Lab"
 	region = ACCESS_REGION_MEDBAY
 
 /var/const/access_cargo_bot = 34
@@ -240,8 +240,8 @@
 /var/const/access_lawyer = 38
 /datum/access/lawyer
 	id = access_lawyer
-	desc = "Internal Affairs"
-	region = ACCESS_REGION_COMMAND
+	desc = "Representative"
+	region = ACCESS_TYPE_CENTCOM
 
 /var/const/access_virology = 39
 /datum/access/virology
@@ -341,7 +341,7 @@
 	desc = "Head of Security"
 	region = ACCESS_REGION_SECURITY
 
-/var/const/access_RC_announce = 59 //Request console announcements
+/var/const/access_RC_announce = 59 //Requests console announcements
 /datum/access/RC_announce
 	id = access_RC_announce
 	desc = "RC Announcements"
@@ -490,6 +490,11 @@ var/const/access_journalist = 70//journalist's office access
 	id = access_syndicate
 	access_type = ACCESS_TYPE_SYNDICATE
 
+/var/const/access_syndicate_leader = 151 //Syndie Commander Access
+/datum/access/syndicate_leader
+	id = access_syndicate_leader
+	access_type = ACCESS_TYPE_SYNDICATE
+
 /*******
 * Misc *
 *******/
@@ -503,3 +508,9 @@ var/const/access_journalist = 70//journalist's office access
 /datum/access/crate_cash
 	id = access_crate_cash
 	access_type = ACCESS_TYPE_NONE
+
+/var/const/access_none = -1
+/datum/access/none
+	id = access_none
+	access_type = ACCESS_TYPE_NONE
+

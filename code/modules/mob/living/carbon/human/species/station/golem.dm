@@ -27,6 +27,7 @@
 	brute_mod = 2
 	burn_mod = 4
 	virus_immune = 1
+	grab_mod = 2
 
 	warning_low_pressure = 50 //golems can into space now
 	hazard_low_pressure = 0
@@ -60,6 +61,7 @@
 		)
 
 	death_message = "becomes completely motionless..."
+	death_message_range = 7
 
 	stamina	=	500			  //Tireless automatons
 	stamina_recovery = 1
@@ -346,6 +348,7 @@
 	flesh_color = "#00E1FF"
 
 	death_message = "shatters into many shards!"
+	death_message_range = 7
 
 	death_sound = 'sound/effects/Glassbr1.ogg'
 
@@ -405,6 +408,7 @@
 	flesh_color = "#FC2BC5"
 
 	death_message = "burst into flames!"
+	death_message_range = 7
 
 	heat_level_1 = PHORON_MINIMUM_BURN_TEMPERATURE
 	heat_level_2 = T0C+200
@@ -636,6 +640,7 @@
 	inherent_verbs = list(/mob/living/proc/ventcrawl)
 
 	death_message = "collapses into a pile of sand!"
+	death_message_range = 7
 
 	golem_designation = "sand"
 
@@ -773,6 +778,7 @@
 	flesh_color = "#FFC896"
 
 	death_message = "collapses into a pile of flesh!"
+	death_message_range = 7
 
 	death_sound = 'sound/magic/disintegrate.ogg'
 

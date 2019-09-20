@@ -19,6 +19,7 @@
 	var/associated_account_number = 0
 
 	var/list/files = list(  )
+	drop_sound = 'sound/items/drop/card.ogg'
 
 /obj/item/weapon/card/data
 	name = "data disk"
@@ -71,10 +72,10 @@
 	var/uses = 10
 
 var/const/NO_EMAG_ACT = -50
-/obj/item/weapon/card/emag/resolve_attackby(atom/A, mob/user)
+/obj/item/weapon/card/emag/resolve_attackby(atom/A, mob/user, var/click_parameters)
 	var/used_uses = A.emag_act(uses, user, src)
 	if(used_uses == NO_EMAG_ACT)
-		return ..(A, user)
+		return ..(A, user, click_parameters)
 
 	uses -= used_uses
 	A.add_fingerprint(user)
@@ -95,10 +96,6 @@ var/const/NO_EMAG_ACT = -50
 	desc = "A card used to provide ID and determine access across the station."
 	icon_state = "id"
 	item_state = "card-id"
-
-	sprite_sheets = list(
-		"Resomi" = 'icons/mob/species/resomi/id.dmi'
-		)
 
 	var/list/access = list()
 	var/registered_name = "Unknown" // The name registered_name on the card
@@ -134,8 +131,8 @@ var/const/NO_EMAG_ACT = -50
 
 /obj/item/weapon/card/id/proc/show(mob/user as mob)
 	if(front && side)
-		user << browse_rsc(front, "front.png")
-		user << browse_rsc(side, "side.png")
+		to_chat(user, browse_rsc(front, "front.png"))
+		to_chat(user, browse_rsc(side, "side.png"))
 	var/datum/browser/popup = new(user, "idcard", name, 650, 260)
 	popup.set_content(dat())
 	popup.set_title_image(usr.browse_rsc_icon(src.icon, src.icon_state))
@@ -165,9 +162,9 @@ var/const/NO_EMAG_ACT = -50
 
 /mob/living/carbon/human/set_id_info(var/obj/item/weapon/card/id/id_card)
 	..()
-	id_card.age = age
+	id_card.age 				= age
 	id_card.citizenship			= citizenship
-	id_card.religion			= religion
+	id_card.religion 			= SSrecords.get_religion_record_name(religion)
 	id_card.mob					= src
 
 /obj/item/weapon/card/id/proc/dat()
@@ -194,7 +191,7 @@ var/const/NO_EMAG_ACT = -50
 		if (response == "Yes")
 			var/mob/living/carbon/human/H = user
 			if(H.gloves)
-				user << "<span class='warning'>You cannot imprint [src] while wearing \the [H.gloves].</span>"
+				to_chat(user, "<span class='warning'>You cannot imprint [src] while wearing \the [H.gloves].</span>")
 				return
 			else
 				mob = H
@@ -202,9 +199,9 @@ var/const/NO_EMAG_ACT = -50
 				dna_hash = H.dna.unique_enzymes
 				fingerprint_hash = md5(H.dna.uni_identity)
 				citizenship = H.citizenship
-				religion = H.religion
+				religion = SSrecords.get_religion_record_name(H.religion)
 				age = H.age
-				user << "<span class='notice'>Biometric Imprinting Successful!.</span>"
+				to_chat(user, "<span class='notice'>Biometric Imprinting Successful!.</span>")
 				return
 
 	for(var/mob/O in viewers(user, null))
@@ -225,13 +222,13 @@ var/const/NO_EMAG_ACT = -50
 			if (response == "Yes")
 
 				if (!user.Adjacent(M) || user.restrained() || user.lying || user.stat)
-					user << "<span class='warning'>You must remain adjacent to [M] to scan their biometric data.</span>"
+					to_chat(user, "<span class='warning'>You must remain adjacent to [M] to scan their biometric data.</span>")
 					return
 
 				var/mob/living/carbon/human/H = M
 
 				if(H.gloves)
-					user << "<span class='warning'>\The [H] is wearing gloves.</span>"
+					to_chat(user, "<span class='warning'>\The [H] is wearing gloves.</span>")
 					return 1
 
 				if(user != H && H.a_intent != "help" && !H.lying)
@@ -247,7 +244,7 @@ var/const/NO_EMAG_ACT = -50
 					if(istype(O) && !O.is_stump())
 						has_hand = 1
 				if(!has_hand)
-					user << "<span class='warning'>They don't have any hands.</span>"
+					to_chat(user, "<span class='warning'>They don't have any hands.</span>")
 					return 1
 				user.visible_message("[user] imprints [src] with \the [H]'s biometrics.")
 				mob = H
@@ -258,7 +255,7 @@ var/const/NO_EMAG_ACT = -50
 				religion = H.religion
 				age = H.age
 				src.add_fingerprint(H)
-				user << "<span class='notice'>Biometric Imprinting Successful!.</span>"
+				to_chat(user, "<span class='notice'>Biometric Imprinting Successful!.</span>")
 				return 1
 	return ..()
 
@@ -273,15 +270,15 @@ var/const/NO_EMAG_ACT = -50
 	set category = "Object"
 	set src in usr
 
-	usr << text("\icon[] []: The current assignment on the card is [].", src, src.name, src.assignment)
-	usr << "The age on the card is [age]."
-	usr << "The citizenship on the card is [citizenship]."
-	usr << "The religion on the card is [religion]."
-	usr << "The blood type on the card is [blood_type]."
-	usr << "The DNA hash on the card is [dna_hash]."
-	usr << "The fingerprint hash on the card is [fingerprint_hash]."
+	to_chat(usr, text("\icon[] []: The current assignment on the card is [].", src, src.name, src.assignment))
+	to_chat(usr, "The age on the card is [age].")
+	to_chat(usr, "The citizenship on the card is [citizenship].")
+	to_chat(usr, "The religion on the card is [religion].")
+	to_chat(usr, "The blood type on the card is [blood_type].")
+	to_chat(usr, "The DNA hash on the card is [dna_hash].")
+	to_chat(usr, "The fingerprint hash on the card is [fingerprint_hash].")
 	if(mining_points)
-		usr << "A ticker indicates the card has [mining_points] ore redemption points available."
+		to_chat(usr, "A ticker indicates the card has [mining_points] ore redemption points available.")
 	return
 
 /obj/item/weapon/card/id/silver
@@ -359,7 +356,7 @@ var/const/NO_EMAG_ACT = -50
 	icon_state = "centcom"
 	assignment = "Emergency Response Team"
 
-obj/item/weapon/card/id/ert/New()
+/obj/item/weapon/card/id/ert/New()
 	access = get_all_station_access() + get_centcom_access("Emergency Response Team")
 	..()
 
@@ -367,7 +364,7 @@ obj/item/weapon/card/id/ert/New()
 	name = "\improper Tau Ceti Foreign Legion ID"
 	icon_state = "centcom"
 	assignment = "Tau Ceti Foreign Legion Volunteer"
-	access = list(access_legion, access_maint_tunnels, access_external_airlocks, access_security, access_engine, access_medical, access_research, access_atmospherics, access_medical_equip)
+	access = list(access_legion, access_maint_tunnels, access_external_airlocks, access_security, access_engine, access_engine_equip, access_medical, access_research, access_atmospherics, access_medical_equip)
 
 /obj/item/weapon/card/id/all_access
 	name = "\improper Administrator's spare ID"
@@ -380,3 +377,42 @@ obj/item/weapon/card/id/ert/New()
 /obj/item/weapon/card/id/all_access/New()
 	access = get_access_ids()
 	..()
+
+// Contractor cards
+
+/obj/item/weapon/card/id/idris
+	name = "\improper Idris Incorporated identification card"
+	desc = "A high-tech holocard, designed to project information about a sub-contractor from Idris Incorporated."
+	icon_state = "idris_card"
+
+/obj/item/weapon/card/id/idris/sec
+	icon_state = "idrissec_card"
+
+/obj/item/weapon/card/id/iru
+	name = "\improper IRU identification card"
+	desc = "A high-tech holobadge, designed to project information about an asset reclamation synthetic at Idris Incorporated."
+	icon_state = "iru_card"
+
+/obj/item/weapon/card/id/eridani
+	name = "\improper Eridani identification card"
+	desc = "A high-tech holobadge, identifying the owner as a contractor from one of the many PMCs from the Eridani Corporate Federation."
+	icon_state = "erisec_card"
+
+/obj/item/weapon/card/id/zeng_hu
+	name = "\improper Zeng-Hu Pharmaceuticals identification card"
+	desc = "A synthleather card, belonging to one of the highly skilled members of Zeng-Hu."
+	icon_state = "zhu_card"
+
+/obj/item/weapon/card/id/hephaestus
+	name = "\improper Hephaestus Industries identification card"
+	desc = "A metal-backed card, belonging to the powerful Hephaestus Industries."
+	icon_state = "heph_card"
+
+/obj/item/weapon/card/id/necropolis
+	name = "\improper Necropolis Incorporated identification card"
+	desc = "An old-fashioned, practical plastic card. Smells faintly of gunpowder."
+	icon_state = "necro_card"
+
+/obj/item/weapon/card/id/necropolis/sec
+	icon_state = "necrosec_card"
+	desc = "An old-fashioned, practical plastic card. This one is of a higher rank, for Security personnel."

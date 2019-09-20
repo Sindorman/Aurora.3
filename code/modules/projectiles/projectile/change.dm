@@ -36,8 +36,6 @@
 		var/options = list("robot", "slime")
 		for(var/t in all_species)
 			options += t
-		options -= "Xenomorph Queen"
-		options -= "Xenomorph"
 		if(ishuman(M))
 			var/mob/living/carbon/human/H = M
 			if(H.species)
@@ -92,10 +90,10 @@
 			else
 				new_mob.key = M.key
 
-			new_mob << "<span class='warning'>Your form morphs into that of \a [lowertext(randomize)].</span>"
+			to_chat(new_mob, "<span class='warning'>Your form morphs into that of \a [lowertext(randomize)].</span>")
 
 			qdel(M)
 			return
 		else
-			M << "<span class='warning'>Your form morphs into that of \a [lowertext(randomize)].</span>"
+			to_chat(M, "<span class='warning'>Your form morphs into that of \a [lowertext(randomize)].</span>")
 			return

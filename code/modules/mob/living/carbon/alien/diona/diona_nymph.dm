@@ -45,6 +45,7 @@
 	var/mob/living/carbon/alien/diona/master_nymph //nymph who owns this nymph if split. AI diona nymphs will follow this nymph, and these nymphs can be controlled by the master.
 	var/list/mob/living/carbon/alien/diona/birds_of_feather = list() //list of all related nymphs
 	var/echo = 0 //if it's an echo nymph, which has unique properties
+	var/detached = FALSE
 
 /mob/living/carbon/alien/diona/proc/cleanupTransfer()
 	if(!kept_clean)
@@ -106,27 +107,27 @@
 	var/light = get_lightlevel_diona(DS)
 
 	if (light <= -0.75)
-		usr << span("danger", "It is pitch black here! This is extremely dangerous, we must find light, or death will soon follow!")
+		to_chat(usr, span("danger", "It is pitch black here! This is extremely dangerous, we must find light, or death will soon follow!"))
 	else if (light <= 0)
-		usr << span("danger", "This area is too dim to sustain us for long, we should move closer to the light, or we will shortly be in danger!")
+		to_chat(usr, span("danger", "This area is too dim to sustain us for long, we should move closer to the light, or we will shortly be in danger!"))
 	else if (light > 0 && light < 1.5)
-		usr << span("warning", "The light here can sustain us, barely. It feels cold and distant.")
+		to_chat(usr, span("warning", "The light here can sustain us, barely. It feels cold and distant."))
 	else if (light <= 3)
-		usr << span("notice", "This light is comfortable and warm, Quite adequate for our needs.")
+		to_chat(usr, span("notice", "This light is comfortable and warm, Quite adequate for our needs."))
 	else
-		usr << span("notice", "This warm radiance is bliss. Here we are safe and energised! Stay a while..")
+		to_chat(usr, span("notice", "This warm radiance is bliss. Here we are safe and energised! Stay a while.."))
 
 /mob/living/carbon/alien/diona/start_pulling(var/atom/movable/AM)
 	//TODO: Collapse these checks into one proc (see pai and drone)
 	if(istype(AM,/obj/item))
 		var/obj/item/O = AM
 		if(O.w_class > 2)
-			src << "<span class='warning'>You are too small to pull that.</span>"
+			to_chat(src, "<span class='warning'>You are too small to pull that.</span>")
 			return
 		else
 			..()
 	else
-		src << "<span class='warning'>You are too small to pull that.</span>"
+		to_chat(src, "<span class='warning'>You are too small to pull that.</span>")
 		return
 
 /mob/living/carbon/alien/diona/put_in_hands(var/obj/item/W) // No hands.
@@ -163,8 +164,8 @@
 		holder_type = null
 
 	species = all_species[new_species]
-	if(species.default_language)
-		add_language(species.default_language)
+	if(species.language)
+		add_language(species.language)
 
 	if(species.holder_type)
 		holder_type = species.holder_type
@@ -247,7 +248,7 @@
 
 //This function makes sure the nymph has the correct split/merge verbs, depending on whether or not its part of a gestalt
 /mob/living/carbon/alien/diona/proc/update_verbs()
-	if (gestalt)
+	if (gestalt && !detached)
 		if (!(/mob/living/carbon/alien/diona/proc/split in verbs))
 			verbs.Add(/mob/living/carbon/alien/diona/proc/split)
 
@@ -259,7 +260,7 @@
 		verbs.Remove(/mob/living/proc/devour)
 		verbs.Remove(/mob/living/carbon/alien/diona/proc/sample)
 	else
-		if (!(/mob/living/carbon/alien/diona/proc/merge in verbs))
+		if (!(/mob/living/carbon/alien/diona/proc/merge in verbs) && !detached)
 			verbs.Add(/mob/living/carbon/alien/diona/proc/merge)
 
 		if (!(/mob/living/carbon/proc/absorb_nymph in verbs))
@@ -375,14 +376,6 @@
 				DIO.master_nymph = D
 		return 1
 	. = ..()
-/mob/living/carbon/alien/diona/attackby(var/obj/item/O, var/mob/user)
-	if(istype(O, /obj/item/weapon/reagent_containers) || istype(O, /obj/item/stack/medical) || istype(O,/obj/item/weapon/gripper/))
-		..()
-
-	else if(meat_type && (stat == DEAD))	//if the animal has a meat, and if it is dead.
-		if(istype(O, /obj/item/weapon/material/knife) || istype(O, /obj/item/weapon/material/kitchen/utensil/knife ))
-			harvest(user)
-
 
 /mob/living/carbon/alien/diona/proc/harvest(var/mob/user)
 	var/actual_meat_amount = max(1,(meat_amount*0.75))

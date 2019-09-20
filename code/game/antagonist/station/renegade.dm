@@ -23,7 +23,7 @@ var/datum/antagonist/renegade/renegades
 		/obj/item/weapon/gun/projectile/revolver/detective,
 		/obj/item/weapon/gun/projectile/revolver/derringer,
 		/obj/item/weapon/gun/projectile/automatic/c20r,
-		/obj/item/weapon/gun/projectile/deagle/camo,
+		/obj/item/weapon/gun/projectile/deagle,
 		/obj/item/weapon/gun/projectile/pistol,
 		/obj/item/weapon/gun/projectile/shotgun/doublebarrel/sawn,
 		/obj/item/weapon/gun/projectile/shotgun/pump/rifle/obrez,
@@ -60,7 +60,7 @@ var/datum/antagonist/renegade/renegades
 
 
 /proc/rightandwrong()
-	usr << "<B>You summoned guns!</B>"
+	to_chat(usr, "<B>You summoned guns!</B>")
 	message_admins("[key_name_admin(usr, 1)] summoned guns!")
 	for(var/mob/living/carbon/human/H in player_list)
 		if(H.stat == 2 || !(H.client)) continue

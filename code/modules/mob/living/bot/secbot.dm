@@ -98,7 +98,7 @@
 
 /mob/living/bot/secbot/attack_hand(var/mob/user)
 	if (!has_ui_access(user))
-		user << "<span class='warning'>The unit's interface refuses to unlock!</span>"
+		to_chat(user, "<span class='warning'>The unit's interface refuses to unlock!</span>")
 		return
 	user.set_machine(src)
 	var/dat
@@ -125,7 +125,7 @@
 	add_fingerprint(usr)
 
 	if (!has_ui_access(usr))
-		usr << "<span class='warning'>Insufficient permissions.</span>"
+		to_chat(usr, "<span class='warning'>Insufficient permissions.</span>")
 		return
 
 	if(href_list["power"])
@@ -337,7 +337,7 @@
 /mob/living/bot/secbot/emag_act(var/remaining_charges, var/mob/user, var/feedback)
 	if(!emagged)
 		emagged = 1
-		user << (feedback ? feedback : "You short out the lock of \the [src].")
+		to_chat(user, (feedback ? feedback : "You short out the lock of \the [src]."))
 		return 1
 
 /mob/living/bot/secbot/proc/scan_view()
@@ -532,9 +532,9 @@
 		if(id)
 			perpname = id.registered_name
 
-		var/datum/data/record/R = find_security_record("name", perpname)
-		if(R)
-			R.fields["criminal"] = "*Arrest*"
+		var/datum/record/general/R = SSrecords.find_record("name", perpname)
+		if(R && R.security)
+			R.security.criminal = "*Arrest*"
 		else
 			check_records = TRUE
 		broadcast_security_hud_message("[src] is under attack by <b>[target]</b>, [arrest_type ? "detaining" : "arresting"] a level [check_threat(target)] suspect in <b>[get_area(src)]</b>. Requesting backup", src)
@@ -552,9 +552,9 @@
 		if(id)
 			perpname = id.registered_name
 
-		var/datum/data/record/R = find_security_record("name", perpname)
-		if(R)
-			R.fields["criminal"] = "*Arrest*"
+		var/datum/record/general/R = SSrecords.find_record("name", perpname)
+		if(R && R.security)
+			R.security.criminal = "*Arrest*"
 		else
 			check_records = TRUE
 		broadcast_security_hud_message("[src] is under attack by <b>[target]</b>, [arrest_type ? "detaining" : "arresting"] a level [check_threat(target)] suspect in <b>[get_area(src)]</b>. Requesting backup", src)
@@ -588,9 +588,9 @@
 			if(id)
 				perpname = id.registered_name
 
-			var/datum/data/record/R = find_security_record("name", perpname)
-			if(R)
-				R.fields["criminal"] = "*Arrest*"
+			var/datum/record/general/R = SSrecords.find_record("name", perpname)
+			if(R && R.security)
+				R.security.criminal = "*Arrest*"
 			else
 				check_records = TRUE
 			broadcast_security_hud_message("[src] was shot with <b>[P]</b>, projectile came from <b>[target]</b>, [arrest_type ? "detaining" : "arresting"] a level [check_threat(target)] suspect in <b>[get_area(src)]</b>. Requesting backup", src)
@@ -610,9 +610,9 @@
 		if(id)
 			perpname = id.registered_name
 
-		var/datum/data/record/R = find_security_record("name", perpname)
-		if(R)
-			R.fields["criminal"] = "*Arrest*"
+		var/datum/record/general/R = SSrecords.find_record("name", perpname)
+		if(R && R.security)
+			R.security.criminal = "*Arrest*"
 		else
 			check_records = TRUE
 		broadcast_security_hud_message("[src] is under attack by <b>[target]</b> with <b>[O]</b>, [arrest_type ? "detaining" : "arresting"] a level [check_threat(target)] suspect in <b>[get_area(src)]</b>. Requesting backup", src)
@@ -633,9 +633,9 @@
 				if(id)
 					perpname = id.registered_name
 
-				var/datum/data/record/R = find_security_record("name", perpname)
-				if(R)
-					R.fields["criminal"] = "*Arrest*"
+				var/datum/record/general/R = SSrecords.find_record("name", perpname)
+				if(R && R.security)
+					R.security.criminal = "*Arrest*"
 				else
 					check_records = TRUE
 				broadcast_security_hud_message("[src] is under attack by <b>[target]</b> with <b>[O]</b>, [arrest_type ? "detaining" : "arresting"] a level [check_threat(target)] suspect in <b>[get_area(src)]</b>. Requesting backup", src)
@@ -655,7 +655,7 @@
 		qdel(S)
 		var/obj/item/weapon/secbot_assembly/A = new /obj/item/weapon/secbot_assembly
 		user.put_in_hands(A)
-		user << "You add the signaler to the helmet."
+		to_chat(user, "You add the signaler to the helmet.")
 		user.drop_from_inventory(src)
 		qdel(src)
 		return 1
@@ -678,12 +678,12 @@
 		if(WT.remove_fuel(0, user))
 			build_step = 1
 			add_overlay("hs_hole")
-			user << "You weld a hole in \the [src]."
+			to_chat(user, "You weld a hole in \the [src].")
 			return 1
 
 	else if(isprox(O) && (build_step == 1))
 		build_step = 2
-		user << "You add \the [O] to [src]."
+		to_chat(user, "You add \the [O] to [src].")
 		add_overlay("hs_eye")
 		name = "helmet/signaler/prox sensor assembly"
 		user.drop_from_inventory(O,get_turf(src))
@@ -692,7 +692,7 @@
 
 	else if((istype(O, /obj/item/robot_parts/l_arm) || istype(O, /obj/item/robot_parts/r_arm)) && build_step == 2)
 		build_step = 3
-		user << "You add \the [O] to [src]."
+		to_chat(user, "You add \the [O] to [src].")
 		name = "helmet/signaler/prox sensor/robot arm assembly"
 		add_overlay("hs_arm")
 		user.drop_from_inventory(O,get_turf(src))
@@ -700,7 +700,7 @@
 		return 1
 
 	else if(istype(O, /obj/item/weapon/melee/baton) && build_step == 3)
-		user << "You complete the Securitron! Beep boop."
+		to_chat(user, "You complete the Securitron! Beep boop.")
 		var/mob/living/bot/secbot/S = new /mob/living/bot/secbot(get_turf(src))
 		S.name = created_name
 		user.drop_from_inventory(O,get_turf(src))

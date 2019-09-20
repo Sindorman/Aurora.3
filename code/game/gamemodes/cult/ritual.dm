@@ -12,7 +12,7 @@ var/global/list/rnwords = list("ire","ego","nahlizet","certum","veri","jatkaa","
 	if(!cultwords["travel"])
 		runerandom()
 	for (var/word in engwords)
-		usr << "[cultwords[word]] is [word]"
+		to_chat(usr, "[cultwords[word]] is [word]")
 
 /proc/runerandom() //randomizes word meaning
 	var/list/runewords=rnwords
@@ -178,7 +178,7 @@ var/global/list/rnwords = list("ire","ego","nahlizet","certum","veri","jatkaa","
 
 /obj/item/weapon/book/tome
 	name = "arcane tome"
-	icon = 'icons/obj/weapons.dmi'
+	icon = 'icons/obj/library.dmi'
 	icon_state ="tome"
 	throw_speed = 1
 	throw_range = 5
@@ -317,7 +317,7 @@ var/global/list/rnwords = list("ire","ego","nahlizet","certum","veri","jatkaa","
 	M.take_organ_damage(0,rand(5,20)) //really lucky - 5 hits for a crit
 	for(var/mob/O in viewers(M, null))
 		O.show_message("<span class='warning'>\The [user] beats \the [M] with \the [src]!</span>", 1)
-	M << "<span class='danger'>You feel searing heat inside!</span>"
+	to_chat(M, "<span class='danger'>You feel searing heat inside!</span>")
 
 
 /obj/item/weapon/book/tome/attack_self(mob/living/user as mob)

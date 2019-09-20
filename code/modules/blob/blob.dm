@@ -1,7 +1,7 @@
 //I will need to recode parts of this but I am way too tired atm
 /obj/effect/blob
 	name = "blob"
-	icon = 'icons/mob/blob.dmi'
+	icon = 'icons/mob/npc/blob.dmi'
 	icon_state = "blob"
 	light_range = 3
 	light_color = "#b5ff5b"
@@ -156,12 +156,21 @@
 	update_icon()
 
 /obj/effect/blob/proc/expand(var/turf/T)
-	if(istype(T, /turf/unsimulated/) || (istype(T, /turf/simulated/mineral) && T.density))
+	//Dont epxand over unsimulated unless its astroid trufs
+	if(istype(T, /turf/unsimulated/) && !istype(T, /turf/unsimulated/floor/asteroid/))
 		return
 
+	//Dont expand over space or holes, unless there´s a lattice
 	if((istype(T, /turf/simulated/open) || istype(T, /turf/space)) && !(locate(/obj/structure/lattice) in T))
 		return
 
+	//If its rock, mine it
+	if(istype(T,/turf/simulated/mineral))
+		var/turf/simulated/mineral/M = T
+		M.kinetic_hit(8,get_dir(src,M)) //8 so its destroyed in 2 or 3 hits (mineral health is randomized between 10 and 20)
+		return
+
+	//If its a wall, destroy it
 	if(istype(T, /turf/simulated/wall))
 		var/turf/simulated/wall/SW = T
 		SW.ex_act(2)
@@ -189,6 +198,10 @@
 				health += rand(1,10)
 				if(health > maxHealth)
 					health = maxHealth
+		return
+
+	//If its a astroid turf, ignore it with a 50% chance (so the expansion mostly focuses on the station)
+	if(istype(T,/turf/unsimulated/floor/asteroid/) && prob(50))
 		return
 
 	if(parent_core)
@@ -249,7 +262,6 @@
 
 /obj/effect/blob/core
 	name = "blob core"
-	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_core"
 	light_range = 1
 	light_power = 2
@@ -298,7 +310,6 @@
 // Half the stats of a normal core. Blob has a very small probability of growing these when spreading. These will spread the blob further.
 /obj/effect/blob/core/secondary
 	name = "small blob core"
-	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_core"
 	maxHealth = 100
 	brute_resist = 1
@@ -319,7 +330,6 @@
 
 /obj/effect/blob/shield
 	name = "strong blob"
-	icon = 'icons/mob/blob.dmi'
 	icon_state = "blob_idle"
 	maxHealth = 60
 	brute_resist = 1

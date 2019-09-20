@@ -9,13 +9,13 @@ mob/proc/airflow_stun()
 	if(last_airflow_stun > world.time - vsc.airflow_stun_cooldown)	return 0
 
 	if(!(status_flags & CANSTUN) && !(status_flags & CANWEAKEN))
-		src << "<span class='notice'>You stay upright as the air rushes past you.</span>"
+		to_chat(src, "<span class='notice'>You stay upright as the air rushes past you.</span>")
 		return 0
 	if(buckled)
-		src << "<span class='notice'>Air suddenly rushes past you!</span>"
+		to_chat(src, "<span class='notice'>Air suddenly rushes past you!</span>")
 		return 0
 	if(!lying)
-		src << "<span class='warning'>The sudden rush of air knocks you over!</span>"
+		to_chat(src, "<span class='warning'>The sudden rush of air knocks you over!</span>")
 	Weaken(5)
 	last_airflow_stun = world.time
 
@@ -135,15 +135,17 @@ mob/living/carbon/human/airflow_hit(atom/A)
 
 zone/proc/movables(list/origins)
 	. = list()
-	if (!origins || !origins.len)
+	if (!origins?.len)
 		return
 
 	var/static/list/movables_tcache = typecacheof(list(/obj/effect, /mob/abstract))
 
 	var/atom/movable/AM
 	for (var/testing_turf in contents)
+		CHECK_TICK
 		for (var/am in testing_turf)
 			AM = am
+			CHECK_TICK
 			if (AM.simulated && !AM.anchored && !movables_tcache[AM.type])
 				for (var/source_turf in origins)
 					if (get_dist(testing_turf, source_turf) <= EDGE_KNOCKDOWN_MAX_DISTANCE)

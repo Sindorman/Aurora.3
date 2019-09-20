@@ -158,7 +158,10 @@
 		//affecting.apply_effect(STUTTER, 5) //would do this, but affecting isn't declared as mob/living for some stupid reason.
 		affecting.stuttering = max(affecting.stuttering, 5) //It will hamper your voice, being choked and all.
 		affecting.Weaken(5)	//Should keep you down unless you get help.
-		affecting.losebreath = max(affecting.losebreath + 2, 3)
+		if(ishuman(affecting))
+			var/mob/living/carbon/human/A = affecting
+			if (!(A.species.flags & NO_BREATHE))
+				A.losebreath = max(A.losebreath + 2, 3)
 
 	adjust_position()
 
@@ -169,7 +172,7 @@
 	switch(target_zone)
 		if("mouth")
 			if(announce)
-				user.visible_message("<span class='warning'>\The [user] covers [target]'s mouth!</span>")
+				user.visible_message("<span class='warning'>\The [user] covers [target]'s face!</span>")
 			if(target.silent < 3)
 				target.silent = 3
 		if("eyes")
@@ -235,10 +238,17 @@
 		return
 	if(!assailant.canClick())
 		return
-	if(world.time < (last_action + UPGRADE_COOLDOWN))
-		return
 	if(!assailant.canmove || assailant.lying)
 		qdel(src)
+		return
+
+	var/grab_coeff = 1
+	if(ishuman(affecting))
+		var/mob/living/carbon/human/H = affecting
+		if(H.species)
+			grab_coeff = H.species.grab_mod
+
+	if(world.time < (last_action + (UPGRADE_COOLDOWN * grab_coeff)))
 		return
 
 	last_action = world.time
@@ -257,7 +267,7 @@
 		hud.icon_state = "reinforce1"
 	else if(state < GRAB_NECK)
 		if(isslime(affecting))
-			assailant << "<span class='notice'>You squeeze [affecting], but nothing interesting happens.</span>"
+			to_chat(assailant, "<span class='notice'>You squeeze [affecting], but nothing interesting happens.</span>")
 			return
 
 		assailant.visible_message("<span class='warning'>[assailant] has reinforced \his grip on [affecting] (now neck)!</span>")
@@ -281,7 +291,10 @@
 		msg_admin_attack("[key_name_admin(assailant)] strangled (kill intent) [key_name_admin(affecting)]",ckey=key_name(assailant),ckey_target=key_name(affecting))
 
 		affecting.setClickCooldown(10)
-		affecting.losebreath += 1
+		if(ishuman(affecting))
+			var/mob/living/carbon/human/A = affecting
+			if (!(A.species.flags & NO_BREATHE))
+				A.losebreath += 1
 		affecting.set_dir(WEST)
 	adjust_position()
 
@@ -315,7 +328,7 @@
 			switch(assailant.a_intent)
 				if(I_HELP)
 					if(force_down)
-						assailant << "<span class='warning'>You are no longer pinning [affecting] to the ground.</span>"
+						to_chat(assailant, "<span class='warning'>You are no longer pinning [affecting] to the ground.</span>")
 						force_down = 0
 						return
 					inspect_organ(affecting, assailant, hit_zone)
@@ -332,7 +345,10 @@
 						dislocate(affecting, assailant, hit_zone)
 
 				if(I_DISARM)
-					pin_down(affecting, assailant)
+					if(hit_zone != "head")
+						pin_down(affecting, assailant)
+					if(hit_zone == "head")
+						hair_pull(affecting, assailant)
 
 	//clicking on yourself while grabbing them
 	if(M == assailant && state >= GRAB_AGGRESSIVE)

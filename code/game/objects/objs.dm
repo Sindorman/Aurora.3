@@ -24,6 +24,8 @@
 	var/icon_species_in_hand = 0//If 1, we will use the species tag even for rendering this item in the left/right hand.
 
 	var/equip_slot = 0
+	var/usesound = null
+	var/toolspeed = 1
 
 /obj/Destroy()
 	STOP_PROCESSING(SSprocessing, src)
@@ -45,7 +47,7 @@
 /obj/CanUseTopic(var/mob/user, var/datum/topic_state/state)
 	if(user.CanUseObjTopic(src))
 		return ..()
-	user << "<span class='danger'>\icon[src]Access Denied!</span>"
+	to_chat(user, "<span class='danger'>\icon[src]Access Denied!</span>")
 	return STATUS_CLOSE
 
 /mob/living/silicon/CanUseObjTopic(var/obj/O)

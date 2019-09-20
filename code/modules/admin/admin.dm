@@ -6,23 +6,25 @@ var/global/enabled_spooking = 0
 ////////////////////////////////
 /proc/message_admins(var/msg)
 	msg = "<span class=\"log_message\"><span class=\"prefix\">ADMIN LOG:</span> <span class=\"message\">[msg]</span></span>"
-	for(var/client/C in admins)
+	for(var/s in staff)
+		var/client/C = s
 		if((R_ADMIN|R_MOD) & C.holder.rights)
-			C << msg
+			to_chat(C, msg)
 
 /proc/msg_admin_attack(var/text,var/ckey="",var/ckey_target="") //Toggleable Attack Messages
 	log_attack(text,ckey=ckey,ckey_target=ckey_target)
 	var/rendered = "<span class=\"log_message\"><span class=\"prefix\">ATTACK:</span> <span class=\"message\">[text]</span></span>"
-	for(var/client/C in admins)
+	for(var/s in staff)
+		var/client/C = s
 		if((R_ADMIN|R_MOD) & C.holder.rights)
 			if(C.prefs.toggles & CHAT_ATTACKLOGS)
 				var/msg = rendered
-				C << msg
+				to_chat(C, msg)
 
 proc/admin_notice(var/message, var/rights)
 	for(var/mob/M in mob_list)
 		if(check_rights(rights, 0, M))
-			M << message
+			to_chat(M, message)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////Panels
 
@@ -32,12 +34,12 @@ proc/admin_notice(var/message, var/rights)
 	set desc="Edit player (respawn, ban, heal, etc)"
 
 	if(!M)
-		usr << "You seem to be selecting a mob that doesn't exist anymore."
+		to_chat(usr, "You seem to be selecting a mob that doesn't exist anymore.")
 		return
 	if (!istype(src,/datum/admins))
 		src = usr.client.holder
 	if (!istype(src,/datum/admins))
-		usr << "Error: you are not an admin!"
+		to_chat(usr, "Error: you are not an admin!")
 		return
 
 	var/body = "<html><head><title>Options for [M.key]</title></head>"
@@ -115,7 +117,6 @@ proc/admin_notice(var/message, var/rights)
 			else if(ishuman(M))
 				body += {"<A href='?src=\ref[src];makeai=\ref[M]'>Make AI</A> |
 					<A href='?src=\ref[src];makerobot=\ref[M]'>Make Robot</A> |
-					<A href='?src=\ref[src];makealien=\ref[M]'>Make Alien</A> |
 					<A href='?src=\ref[src];makeslime=\ref[M]'>Make slime</A>
 				"}
 
@@ -210,7 +211,7 @@ proc/admin_notice(var/message, var/rights)
 	if (!istype(src,/datum/admins))
 		src = usr.client.holder
 	if (!istype(src,/datum/admins))
-		usr << "Error: you are not an admin!"
+		to_chat(usr, "Error: you are not an admin!")
 		return
 	if (!check_rights(R_ADMIN|R_MOD))
 		return
@@ -273,7 +274,7 @@ proc/admin_notice(var/message, var/rights)
 	if (!istype(src,/datum/admins))
 		src = usr.client.holder
 	if (!istype(src,/datum/admins))
-		usr << "Error: you are not an admin!"
+		to_chat(usr, "Error: you are not an admin!")
 		return
 
 	if (config.ban_legacy_system)
@@ -325,7 +326,7 @@ proc/admin_notice(var/message, var/rights)
 	if (!istype(src,/datum/admins))
 		src = usr.client.holder
 	if (!istype(src,/datum/admins))
-		usr << "Error: you are not an admin!"
+		to_chat(usr, "Error: you are not an admin!")
 		return
 
 	if (!admincaster_signature)
@@ -435,7 +436,7 @@ proc/admin_notice(var/message, var/rights)
 						i++
 						dat+="<BLOCKQUOTE style=\"padding:4px;border-left:4px #797979 solid\">[MESSAGE.body] <FONT SIZE=1>\[Likes: <A href='?src=\ref[src];ac_setlikes=1;'><FONT COLOR='DarkGreen'>[MESSAGE.likes]</FONT></A> Dislikes: <A href='?src=\ref[src];ac_setdislikes=1;'><FONT COLOR='maroon'>[MESSAGE.dislikes]</FONT></A>\]</FONT><BR>"
 						if(MESSAGE.img)
-							usr << browse_rsc(MESSAGE.img, "tmp_photo[i].png")
+							to_chat(usr, browse_rsc(MESSAGE.img, "tmp_photo[i].png"))
 							dat+="<img src='tmp_photo[i].png' width = '180'><BR><BR>"
 						dat+="<FONT SIZE=1><A href='?src=\ref[src];ac_view_comments=1;ac_story=\ref[MESSAGE]'>View Comments</A> <A href='?src=\ref[src];ac_add_comment=1;ac_story=\ref[MESSAGE]'>Add Comment</A> <A href='?src=\ref[src];ac_like=1;ac_story=\ref[MESSAGE]'>Like Story</A> <A href='?src=\ref[src];ac_dislike=1;ac_story=\ref[MESSAGE]'>Dislike Story</A></FONT><BR>"
 						dat+="<FONT SIZE=1>\[Story by <FONT COLOR='maroon'>[MESSAGE.author] - [MESSAGE.time_stamp]</FONT>\]</FONT></BLOCKQUOTE><BR>"
@@ -551,7 +552,7 @@ proc/admin_notice(var/message, var/rights)
 				<B>Photo:</B>:
 			"}
 			if(SSnews.wanted_issue.img)
-				usr << browse_rsc(SSnews.wanted_issue.img, "tmp_photow.png")
+				to_chat(usr, browse_rsc(SSnews.wanted_issue.img, "tmp_photow.png"))
 				dat+="<BR><img src='tmp_photow.png' width = '180'>"
 			else
 				dat+="None"
@@ -665,11 +666,13 @@ proc/admin_notice(var/message, var/rights)
 	set category = "Special Verbs"
 	set name = "Announce"
 	set desc="Announce your desires to the world"
-	if(!check_rights(0))	return
 
-	var/message = input("Global message to send:", "Admin Announce", null, null)  as message//todo: sanitize for all?
+	if (!check_rights(R_ADMIN))
+		return
+
+	var/message = input("Global message to send:", "Admin Announce", null, null) as message
 	if(message)
-		if(!check_rights(R_SERVER,0))
+		if(!check_rights(R_SERVER, 0))
 			message = sanitize(message, 500, extra = 0)
 		message = replacetext(message, "\n", "<br>") // required since we're putting it in a <p> tag
 		to_world("<span class=notice><b>[usr.client.holder.fakekey ? "Administrator" : usr.key] Announces:</b><p style='text-indent: 50px'>[message]</p></span>")
@@ -735,9 +738,19 @@ proc/admin_notice(var/message, var/rights)
 		return
 
 	config.dooc_allowed = !( config.dooc_allowed )
-	log_admin("[key_name(usr)] toggled Dead OOC.")
-	message_admins("[key_name_admin(usr)] toggled Dead OOC.", 1)
+	log_and_message_admins("toggled dead (global) OOC. (New state: [config.dooc_allowed])")
 	feedback_add_details("admin_verb","TDOOC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+/datum/admins/proc/toggle_dead_looc()
+	set category = "Server"
+	set desc = "Toggle Dead LOOC."
+	set name = "Toggle Dead LOOC"
+
+	if (!check_rights(R_ADMIN))
+		return
+
+	config.dead_looc_allowed = !config.dead_looc_allowed
+	log_and_message_admins("toggled dead LOOC. (New state: [config.dead_looc_allowed])")
 
 /datum/admins/proc/togglehubvisibility()
 	set category = "Server"
@@ -779,7 +792,7 @@ proc/admin_notice(var/message, var/rights)
 		feedback_add_details("admin_verb","SN") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 		return 1
 	else
-		usr << "<font color='red'>Error: Start Now: Game has already started.</font>"
+		to_chat(usr, "<font color='red'>Error: Start Now: Game has already started.</font>")
 		return 0
 
 /datum/admins/proc/toggleenter()
@@ -977,18 +990,18 @@ proc/admin_notice(var/message, var/rights)
 	if(!check_rights(R_SPAWN))	return
 
 	if(!custom_items)
-		usr << "Custom item list is null."
+		to_chat(usr, "Custom item list is null.")
 		return
 
 	if(!custom_items.len)
-		usr << "Custom item list not populated."
+		to_chat(usr, "Custom item list not populated.")
 		return
 
 	for(var/assoc_key in custom_items)
-		usr << "[assoc_key] has:"
+		to_chat(usr, "[assoc_key] has:")
 		var/list/current_items = custom_items[assoc_key]
 		for(var/datum/custom_item/item in current_items)
-			usr << "- name: [item.name] icon: [item.item_icon] path: [item.item_path] desc: [item.item_desc]"
+			to_chat(usr, "- name: [item.name] icon: [item.item_icon] path: [item.item_path] desc: [item.item_desc]")
 
 /datum/admins/proc/spawn_plant(seedtype in SSplants.seeds)
 	set category = "Debug"
@@ -1043,10 +1056,10 @@ proc/admin_notice(var/message, var/rights)
 	set name = "Show Traitor Panel"
 
 	if(!istype(M))
-		usr << "This can only be used on instances of type /mob"
+		to_chat(usr, "This can only be used on instances of type /mob")
 		return
 	if(!M.mind)
-		usr << "This mob has no mind!"
+		to_chat(usr, "This mob has no mind!")
 		return
 
 	M.mind.edit_memory()
@@ -1157,21 +1170,21 @@ proc/admin_notice(var/message, var/rights)
 	for(var/mob/living/silicon/S in mob_list)
 		ai_number++
 		if(isAI(S))
-			usr << "<b>AI [key_name(S, usr)]'s laws:</b>"
+			to_chat(usr, "<b>AI [key_name(S, usr)]'s laws:</b>")
 		else if(isrobot(S))
 			var/mob/living/silicon/robot/R = S
-			usr << "<b>CYBORG [key_name(S, usr)] [R.connected_ai?"(Slaved to: [R.connected_ai])":"(Independant)"]: laws:</b>"
+			to_chat(usr, "<b>CYBORG [key_name(S, usr)] [R.connected_ai?"(Slaved to: [R.connected_ai])":"(Independant)"]: laws:</b>")
 		else if (ispAI(S))
-			usr << "<b>pAI [key_name(S, usr)]'s laws:</b>"
+			to_chat(usr, "<b>pAI [key_name(S, usr)]'s laws:</b>")
 		else
-			usr << "<b>SOMETHING SILICON [key_name(S, usr)]'s laws:</b>"
+			to_chat(usr, "<b>SOMETHING SILICON [key_name(S, usr)]'s laws:</b>")
 
 		if (S.laws == null)
-			usr << "[key_name(S, usr)]'s laws are null?? Contact a coder."
+			to_chat(usr, "[key_name(S, usr)]'s laws are null?? Contact a coder.")
 		else
 			S.laws.show_laws(usr)
 	if(!ai_number)
-		usr << "<b>No AIs located</b>" //Just so you know the thing is actually working and not just ignoring you.
+		to_chat(usr, "<b>No AIs located</b>") //Just so you know the thing is actually working and not just ignoring you.)
 
 /datum/admins/proc/show_skills()
 	set category = "Admin"
@@ -1180,7 +1193,7 @@ proc/admin_notice(var/message, var/rights)
 	if (!istype(src,/datum/admins))
 		src = usr.client.holder
 	if (!istype(src,/datum/admins))
-		usr << "Error: you are not an admin!"
+		to_chat(usr, "Error: you are not an admin!")
 		return
 
 	var/mob/living/carbon/human/M = input("Select mob.", "Select mob.") as null|anything in human_mob_list
@@ -1196,7 +1209,7 @@ proc/admin_notice(var/message, var/rights)
 	set desc = "Should fix any mob sprite update errors."
 
 	if (!holder)
-		src << "Only administrators may use this command."
+		to_chat(src, "Only administrators may use this command.")
 		return
 
 	if(istype(H))
@@ -1277,16 +1290,16 @@ proc/admin_notice(var/message, var/rights)
 	if (!istype(src,/datum/admins))
 		src = usr.client.holder
 	if (!istype(src,/datum/admins))
-		usr << "Error: you are not an admin!"
+		to_chat(usr, "Error: you are not an admin!")
 		return
 
 	if(!SSticker.mode)
-		usr << "Mode has not started."
+		to_chat(usr, "Mode has not started.")
 		return
 
 	var/antag_type = input("Choose a template.","Force Latespawn") as null|anything in all_antag_types
 	if(!antag_type || !all_antag_types[antag_type])
-		usr << "Aborting."
+		to_chat(usr, "Aborting.")
 		return
 
 	var/datum/antagonist/antag = all_antag_types[antag_type]
@@ -1301,11 +1314,11 @@ proc/admin_notice(var/message, var/rights)
 	if (!istype(src,/datum/admins))
 		src = usr.client.holder
 	if (!istype(src,/datum/admins) || !check_rights(R_ADMIN))
-		usr << "Error: you are not an admin!"
+		to_chat(usr, "Error: you are not an admin!")
 		return
 
 	if(!SSticker || !SSticker.mode)
-		usr << "Mode has not started."
+		to_chat(usr, "Mode has not started.")
 		return
 
 	log_and_message_admins("attempting to force mode autospawn.")

@@ -154,7 +154,7 @@
 
 		else
 			for(var/atom/movable/A in destturf)
-				if(A != teleatom && A.density && A.anchored)
+				if(A != teleatom && A.density && A.anchored  && !istype(A, /obj/effect/portal))
 					if(A.flags & ON_BORDER)
 						if(prob(10))
 							impediment = A
@@ -180,7 +180,7 @@
 
 
 
-			if(istype(teleatom, /obj))
+			if(istype(teleatom, /obj) && !istype(teleatom, /obj/effect/portal))
 				valid = 1
 				var/obj/O = teleatom
 				if(newdest)
@@ -222,7 +222,7 @@
 							if(organs_to_gib.len)
 								var/obj/item/organ/external/E = pick(organs_to_gib)
 								to_chat(H, "<span class='danger'>You partially phase into \the [impediment], causing your [E.name] to violently dematerialize!</span>")
-								E.droplimb(0,DROPLIMB_BLUNT)
+								H.apply_damage(35, BRUTE, E, 0, sharp=0, edge=0)
 
 					else
 						if(newdest)
@@ -333,7 +333,7 @@
 		precision = max(rand(1,100)*bagholding.len,100)
 		if(istype(teleatom, /mob/living))
 			var/mob/living/MM = teleatom
-			MM << "<span class='danger'>The Bluespace interface on your [teleatom] interferes with the teleport!</span>"
+			to_chat(MM, "<span class='danger'>The Bluespace interface on your [teleatom] interferes with the teleport!</span>")
 	return 1
 
 /datum/teleport/instant/science/teleportChecks()
@@ -341,7 +341,7 @@
 		teleatom.visible_message("<span class='danger'>\The [teleatom] bounces off of the portal!</span>")
 		return 0
 
-	
+
 	if(isobserver(teleatom)) // do not teleport ghosts
 		return 0
 

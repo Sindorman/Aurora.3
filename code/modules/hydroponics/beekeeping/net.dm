@@ -11,9 +11,9 @@
 /obj/item/weapon/bee_net/examine(var/mob/user)
 	..()
 	if (caught_bees)
-		user << span("notice", "It contains [caught_bees] bees")
+		to_chat(user, span("notice", "It contains [caught_bees] bees"))
 	else
-		user << span("notice", "It is empty")
+		to_chat(user, span("notice", "It is empty"))
 
 /obj/item/weapon/bee_net/attack_self(mob/user as mob)
 	var/turf/T = get_step(get_turf(user), user.dir)
@@ -24,7 +24,7 @@
 
 
 
-/obj/item/weapon/bee_net/resolve_attackby(atom/A, mob/user)
+/obj/item/weapon/bee_net/resolve_attackby(atom/A, mob/user, var/click_parameters)
 	if (istype(A, /turf))
 		var/turf/T = A
 		for(var/mob/living/simple_animal/bee/B in T)
@@ -36,7 +36,7 @@
 	else if (istype(A, /obj/machinery/beehive) && caught_bees)
 		deposit_bees(A, user)
 		return 1
-	..()
+	..(A, user, click_parameters)
 
 
 /obj/item/weapon/bee_net/proc/capture_bees(var/mob/living/simple_animal/bee/target, var/mob/living/user)
@@ -107,7 +107,7 @@
 
 		newhome.update_icon()
 	else
-		user << span("warning", "You'll have to open the lid before you can place bees inside")
+		to_chat(user, span("warning", "You'll have to open the lid before you can place bees inside"))
 
 /obj/item/weapon/bee_net/verb/empty_bees()
 	set src in usr

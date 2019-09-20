@@ -14,7 +14,7 @@ var/list/archive_diseases = list()
 // The order goes from easy to cure to hard to cure.
 var/list/advance_cures = 	list(
 									"nutriment", "sugar", "orangejuice",
-									"spaceacillin", "kelotane", "ethanol",
+									"deltamivir", "kelotane", "ethanol",
 									"leporazine", "synaptizine", "lipozine",
 									"silver", "gold", "phoron"
 								)
@@ -419,7 +419,7 @@ var/list/advance_cures = 	list(
 /mob/verb/test()
 
 	for(var/datum/disease/D in SSdisease.processing)
-		src << "<a href='?_src_=vars;Vars=\ref[D]'>[D.name] - [D.holder]</a>"
+		to_chat(src, "<a href='?_src_=vars;Vars=\ref[D]'>[D.name] - [D.holder]</a>")
 */
 
 #undef RANDOM_STARTING_LEVEL

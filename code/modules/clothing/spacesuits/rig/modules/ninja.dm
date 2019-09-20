@@ -18,10 +18,11 @@
 	toggleable = 1
 	disruptable = 1
 	disruptive = 0
+	attackdisrupts = 1
 	confined_use = 1
 
-	use_power_cost = 50
-	active_power_cost = 10
+	use_power_cost = 75
+	active_power_cost = 5
 	passive_power_cost = 0
 	module_cooldown = 30
 
@@ -34,6 +35,8 @@
 	suit_overlay_active =   "stealth_active"
 	suit_overlay_inactive = "stealth_inactive"
 
+	category = MODULE_SPECIAL
+
 /obj/item/rig_module/stealth_field/activate()
 
 	if(!..())
@@ -41,7 +44,7 @@
 
 	var/mob/living/carbon/human/H = holder.wearer
 
-	H << "<font color='blue'><b>You are now invisible to normal detection.</b></font>"
+	to_chat(H, "<font color='blue'><b>You are now invisible to normal detection.</b></font>")
 	H.invisibility = INVISIBILITY_LEVEL_TWO
 
 	anim(get_turf(H), H, 'icons/effects/effects.dmi', "electricity",null,20,null)
@@ -55,7 +58,7 @@
 
 	var/mob/living/carbon/human/H = holder.wearer
 
-	H << "<span class='danger'>You are now visible.</span>"
+	to_chat(H, "<span class='danger'>You are now visible.</span>")
 	H.invisibility = 0
 
 	anim(get_turf(H), H,'icons/mob/mob.dmi',,"uncloak",,H.dir)
@@ -63,7 +66,7 @@
 
 	for(var/mob/O in oviewers(H))
 		O.show_message("[H.name] appears from thin air!",1)
-	playsound(get_turf(H), 'sound/effects/stealthoff.ogg', 75, 1)
+	playsound(get_turf(H), 'sound/effects/stealthoff.ogg', 10, 1)
 
 
 /obj/item/rig_module/teleporter
@@ -75,11 +78,14 @@
 	redundant = 1
 	usable = 1
 	selectable = 1
+	var/lastteleport
 
 	engage_string = "Emergency Leap"
 
 	interface_name = "VOID-shift bluespace phase projector"
 	interface_desc = "An advanced teleportation system. It is capable of pinpoint precision or random leaps forward."
+
+	category = MODULE_SPECIAL
 
 /obj/item/rig_module/teleporter/proc/phase_in(var/mob/M,var/turf/T)
 
@@ -101,13 +107,17 @@
 
 /obj/item/rig_module/teleporter/engage(var/atom/target, var/notify_ai)
 
-	if(!..()) return 0
+	if(!..()) return FALSE
 
 	var/mob/living/carbon/human/H = holder.wearer
 
+	if(lastteleport + (5 SECONDS) > world.time)
+		to_chat(H, span("warning", "The teleporter needs time to cool down!"))
+		return FALSE
+
 	if(!istype(H.loc, /turf))
-		H << "<span class='warning'>You cannot teleport out of your current location.</span>"
-		return 0
+		to_chat(H, "<span class='warning'>You cannot teleport out of your current location.</span>")
+		return FALSE
 
 	var/turf/T
 	if(target)
@@ -116,20 +126,20 @@
 		T = get_teleport_loc(get_turf(H), H, rand(5, 9))
 
 	if(!T || T.density)
-		H << "<span class='warning'>You cannot teleport into solid walls.</span>"
-		return 0
+		to_chat(H, "<span class='warning'>You cannot teleport into solid walls.</span>")
+		return FALSE
 
 	if(T.z in current_map.admin_levels)
-		H << "<span class='warning'>You cannot use your teleporter on this Z-level.</span>"
-		return 0
+		to_chat(H, "<span class='warning'>You cannot use your teleporter on this Z-level.</span>")
+		return FALSE
 
 	if(T.contains_dense_objects())
-		H << "<span class='warning'>You cannot teleport to a location with solid objects.</span>"
-		return 0
+		to_chat(H, "<span class='warning'>You cannot teleport to a location with solid objects.</span>")
+		return FALSE
 
-	if(T.z != H.z || get_dist(T, get_turf(H)) > world.view)
-		H << "<span class='warning'>You cannot teleport to such a distant object.</span>"
-		return 0
+	if((T.z != H.z || get_dist(T, get_turf(H)) > world.view) && target)
+		to_chat(H, "<span class='warning'>You cannot teleport to such a distant object.</span>")
+		return FALSE
 
 	phase_out(H,get_turf(H))
 	do_teleport(H,T)
@@ -144,7 +154,8 @@
 			do_teleport(G.affecting,locate(T.x+rand(-1,1),T.y+rand(-1,1),T.z))
 			phase_in(G.affecting,get_turf(G.affecting))
 
-	return 1
+	lastteleport = world.time
+	return TRUE
 
 /obj/item/rig_module/fabricator/energy_net
 
@@ -159,6 +170,8 @@
 
 	fabrication_type = /obj/item/weapon/energy_net
 	use_power_cost = 60
+
+	category = MODULE_SPECIAL
 
 /obj/item/rig_module/fabricator/energy_net/engage(atom/target)
 
@@ -182,6 +195,8 @@
 	interface_name = "dead man's switch"
 	interface_desc = "An integrated self-destruct module. When the wearer dies, so does the surrounding area. Do not press this button."
 	var/list/explosion_values = list(3,4,5,6)
+
+	category = MODULE_SPECIAL
 
 /obj/item/rig_module/self_destruct/small
 	explosion_values = list(1,2,3,4)
@@ -228,6 +243,8 @@
 	interface_desc = "A highly experimental system that augments the hardsuit's existing EM shielding."
 	var/protection_amount = 30
 
+	category = MODULE_SPECIAL
+
 /obj/item/rig_module/emp_shielding/activate()
 	if(!..())
 		return
@@ -253,21 +270,23 @@
 
 	interface_name = "emergency power generator"
 	interface_desc = "A high yield power generating device that takes a long time to recharge."
-	var/generation_ammount = 1500
+	var/generation_ammount = 2500
+
+	category = MODULE_SPECIAL
 
 /obj/item/rig_module/emergency_powergenerator/engage()
 	if(!..())
 		return
 	var/mob/living/carbon/human/H = holder.wearer
 	if(cooldown)
-		H << "<span class='danger'>There isn't enough power stored up yet!</span>"
+		to_chat(H, "<span class='danger'>There isn't enough power stored up yet!</span>")
 		return 0
 	else
-		H << "<span class='danger'>Your suit emits a loud sound as power is rapidly injected into your suits battery!</span>"
+		to_chat(H, "<span class='danger'>Your suit emits a loud sound as power is rapidly injected into your suits battery!</span>")
 		playsound(H.loc, 'sound/effects/sparks2.ogg', 50, 1)
 		holder.cell.give(generation_ammount)
 		cooldown = 1
-		addtimer(CALLBACK(src, /obj/item/rig_module/emergency_powergenerator/proc/reset_cooldown), 240)
+		addtimer(CALLBACK(src, /obj/item/rig_module/emergency_powergenerator/proc/reset_cooldown), 5 MINUTES)
 
 /obj/item/rig_module/emergency_powergenerator/proc/reset_cooldown()
 	cooldown = 0
@@ -282,3 +301,66 @@
 	interface_desc = "A complex uprade that allows the user to apply an EMAG effect to certain objects. High power cost."
 
 	device_type = /obj/item/weapon/robot_emag
+
+	category = MODULE_SPECIAL
+
+/obj/item/rig_module/stealth_field/advanced //credits to Burger BB
+	name = "advanced active camouflage module"
+	desc = "A robust hardsuit-integrated stealth module. This model sports a significantly lower cooldown between uses as well as a reduced charge cost."
+	use_power_cost = 10
+	active_power_cost = 2
+	passive_power_cost = 0
+	module_cooldown = 10
+
+	category = MODULE_SPECIAL
+
+/obj/item/rig_module/device/door_hack //credits to BurgerBB
+	name = "advanced door hacking tool"
+	desc = "An advanced door hacking tool that sports a low power cost and incredibly quick door hacking time. The device also supports hacking several signals at once remotely, and the last 10 doors hacked can be instantly accessed."
+	use_power_cost = 10
+	module_cooldown = 5
+
+	usable = 0
+	selectable = 0
+	toggleable = 1
+
+	interface_name = "advanced door hacking tool"
+	interface_desc = "An advanced door hacking tool that sports a low power cost and incredibly quick door hacking time. The device also supports hacking several signals at once remotely, and the last 10 doors hacked can be instantly accessed."
+
+	category = MODULE_SPECIAL
+
+/obj/item/rig_module/device/door_hack/process()
+
+	if(holder && holder.wearer)
+		if(!(locate(/obj/item/device/multitool/hacktool/rig) in holder.wearer))
+			deactivate()
+			return 0
+
+	return ..()
+
+/obj/item/rig_module/device/door_hack/activate()
+
+	..()
+
+	var/mob/living/M = holder.wearer
+
+	if(M.l_hand && M.r_hand)
+		to_chat(M, "<span class='danger'>Your hands are full.</span>")
+		deactivate()
+		return
+
+	var/obj/item/device/multitool/hacktool/rig/hacktool = new(M)
+	hacktool.creator = M
+	M.put_in_hands(hacktool)
+
+/obj/item/rig_module/device/door_hack/deactivate()
+
+	..()
+
+	var/mob/living/M = holder.wearer
+
+	if(!M)
+		return
+
+	for(var/obj/item/device/multitool/hacktool/rig/hacktool in M.contents)
+		qdel(hacktool)

@@ -26,33 +26,19 @@
 	origin_tech = list(TECH_COMBAT = 3, TECH_MATERIAL = 2, TECH_MAGNET = 3)
 	modifystate = "eriflestun"
 
+	is_wieldable = TRUE
+
 	firemodes = list(
 		list(mode_name="stun", projectile_type=/obj/item/projectile/beam/stun, modifystate="eriflestun", fire_sound='sound/weapons/Taser.ogg'),
 		list(mode_name="lethal", projectile_type=/obj/item/projectile/beam, modifystate="eriflekill", fire_sound='sound/weapons/Laser.ogg')
 		)
 
-    //action button for wielding
-	action_button_name = "Wield rifle"
-
-/obj/item/weapon/gun/energy/rifle/can_wield()
-	return 1
-
-/obj/item/weapon/gun/energy/rifle/ui_action_click()
-	if(src in usr)
-		toggle_wield(usr)
-
-/obj/item/weapon/gun/energy/rifle/verb/wield_rifle()
-	set name = "Wield rifle"
-	set category = "Object"
-	set src in usr
-
-	toggle_wield(usr)
 
 /obj/item/weapon/gun/energy/rifle/laser
 	name = "laser rifle"
 	desc = "A common laser weapon, designed to kill with concentrated energy blasts."
-	icon_state = "laser"
-	item_state = "laser"
+	icon_state = "laserrifle"
+	item_state = "laserrifle"
 	fire_sound = 'sound/weapons/Laser.ogg'
 	max_shots = 15
 	origin_tech = list(TECH_COMBAT = 3, TECH_MAGNET = 2)
@@ -65,6 +51,14 @@
 
 	firemodes = list()
 	modifystate = null
+
+/obj/item/weapon/gun/energy/rifle/laser/update_icon()
+	..()
+	if(wielded)
+		item_state = "[initial(icon_state)]-wielded"
+	else
+		item_state = initial(item_state)
+	update_held_icon()
 
 /obj/item/weapon/gun/energy/rifle/laser/heavy
 	name = "laser cannon"
@@ -92,7 +86,7 @@
 	name = "xray laser rifle"
 	desc = "A high-power laser rifle capable of expelling concentrated xray blasts."
 	icon_state = "xrifle"
-	item_state = "xray"
+	item_state = "xrifle"
 	fire_sound = 'sound/weapons/laser3.ogg'
 	projectile_type = /obj/item/projectile/beam/xray
 	origin_tech = list(TECH_COMBAT = 5, TECH_MATERIAL = 3, TECH_MAGNET = 2, TECH_ILLEGAL = 2)
@@ -138,7 +132,7 @@
 	secondary_fire_sound = null
 
 /obj/item/weapon/gun/energy/rifle/pulse/destroyer/attack_self(mob/living/user as mob)
-	user << "<span class='warning'>[src.name] has three settings, and they are all DESTROY.</span>"
+	to_chat(user, "<span class='warning'>[src.name] has three settings, and they are all DESTROY.</span>")
 
 /obj/item/weapon/gun/energy/rifle/laser/tachyon
 	name = "tachyon rifle"
@@ -165,4 +159,4 @@
 	if(wielded)
 		toggle_scope(2.0, usr)
 	else
-		usr << "<span class='warning'>You can't look through the scope without stabilizing the rifle!</span>"
+		to_chat(usr, "<span class='warning'>You can't look through the scope without stabilizing the rifle!</span>")

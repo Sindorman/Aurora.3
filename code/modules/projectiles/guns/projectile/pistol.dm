@@ -7,7 +7,7 @@
 	caliber = ".45"
 	accuracy = 1
 	origin_tech = list(TECH_COMBAT = 2, TECH_MATERIAL = 2)
-	fire_sound = 'sound/weapons/Gunshot_light.ogg'
+	fire_sound = 'sound/weapons/gunshot/gunshot_light.ogg'
 	load_method = MAGAZINE
 
 /obj/item/weapon/gun/projectile/colt/update_icon()
@@ -28,14 +28,14 @@
 	var/mob/M = usr
 	if(!M.mind)	return 0
 	if(!M.mind.assigned_role == "Detective")
-		M << "<span class='notice'>You don't feel cool enough to name this gun, chump.</span>"
+		to_chat(M, "<span class='notice'>You don't feel cool enough to name this gun, chump.</span>")
 		return 0
 
 	var/input = sanitizeSafe(input("What do you want to name the gun?", ,""), MAX_NAME_LEN)
 
 	if(src && input && !M.stat && in_range(M,src))
 		name = input
-		M << "You name the gun [input]. Say hello to your new friend."
+		to_chat(M, "You name the gun [input]. Say hello to your new friend.")
 		return 1
 
 /obj/item/weapon/gun/projectile/sec
@@ -47,7 +47,7 @@
 	caliber = ".45"
 	accuracy = 1
 	origin_tech = list(TECH_COMBAT = 2, TECH_MATERIAL = 2)
-	fire_sound = 'sound/weapons/gunshot_pistol.ogg'
+	fire_sound = 'sound/weapons/gunshot/gunshot_pistol.ogg'
 	load_method = MAGAZINE
 
 /obj/item/weapon/gun/projectile/sec/update_icon()
@@ -103,7 +103,7 @@
 	caliber = "10mm"
 	accuracy = 1
 	origin_tech = list(TECH_COMBAT = 3, TECH_MATERIAL = 2)
-	fire_sound = 'sound/weapons/gunshot_pistol.ogg'
+	fire_sound = 'sound/weapons/gunshot/gunshot_pistol.ogg'
 	load_method = MAGAZINE
 	sel_mode = 1
 
@@ -153,15 +153,6 @@
 	else
 		icon_state = "[initial(icon_state)]-e"
 
-/obj/item/weapon/gun/projectile/deagle/gold
-	desc = "A gold plated gun folded over a million times by superior martian gunsmiths. Uses .50 AE ammo."
-	icon_state = "deagleg"
-	item_state = "deagleg"
-
-/obj/item/weapon/gun/projectile/deagle/camo
-	desc = "A Deagle brand Deagle for operators operating operationally. Uses .50 AE ammo."
-	icon_state = "deaglecamo"
-
 /obj/item/weapon/gun/projectile/gyropistol
 	name = "gyrojet pistol"
 	desc = "A bulky pistol designed to fire self propelled rounds"
@@ -195,10 +186,11 @@
 	caliber = "9mm"
 	silenced = 0
 	origin_tech = list(TECH_COMBAT = 2, TECH_MATERIAL = 2, TECH_ILLEGAL = 2)
-	fire_sound = 'sound/weapons/gunshot_pistol.ogg'
+	fire_sound = 'sound/weapons/gunshot/gunshot_pistol.ogg'
 	load_method = MAGAZINE
 	magazine_type = /obj/item/ammo_magazine/mc9mm
 	allowed_magazines = list(/obj/item/ammo_magazine/mc9mm)
+	var/can_silence = TRUE
 
 /obj/item/weapon/gun/projectile/pistol/flash
 	name = "9mm signal pistol"
@@ -206,11 +198,11 @@
 
 /obj/item/weapon/gun/projectile/pistol/attack_hand(mob/user as mob)
 	if(user.get_inactive_hand() == src)
-		if(silenced)
+		if(silenced && can_silence)
 			if(user.l_hand != src && user.r_hand != src)
 				..()
 				return
-			user << "<span class='notice'>You unscrew [silenced] from [src].</span>"
+			to_chat(user, "<span class='notice'>You unscrew [silenced] from [src].</span>")
 			user.put_in_hands(silenced)
 			silenced = 0
 			w_class = 2
@@ -219,12 +211,12 @@
 	..()
 
 /obj/item/weapon/gun/projectile/pistol/attackby(obj/item/I as obj, mob/user as mob)
-	if(istype(I, /obj/item/weapon/silencer))
+	if(istype(I, /obj/item/weapon/silencer) && can_silence)
 		if(user.l_hand != src && user.r_hand != src)	//if we're not in his hands
-			user << "<span class='notice'>You'll need [src] in your hands to do that.</span>"
+			to_chat(user, "<span class='notice'>You'll need [src] in your hands to do that.</span>")
 			return
 		user.drop_from_inventory(I,src)
-		user << "<span class='notice'>You screw [I] onto [src].</span>"
+		to_chat(user, "<span class='notice'>You screw [I] onto [src].</span>")
 		silenced = I	//dodgy?
 		w_class = 3
 		update_icon()
@@ -292,7 +284,7 @@
 	ammo_type = /obj/item/ammo_casing/c10mm
 	max_shells = 5
 	origin_tech = list(TECH_COMBAT = 1, TECH_MATERIAL = 1)
-	fire_sound = 'sound/weapons/gunshot_pistol.ogg'
+	fire_sound = 'sound/weapons/gunshot/gunshot_pistol.ogg'
 	load_method = SINGLE_CASING|SPEEDLOADER
 
 /obj/item/weapon/gun/projectile/leyon/load_ammo(var/obj/item/A, mob/user)
@@ -307,3 +299,31 @@
 		icon_state = "leyon"
 	else
 		icon_state = "leyon-e"
+
+/obj/item/weapon/gun/projectile/pistol/sol
+	name = "service pistol"
+	desc = "A very old service pistol. Branded at the grip with the old emblem of the Sol Alliance, hand-made by Necropolis."
+	icon_state = "m8"
+	item_state = "pistol"
+	can_silence = FALSE
+
+/obj/item/weapon/gun/projectile/pistol/sol/update_icon()
+	..()
+	if(ammo_magazine)
+		icon_state = "m8"
+	else
+		icon_state = "m8-empty"
+
+/obj/item/weapon/gun/projectile/pistol/adhomai
+	name = "adhomian service pistol"
+	desc = "The Adar'Mazy pistol is an adhomian firearm commonly issued to People's Republic officers, government officials and political commissars."
+	icon_state = "adhomian_pistol"
+	item_state = "pistol"
+	can_silence = FALSE
+
+/obj/item/weapon/gun/projectile/pistol/adhomai/update_icon()
+	..()
+	if(ammo_magazine)
+		icon_state = "adhomian_pistol"
+	else
+		icon_state = "adhomian_pistol-e"

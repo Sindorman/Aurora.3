@@ -22,7 +22,7 @@
 
 	data["src"] = "\ref[src]"
 	data["station_name"] = station_name()
-	data["manifest"] = data_core ? data_core.get_manifest(0) : null
+	data["manifest"] = SSrecords.get_manifest()
 	data["assignments"] = show_assignments
 	if(program && program.computer)
 		data["have_id_slot"] = !!program.computer.card_slot
@@ -144,24 +144,35 @@
 								contents += "  [get_access_desc(A)]"
 
 						if(!computer.nano_printer.print_text(contents,"access report"))
-							usr << "<span class='notice'>Hardware error: Printer was unable to print the file. It may be out of paper.</span>"
+							to_chat(usr, "<span class='notice'>Hardware error: Printer was unable to print the file. It may be out of paper.</span>")
 							return
 						else
 							computer.visible_message("<span class='notice'>\The [computer] prints out paper.</span>")
 				else
 					var/contents = {"<h4>Crew Manifest</h4>
 									<br>
-									[data_core ? data_core.get_manifest(0) : ""]
+									[SSrecords.get_manifest(1)]
 									"}
 					if(!computer.nano_printer.print_text(contents,text("crew manifest ([])", worldtime2text())))
-						usr << "<span class='notice'>Hardware error: Printer was unable to print the file. It may be out of paper.</span>"
+						to_chat(usr, "<span class='notice'>Hardware error: Printer was unable to print the file. It may be out of paper.</span>")
 						return
 					else
 						computer.visible_message("<span class='notice'>\The [computer] prints out paper.</span>")
 		if("eject")
 			if(computer && computer.card_slot)
 				if(id_card)
-					data_core.manifest_modify(id_card.registered_name, id_card.assignment)
+					var/datum/record/general/R = SSrecords.find_record("name", id_card.registered_name)
+					if(istype(R))
+						var/real_title = id_card.assignment
+						for(var/datum/job/J in get_job_datums())
+							if(!J)
+								continue
+							var/list/alttitles = get_alternate_titles(J.title)
+							if(id_card.assignment in alttitles)
+								real_title = J.title
+								break
+						R.rank = id_card.assignment
+						R.real_rank = real_title
 				computer.proc_eject_id(user)
 		if("suspend")
 			if(computer && can_run(user, 1))
@@ -199,7 +210,7 @@
 								jobdatum = J
 								break
 						if(!jobdatum)
-							usr << "<span class='warning'>No log exists for this job: [t1]</span>"
+							to_chat(usr, "<span class='warning'>No log exists for this job: [t1]</span>")
 							return
 
 						access = jobdatum.get_access(t1)

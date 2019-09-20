@@ -38,7 +38,7 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 
  1. All obj/item 's have a hidden_uplink var. By default it's null. Give the item one with "new(src)", it must be in it's contents. Feel free to add "uses".
 
- 2. Code in the triggers. Use check_trigger for this, I recommend closing the item's menu with "usr << browse(null, "window=windowname") if it returns true.
+ 2. Code in the triggers. Use check_trigger for this, I recommend closing the item's menu with "user << browse(null, "window=windowname") if it returns true.)
  The var/value is the value that will be compared with the var/target. If they are equal it will activate the menu.
 
  3. If you want the menu to stay until the users locks his uplink, add an active_uplink_check(mob/user as mob) in your interact/attack_hand proc.
@@ -163,29 +163,28 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 		nanoui_data["items"] = items
 	else if(nanoui_menu == 2)
 		var/permanentData[0]
-		for(var/datum/data/record/L in sortRecord(data_core.locked))
-			permanentData[++permanentData.len] = list(Name = L.fields["name"],"id" = L.fields["id"])
+		for(var/datum/record/general/locked/L in sortRecord(SSrecords.records_locked))
+			permanentData[++permanentData.len] = list(Name = L.name,"id" = L.id)
 		nanoui_data["exploit_records"] = permanentData
 	else if(nanoui_menu == 21)
 		nanoui_data["exploit_exists"] = 0
 
-		for(var/datum/data/record/L in data_core.locked)
-			if(L.fields["id"] == exploit_id)
+		for(var/datum/record/general/locked/L in SSrecords.records_locked)
+			if(L.id == exploit_id)
 				nanoui_data["exploit"] = list()  // Setting this to equal L.fields passes it's variables that are lists as reference instead of value.
 								 // We trade off being able to automatically add shit for more control over what gets passed to json
 								 // and if it's sanitized for html.
-				nanoui_data["exploit"]["nanoui_exploit_record"] = html_encode(L.fields["exploit_record"])                         		// Change stuff into html
-				nanoui_data["exploit"]["nanoui_exploit_record"] = replacetext(nanoui_data["exploit"]["nanoui_exploit_record"], "\n", "<br>")    // change line breaks into <br>
-				nanoui_data["exploit"]["name"] =  html_encode(L.fields["name"])
-				nanoui_data["exploit"]["sex"] =  html_encode(L.fields["sex"])
-				nanoui_data["exploit"]["age"] =  html_encode(L.fields["age"])
-				nanoui_data["exploit"]["species"] =  html_encode(L.fields["species"])
-				nanoui_data["exploit"]["rank"] =  html_encode(L.fields["rank"])
-				nanoui_data["exploit"]["home_system"] =  html_encode(L.fields["home_system"])
-				nanoui_data["exploit"]["citizenship"] =  html_encode(L.fields["citizenship"])
-				nanoui_data["exploit"]["faction"] =  html_encode(L.fields["faction"])
-				nanoui_data["exploit"]["religion"] =  html_encode(L.fields["religion"])
-				nanoui_data["exploit"]["fingerprint"] =  html_encode(L.fields["fingerprint"])
+				nanoui_data["exploit"]["nanoui_exploit_record"] = html_encode(L.exploit_record) // Change stuff into html
+				nanoui_data["exploit"]["nanoui_exploit_record"] = replacetext(nanoui_data["exploit"]["nanoui_exploit_record"], "\n", "<br>") // change line breaks into <br>
+				nanoui_data["exploit"]["name"] =  html_encode(L.name)
+				nanoui_data["exploit"]["sex"] =  html_encode(L.sex)
+				nanoui_data["exploit"]["age"] =  html_encode(L.age)
+				nanoui_data["exploit"]["species"] =  html_encode(L.species)
+				nanoui_data["exploit"]["rank"] =  html_encode(L.rank)
+				nanoui_data["exploit"]["citizenship"] =  html_encode(L.citizenship)
+				nanoui_data["exploit"]["employer"] =  html_encode(L.employer)
+				nanoui_data["exploit"]["religion"] =  html_encode(L.religion)
+				nanoui_data["exploit"]["fingerprint"] =  html_encode(L.fingerprint)
 
 				nanoui_data["exploit_exists"] = 1
 				break
@@ -303,7 +302,7 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 // I placed this here because of how relevant it is.
 // You place this in your uplinkable item to check if an uplink is active or not.
 // If it is, it will display the uplink menu and return 1, else it'll return false.
-// If it returns true, I recommend closing the item's normal menu with "user << browse(null, "window=name")"
+// If it returns true, I recommend closing the item's normal menu with "user << browse(null, "window=name")")
 /obj/item/proc/active_uplink_check(mob/user as mob)
 	// Activates the uplink if it's active
 	if(src.hidden_uplink)
@@ -380,7 +379,7 @@ A list of items and costs is stored under the datum of every game mode, alongsid
 	if(!title)
 		return
 
-	var/message = sanitize(input("Enter your announcement message.", "Announcement Title") as null|text)
+	var/message = sanitize(input("Enter your announcement message.", "Announcement Title") as message|null)
 	if(!message)
 		return
 

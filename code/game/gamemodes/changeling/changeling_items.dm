@@ -16,6 +16,7 @@
 	can_embed = 0
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
 	var/mob/living/creator
+	canremove = 0
 
 /obj/item/weapon/melee/arm_blade/New()
 	..()
@@ -59,6 +60,7 @@
 	throw_range = 0
 	throw_speed = 0
 	can_embed = 0
+	base_block_chance = 70
 	var/mob/living/creator
 
 /obj/item/weapon/shield/riot/changeling/New()
@@ -89,6 +91,13 @@
 			host.embedded -= src
 			host.drop_from_inventory(src)
 		QDEL_IN(src, 1)
+		
+/obj/item/weapon/shield/riot/changeling/get_block_chance(mob/user, var/damage, atom/damage_source = null, mob/attacker = null)
+	if(istype(damage_source, /obj/item/projectile))
+		var/obj/item/projectile/P = damage_source
+		if((is_sharp(P) && damage > 10) || istype(P, /obj/item/projectile/beam))
+			return base_block_chance / 2 //lings still have a 35% chance of blocking these kinds of attacks
+	return base_block_chance
 
 /obj/item/weapon/bone_dart
 	name = "bone dart"

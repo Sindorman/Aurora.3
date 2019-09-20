@@ -15,20 +15,51 @@
 	origin_tech = list(TECH_MATERIAL = 1)
 	attack_verb = list("slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
 	unbreakable = 1
+	drop_sound = 'sound/items/drop/knife.ogg'
 
 /obj/item/weapon/material/knife/attack(mob/living/carbon/M as mob, mob/living/carbon/user as mob, var/target_zone)
 	if(active == 1)
 		if(target_zone != "eyes" && target_zone != "head")
 			return ..()
-		if((CLUMSY in user.mutations) && prob(50))
+		if((user.is_clumsy()) && prob(50))
 			M = user
 		return eyestab(M,user)
+
+/obj/item/weapon/material/knife/verb/extract_shrapnel(var/mob/living/carbon/human/H as mob in view(1))
+	set name = "Extract Shrapnel"
+	set category = "Object"
+	set src in usr
+
+	if(use_check_and_message(usr))
+		return
+
+	if(!istype(H))
+		return
+
+	for(var/obj/item/weapon/material/shard/shrapnel/S in H.contents)
+		visible_message("<span class='notice'>[usr] starts carefully digging out some of the shrapnel in [H == usr ? "themselves" : H]...</span>")
+		to_chat(H, "<font size=3><span class='danger'>It burns!</span></font>")
+		if(do_mob(usr, H, 100))
+			S.forceMove(H.loc)
+			log_and_message_admins("has extracted shrapnel out of [key_name(H)]")
+		else
+			break
+		H.apply_damage(30, HALLOSS)
+		if(prob(25))
+			var/obj/item/organ/external/affecting = H.get_organ(H.zone_sel.selecting)
+			if(affecting)
+				to_chat(H, "<span class='danger'><font size=2>You feel something rip open in your [affecting.name]!</span></font>")
+				var/datum/wound/internal_bleeding/I = new(15)
+				affecting.wounds += I
+		if(H.can_feel_pain())
+			H.emote("scream")
 
 /obj/item/weapon/material/knife/ritual
 	name = "ritual knife"
 	desc = "The unearthly energies that once powered this blade are now dormant."
 	icon = 'icons/obj/wizard.dmi'
 	icon_state = "render"
+	item_state = "knife"
 	applies_material_colour = 0
 
 /obj/item/weapon/material/knife/bayonet
@@ -70,6 +101,7 @@
 	desc = "A basic metal blade concealed in a lightweight plasteel grip. Small enough when folded to fit in a pocket."
 	icon = 'icons/obj/weapons.dmi'
 	icon_state = "butterfly"
+	item_state = null
 	hitsound = null
 	active = 0
 	w_class = 2
@@ -84,6 +116,7 @@
 		..() //Updates force.
 		throwforce = max(3,force-3)
 		icon_state += "_open"
+		item_state = icon_state
 		hitsound = 'sound/weapons/bladeslice.ogg'
 		w_class = 3
 		attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
@@ -93,6 +126,7 @@
 		sharp = 0
 		hitsound = initial(hitsound)
 		icon_state = initial(icon_state)
+		item_state = initial(item_state)
 		w_class = initial(w_class)
 		attack_verb = initial(attack_verb)
 
@@ -106,9 +140,9 @@
 /obj/item/weapon/material/knife/butterfly/attack_self(mob/user)
 	active = !active
 	if(active)
-		user << "<span class='notice'>You flip out \the [src].</span>"
+		to_chat(user, "<span class='notice'>You flip out \the [src].</span>")
 		playsound(user, 'sound/weapons/flipblade.ogg', 15, 1)
 	else
-		user << "<span class='notice'>\The [src] can now be concealed.</span>"
+		to_chat(user, "<span class='notice'>\The [src] can now be concealed.</span>")
 	update_force()
 	add_fingerprint(user)

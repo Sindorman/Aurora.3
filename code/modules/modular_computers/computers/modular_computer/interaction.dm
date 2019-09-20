@@ -158,8 +158,8 @@
 			to_chat(user, "Remove all components from \the [src] before disassembling it.")
 			return
 		to_chat(user, span("notice", "You begin to disassemble \the [src]."))
-		playsound(user, 'sound/items/Ratchet.ogg', 100, 1)
-		if (do_after(user, 20))
+		playsound(user, W.usesound, 100, 1)
+		if (do_after(user, 20/W.toolspeed))
 			new /obj/item/stack/material/steel(get_turf(src.loc), steel_sheet_cost)
 			src.visible_message("\The [user] disassembles \the [src].",
 				"You disassemble \the [src].",
@@ -181,6 +181,7 @@
 		if(WT.remove_fuel(round(damage/75)) && do_after(usr, damage/10))
 			damage = 0
 			to_chat(user, "You repair \the [src].")
+		update_icon()
 		return
 
 	if(W.isscrewdriver())

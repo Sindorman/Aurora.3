@@ -1,14 +1,14 @@
 /obj/item/weapon/material/butterflyconstruction
 	name = "unfinished concealed knife"
 	desc = "An unfinished concealed knife, it looks like the screws need to be tightened."
-	icon = 'icons/obj/buildingobject.dmi'
+	icon = 'icons/obj/weapons_build.dmi'
 	icon_state = "butterflystep1"
 	force_divisor = 0.1
 	thrown_force_divisor = 0.1
 
 /obj/item/weapon/material/butterflyconstruction/attackby(obj/item/W as obj, mob/user as mob)
 	if(W.isscrewdriver())
-		user << "You finish the concealed blade weapon."
+		to_chat(user, "You finish the concealed blade weapon.")
 		new /obj/item/weapon/material/knife/butterfly(user.loc, material.name)
 		qdel(src)
 		return
@@ -16,7 +16,7 @@
 /obj/item/weapon/material/butterflyblade
 	name = "knife blade"
 	desc = "A knife blade. Unusable as a weapon without a grip."
-	icon = 'icons/obj/buildingobject.dmi'
+	icon = 'icons/obj/weapons_build.dmi'
 	icon_state = "butterfly2"
 	force_divisor = 0.1
 	thrown_force_divisor = 0.1
@@ -24,7 +24,7 @@
 /obj/item/weapon/material/butterflyhandle
 	name = "concealed knife grip"
 	desc = "A plasteel grip with screw fittings for a blade."
-	icon = 'icons/obj/buildingobject.dmi'
+	icon = 'icons/obj/weapons_build.dmi'
 	icon_state = "butterfly1"
 	force_divisor = 0.1
 	thrown_force_divisor = 0.1
@@ -32,7 +32,7 @@
 /obj/item/weapon/material/butterflyhandle/attackby(obj/item/W as obj, mob/user as mob)
 	if(istype(W,/obj/item/weapon/material/butterflyblade))
 		var/obj/item/weapon/material/butterflyblade/B = W
-		user << "You attach the two concealed blade parts."
+		to_chat(user, "You attach the two concealed blade parts.")
 		var/finished = new /obj/item/weapon/material/butterflyconstruction(user.loc, B.material.name)
 		qdel(W)
 		qdel(src)
@@ -58,10 +58,10 @@
 	if(istype(I, /obj/item/weapon/material/shard) || istype(I, /obj/item/weapon/material/spearhead))
 		var/obj/item/weapon/material/tmp_shard = I
 		finished = new /obj/item/weapon/material/twohanded/spear(get_turf(user), tmp_shard.material.name)
-		user << "<span class='notice'>You fasten \the [I] to the top of the rod with the cable.</span>"
+		to_chat(user, "<span class='notice'>You fasten \the [I] to the top of the rod with the cable.</span>")
 	else if(I.iswirecutter())
 		finished = new /obj/item/weapon/melee/baton/cattleprod(get_turf(user))
-		user << "<span class='notice'>You fasten the wirecutters to the top of the rod with the cable, prongs outward.</span>"
+		to_chat(user, "<span class='notice'>You fasten the wirecutters to the top of the rod with the cable, prongs outward.</span>")
 	if(finished)
 		user.drop_from_inventory(src,finished)
 		user.drop_from_inventory(I,finished)
@@ -74,6 +74,7 @@
 /obj/item/weapon/material/shaft
 	name = "shaft"
 	desc = "A large stick, you could probably attach something to it."
+	icon = 'icons/obj/weapons_build.dmi'
 	icon_state = "shaft"
 	item_state = "rods"
 	force = 5
@@ -90,7 +91,7 @@
 	if(istype(I, /obj/item/weapon/material/spearhead))
 		var/obj/item/weapon/material/spearhead/tip = I
 		finished = new /obj/item/weapon/material/twohanded/pike(get_turf(user), tip.material.name)
-		user << "<span class='notice'>You attach \the [I] to the top of \the [src].</span>"
+		to_chat(user, "<span class='notice'>You attach \the [I] to the top of \the [src].</span>")
 	if(finished)
 		user.drop_from_inventory(src,finished)
 		user.drop_from_inventory(I,finished)
@@ -103,6 +104,7 @@
 /obj/item/weapon/material/spearhead
 	name = "spearhead"
 	desc = "A pointy spearhead, not really useful without a shaft."
+	icon = 'icons/obj/weapons_build.dmi'
 	icon_state = "spearhead"
 	force = 5
 	throwforce = 5
@@ -128,7 +130,7 @@
 	if(istype(I, /obj/item/weapon/material/shieldbits))
 		var/obj/item/weapon/material/woodenshield/donut = I
 		finished = new /obj/item/weapon/shield/buckler(get_turf(user), donut.material.name)
-		user << "<span class='notice'>You attach \the [I] to \the [src].</span>"
+		to_chat(user, "<span class='notice'>You attach \the [I] to \the [src].</span>")
 	if(finished)
 		user.drop_from_inventory(src)
 		user.drop_from_inventory(I)
@@ -149,7 +151,7 @@
 /obj/item/woodcirclet
 	name = "wood circlet"
 	desc = "A small wood circlet for making a flower crown."
-	icon = 'icons/obj/buildingobject.dmi'
+	icon = 'icons/obj/weapons_build.dmi'
 	icon_state = "woodcirclet"
 	item_state = "woodcirclet"
 	w_class = ITEMSIZE_SMALL

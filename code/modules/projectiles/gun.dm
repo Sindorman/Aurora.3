@@ -54,7 +54,7 @@
 	var/fire_delay = 6 	//delay after shooting before the gun can be used again
 	var/burst_delay = 2	//delay between shots, if firing in bursts
 	var/move_delay = 1
-	var/fire_sound = 'sound/weapons/Gunshot.ogg'
+	var/fire_sound = 'sound/weapons/gunshot/gunshot1.ogg'
 	var/fire_sound_text = "gunshot"
 	var/recoil = 0		//screen shake
 	var/silenced = 0
@@ -83,6 +83,7 @@
 	var/accuracy_wielded = 0
 	var/wielded = 0
 	var/needspin = TRUE
+	var/is_wieldable = FALSE
 
 
 	//aiming system stuff
@@ -90,6 +91,8 @@
 	var/tmp/list/mob/living/aim_targets //List of who yer targeting.
 	var/tmp/mob/living/last_moved_mob //Used to fire faster at more than one person.
 	var/tmp/lock_time = -100
+
+	drop_sound = 'sound/items/drop/gun.ogg'
 
 /obj/item/weapon/gun/Initialize(mapload)
 	. = ..()
@@ -104,6 +107,8 @@
 
 	if(pin && needspin)
 		pin = new pin(src)
+
+	update_wield_verb()
 
 	queue_icon_update()
 
@@ -133,7 +138,7 @@
 	var/mob/living/M = user
 
 	if(HULK in M.mutations)
-		M << "<span class='danger'>Your fingers are much too large for the trigger guard!</span>"
+		to_chat(M, "<span class='danger'>Your fingers are much too large for the trigger guard!</span>")
 		return 0
 
 	if(ishuman(M))
@@ -142,7 +147,7 @@
 			to_chat(A, "<span class='warning'>[A.martial_art.no_guns_message]</span>")
 			return 0
 
-	if((CLUMSY in M.mutations) && prob(40)) //Clumsy handling
+	if((M.is_clumsy()) && prob(40)) //Clumsy handling
 		var/obj/P = consume_next_projectile()
 		if(P)
 			if(process_projectile(P, user, user, pick("l_foot", "r_foot")))
@@ -170,6 +175,30 @@
 			return 1
 
 	return 1
+
+/obj/item/weapon/gun/verb/wield_gun()
+	set name = "Wield Firearm"
+	set category = "Object"
+	set src in usr
+
+	if(is_wieldable)
+		toggle_wield(usr)
+		update_held_icon()
+	else
+		to_chat(usr, "<span class='warning'>You can't wield \the [src]!</span>")
+
+/obj/item/weapon/gun/ui_action_click()
+	if(src in usr)
+		wield_gun()
+
+/obj/item/weapon/gun/proc/update_wield_verb()
+	if(is_wieldable) //If the gun is marked as wieldable, make the action button appear and add the verb.
+		action_button_name = "Wield Firearm"
+		verbs += /obj/item/weapon/gun/verb/wield_gun
+	else
+		action_button_name = ""
+		verbs -= /obj/item/weapon/gun/verb/wield_gun
+
 
 /obj/item/weapon/gun/emp_act(severity)
 	for(var/obj/O in contents)
@@ -204,7 +233,7 @@
 
 	add_fingerprint(user)
 	if(user.client && (user.client.prefs.toggles_secondary & SAFETY_CHECK) && user.a_intent != I_HURT) //Check this first to save time.
-		user << "You refrain from firing, as you aren't on harm intent."
+		to_chat(user, "You refrain from firing, as you aren't on harm intent.")
 		return 0
 
 	if(!special_check(user))
@@ -217,7 +246,7 @@
 
 	if(world.time < next_fire_time)
 		if (world.time % 3) //to prevent spam
-			user << "<span class='warning'>[src] is not ready to fire again!</span>"
+			to_chat(user, "<span class='warning'>[src] is not ready to fire again!</span>")
 		return 0
 
 	var/shoot_time = (burst - 1)* burst_delay
@@ -295,6 +324,8 @@
 			P.silenced = silenced
 
 			P.launch_projectile(target)
+
+			handle_post_fire() // should be safe to not include arguments here, as there are failsafes in effect (?)
 
 			if(silenced)
 				playsound(src, fire_sound, 10, 1)
@@ -463,7 +494,7 @@
 			mouthshoot = 0
 			return
 		else if (in_chamber.damage_type == HALLOSS)
-			user << "<span class = 'notice'>Ow...</span>"
+			to_chat(user, "<span class = 'notice'>Ow...</span>")
 			user.apply_effect(110,AGONY,0)
 		else
 			log_and_message_admins("[key_name(user)] commited suicide using \a [src]")
@@ -494,7 +525,7 @@
 /obj/item/weapon/gun/zoom()
 	..()
 	if(!zoom)
-		if(can_wield() && wielded)
+		if(is_wieldable && wielded)
 			if(accuracy_wielded)
 				accuracy = accuracy_wielded
 			else
@@ -533,32 +564,32 @@
 /obj/item/weapon/gun/attack_self(mob/user)
 	var/datum/firemode/new_mode = switch_firemodes(user)
 	if(new_mode)
-		user << "<span class='notice'>\The [src] is now set to [new_mode.name].</span>"
+		to_chat(user, "<span class='notice'>\The [src] is now set to [new_mode.name].</span>")
 
 //Handling of rifles and two-handed weapons.
 /obj/item/weapon/gun/proc/can_wield()
 	return 0
 
 /obj/item/weapon/gun/proc/toggle_wield(mob/user as mob)
-	if(!can_wield())
+	if(!is_wieldable)
 		return
 	if(!istype(user.get_active_hand(), /obj/item/weapon/gun))
-		user << "<span class='warning'>You need to be holding the [name] in your active hand</span>"
+		to_chat(user, "<span class='warning'>You need to be holding the [name] in your active hand</span>")
 		return
 	if(!istype(user, /mob/living/carbon/human))
-		user << "<span class='warning'>It's too heavy for you to stabilize properly.</span>"
+		to_chat(user, "<span class='warning'>It's too heavy for you to stabilize properly.</span>")
 		return
 
 	var/mob/living/carbon/human/M = user
 	if(istype(M.species, /datum/species/monkey))
-		user << "<span class='warning'>It's too heavy for you to stabilize properly.</span>"
+		to_chat(user, "<span class='warning'>It's too heavy for you to stabilize properly.</span>")
 		return
 
 	if(wielded)
 		unwield()
-		user << "<span class='notice'>You are no-longer stabilizing the [name] with both hands.</span>"
+		to_chat(user, "<span class='notice'>You are no-longer stabilizing the [name] with both hands.</span>")
 
-		var/obj/item/weapon/gun/offhand/O = user.get_inactive_hand()
+		var/obj/item/weapon/offhand/O = user.get_inactive_hand()
 		if(O && istype(O))
 			O.unwield()
 		else
@@ -570,12 +601,12 @@
 
 	else
 		if(user.get_inactive_hand())
-			user << "<span class='warning'>You need your other hand to be empty.</span>"
+			to_chat(user, "<span class='warning'>You need your other hand to be empty.</span>")
 			return
 		wield()
-		user << "<span class='notice'>You stabilize the [initial(name)] with both hands.</span>"
+		to_chat(user, "<span class='notice'>You stabilize the [initial(name)] with both hands.</span>")
 
-		var/obj/item/weapon/gun/offhand/O = new(user)
+		var/obj/item/weapon/offhand/O = new(user)
 		O.name = "[initial(name)] - offhand"
 		O.desc = "Your second grip on the [initial(name)]."
 		user.put_in_inactive_hand(O)
@@ -608,9 +639,9 @@
 
 /obj/item/weapon/gun/mob_can_equip(M as mob, slot)
 	//Cannot equip wielded items.
-	if(can_wield())
+	if(is_wieldable)
 		if(wielded)
-			M << "<span class='warning'>Lower the [initial(name)] first!</span>"
+			to_chat(M, "<span class='warning'>Lower the [initial(name)] first!</span>")
 			return 0
 
 	return ..()
@@ -619,55 +650,55 @@
 	..()
 
 	//Unwields the item when dropped, deletes the offhand
-	if(can_wield())
+	if(is_wieldable)
 		if(user)
-			var/obj/item/weapon/gun/O = user.get_inactive_hand()
+			var/obj/item/weapon/offhand/O = user.get_inactive_hand()
 			if(istype(O))
 				O.unwield()
 		return unwield()
 
 /obj/item/weapon/gun/pickup(mob/user)
-	if(can_wield())
+	..()
+	if(is_wieldable)
 		unwield()
 
 ///////////OFFHAND///////////////
-/obj/item/weapon/gun/offhand
+/obj/item/weapon/offhand
 	w_class = 5.0
 	icon = 'icons/obj/weapons.dmi'
 	icon_state = "offhand"
 	item_state = "nothing"
 	name = "offhand"
-	needspin = FALSE
 
-	unwield()
-		if (ismob(loc))
-			var/mob/the_mob = loc
-			the_mob.drop_from_inventory(src)
-		else
-			qdel(src)
+/obj/item/weapon/offhand/proc/unwield()
+	if (ismob(loc))
+		var/mob/the_mob = loc
+		the_mob.drop_from_inventory(src)
+	else
+		qdel(src)
 
-	wield()
-		if (ismob(loc))
-			var/mob/the_mob = loc
-			the_mob.drop_from_inventory(src)
-		else
-			qdel(src)
+/obj/item/weapon/offhand/proc/wield()
+	if (ismob(loc))
+		var/mob/the_mob = loc
+		the_mob.drop_from_inventory(src)
+	else
+		qdel(src)
 
-	dropped(mob/living/user as mob)
-		if(user)
-			var/obj/item/weapon/gun/O = user.get_inactive_hand()
-			if(istype(O))
-				user << "<span class='notice'>You are no-longer stabilizing the [name] with both hands.</span>"
-				O.unwield()
-				unwield()
+/obj/item/weapon/offhand/dropped(mob/living/user as mob)
+	if(user)
+		var/obj/item/weapon/gun/O = user.get_inactive_hand()
+		if(istype(O))
+			to_chat(user, "<span class='notice'>You are no-longer stabilizing the [name] with both hands.</span>")
+			O.unwield()
+			unwield()
 
-		if (!QDELETED(src))
-			qdel(src)
+	if (!QDELETED(src))
+		qdel(src)
 
-	mob_can_equip(M as mob, slot)
+/obj/item/weapon/offhand/mob_can_equip(M as mob, slot)
 		return 0
 
-obj/item/weapon/gun/Destroy()
+/obj/item/weapon/gun/Destroy()
 	if (istype(pin))
 		QDEL_NULL(pin)
 	if(bayonet)

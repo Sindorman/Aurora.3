@@ -162,7 +162,7 @@
 
 /obj/item/organ/eyes/autakh/flash_act()
 	if(owner)
-		to_chat(owner, "<span class='notice'>\The [src]'s retinal overlays are overloaded by the strong light!</span>")
+		to_chat(owner, "<span class='notice'>Your [singular_name]'s retinal overlays are overloaded by the strong light!</span>")
 		owner.eye_blind = 5
 		owner.eye_blurry = 5
 		spark(get_turf(owner), 3)
@@ -183,7 +183,7 @@
 	disabled = FALSE
 
 	if(owner)
-		to_chat(owner, "<span class='notice'>\The [src]'s retinal overlays clicks and shifts!</span>")
+		to_chat(owner, "<span class='notice'>\The [singular_name]'s retinal overlays clicks and shifts!</span>")
 
 /obj/item/organ/adrenal
 	name = "adrenal management system"
@@ -229,9 +229,7 @@
 				owner.reagents.add_reagent("toxin", 25)
 				return
 
-
 			owner.vessel.remove_reagent("blood",rand(15,30))
-			owner.adjustToxLoss(rand(5,25))
 			owner.reagents.add_reagent("paracetamol", 5)
 			owner.reagents.add_reagent("inaprovaline", 5)
 
@@ -344,7 +342,7 @@
 	qdel(src)
 
 /obj/item/organ/external/hand/right/autakh/tool/mining
-	name = "engineering grasper"
+	name = "mining grasper"
 	action_button_name = "Deploy Mounted Drill"
 	augment_type = /obj/item/weapon/pickaxe/drill/integrated
 
@@ -357,6 +355,8 @@
 
 /obj/item/weapon/pickaxe/drill/integrated
 	name = "integrated mining drill"
+	icon_state = "integrateddrill"
+	item_state = "integrateddrill"
 
 /obj/item/weapon/pickaxe/drill/integrated/throw_at()
 	usr.drop_from_inventory(src)
