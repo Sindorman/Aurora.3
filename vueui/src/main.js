@@ -9,6 +9,8 @@ import camelCase from 'lodash/camelCase'
 import Store from './store.js'
 import './assets/global.scss'
 
+import "@/plugins/echarts"
+
 const requireComponent = require.context(
   './components', // The relative path of the components folder
   true, // Whether or not to look in subfolders
