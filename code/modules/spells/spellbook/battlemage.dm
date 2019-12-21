@@ -12,7 +12,9 @@
 	book_flags = CAN_MAKE_CONTRACTS
 	max_uses = 8
 
-	spells = list(/spell/targeted/projectile/dumbfire/passage = 		1,
+	spells = list(
+				/spell/wizard_digitalcamo =								0,
+				/spell/targeted/projectile/dumbfire/passage = 			1,
 				/spell/targeted/equip_item/shield = 					1,
 				/spell/targeted/projectile/dumbfire/fireball = 			1,
 				/spell/targeted/projectile/magic_missile = 				1,
@@ -26,10 +28,10 @@
 				/spell/aoe_turf/blink = 								1,
 				/spell/noclothes = 					            		1,
 				/obj/structure/closet/wizard/armor = 					1,
-				/obj/item/gun/energy/staff/focus = 				1,
-				/obj/item/gun/energy/staff/chaos = 				1,
-				/obj/item/storage/belt/wands/full = 				2,
-				/obj/item/melee/energy/wizard =					2,
-				/obj/item/monster_manual = 				    	2,
-				/obj/item/contract/apprentice = 					1
+				/obj/item/gun/energy/staff/focus = 						1,
+				/obj/item/gun/energy/staff/chaos = 						1,
+				/obj/item/storage/belt/wands/full = 					2,
+				/obj/item/melee/energy/wizard =							2,
+				/obj/item/monster_manual = 				    			2,
+				/obj/item/contract/apprentice = 						1
 				)

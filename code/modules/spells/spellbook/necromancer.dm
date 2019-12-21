@@ -12,7 +12,9 @@
 	book_flags = CAN_MAKE_CONTRACTS
 	max_uses = 5
 
-	spells = list(/spell/targeted/projectile/dumbfire/fireball =	1,
+	spells = list(
+				/spell/wizard_digitalcamo =							0,
+				/spell/targeted/projectile/dumbfire/fireball =		1,
 				/spell/targeted/torment =							1,
 				/spell/mark_recall =								1,
 				/spell/targeted/subjugation =						1,
@@ -27,5 +29,5 @@
 				/obj/structure/closet/wizard/armor =				1,
 				/obj/structure/closet/wizard/scrying =				2,
 				/obj/structure/closet/wizard/souls =				1,
-				/obj/item/contract/apprentice =				1
+				/obj/item/contract/apprentice =						1
 				)

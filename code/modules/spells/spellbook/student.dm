@@ -18,10 +18,12 @@
 	book_flags = 0
 	max_uses = 3
 
-	spells = list(/spell/aoe_turf/knock = 						1,
-				/spell/targeted/ethereal_jaunt = 			1,
-				/spell/targeted/projectile/magic_missile = 		1,
-				/obj/item/gun/energy/staff/focus = 		1,
-				/obj/item/storage/belt/wands/full = 		2,
-				/obj/item/contract/wizard/xray = 		1
-					)
+	spells = list(
+					/spell/wizard_digitalcamo =						0,
+					/spell/aoe_turf/knock = 						1,
+					/spell/targeted/ethereal_jaunt = 				1,
+					/spell/targeted/projectile/magic_missile = 		1,
+					/obj/item/gun/energy/staff/focus = 				1,
+					/obj/item/storage/belt/wands/full = 			2,
+					/obj/item/contract/wizard/xray = 				1
+				)
