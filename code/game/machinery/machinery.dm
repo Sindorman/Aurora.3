@@ -276,11 +276,28 @@ Class Procs:
 
 	return ..()
 
+/obj/machinery/attackby(var/obj/item/I, var/mob/user)
+	if(!I || !user)
+		return
+
+	if(istype(I, /obj/item/device_cable))
+		user.visible_message("[user] inserts [I] into a data port on [src].", "You insert [I] into a data port on [src].", "You hear the satisfying click of a wire jack fastening into place.")
+		plugin(src, user)
+		return
+
+	. = ..()
+
 /obj/machinery/proc/RefreshParts()
 
 /obj/machinery/proc/assign_uid()
 	uid = gl_uid
 	gl_uid++
+
+/obj/machinery/proc/plugin(var/obj/item/device_cable/cable, var/mob/living/user)
+	if(!user || !cable)
+		return
+
+	ui_interact(user)
 
 /obj/machinery/proc/state(var/msg)
 	for(var/mob/O in hearers(src, null))

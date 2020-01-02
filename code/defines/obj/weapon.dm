@@ -501,6 +501,13 @@
 
 	var/obj/machinery/machine
 
+/obj/item/device_cable
+	desc = "A flexible coated cable with a universal jack on one end. Provides fast access to the device as well as supplied power if nescessary."
+	name = "data cable"
+	icon = 'icons/obj/power.dmi'
+	icon_state = "wire1"
+	var/emag_access = FALSE
+
 /obj/item/neuralbroke
 	name = "fried neural socket"
 	desc = "A Vaurca neural socket subjected to extreme heat. It's security chip appears to be fried."
