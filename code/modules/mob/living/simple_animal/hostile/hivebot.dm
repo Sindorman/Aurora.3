@@ -126,13 +126,6 @@
 	else
 		return ..(Proj)
 
-/mob/living/simple_animal/hostile/hivebot/death()
-	..(null,"blows apart!")
-	var/T = get_turf(src)
-	new /obj/effect/gibspawner/robot(T)
-	spark(T, 1, alldirs)
-	qdel(src)
-
 /mob/living/simple_animal/hostile/hivebot/Destroy()
 	. = ..()
 	if(linked_parent)

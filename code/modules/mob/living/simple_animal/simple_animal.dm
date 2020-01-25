@@ -498,7 +498,7 @@ mob/living/simple_animal/bullet_act(var/obj/item/projectile/Proj)
 		death()
 
 /mob/living/simple_animal/death(gibbed, deathmessage = "dies!")
-	walk_to(src,0)
+	walk_to(src, 0)
 	movement_target = null
 	icon_state = icon_dead
 	density = 0

@@ -25,6 +25,8 @@
 	var/attacked_times = 0
 	var/list/target_type_validator_map = list()
 	var/attack_emote = "stares menacingly at"
+	var/view_range = 10
+	var/times_shoot = 3
 
 	var/smart = FALSE // This makes ranged mob check for friendly fire and obstacles
 
@@ -122,7 +124,7 @@ mob/living/simple_animal/hostile/hitby(atom/movable/AM as mob|obj,var/speed = TH
 	return
 
 /mob/living/simple_animal/hostile/proc/see_target()
-	return (target_mob in view(10, src)) ? (TRUE) : (FALSE)
+	return (target_mob in view(view_range, src)) ? (TRUE) : (FALSE)
 
 /mob/living/simple_animal/hostile/proc/MoveToTarget()
 	stop_automated_movement = 1
@@ -132,11 +134,11 @@ mob/living/simple_animal/hostile/hitby(atom/movable/AM as mob|obj,var/speed = TH
 		LoseTarget()
 	if(target_mob in targets)
 		if(ranged)
-			if(get_dist(src, target_mob) <= 6)
+			if(get_dist(src, target_mob) <= view_range - 4)
 				walk(src, 0) // We gotta stop moving if we are in range
 				OpenFire(target_mob)
 			else
-				walk_to(src, target_mob, 6, move_to_delay)
+				walk_to(src, target_mob, view_range - 4, move_to_delay)
 		else
 			stance = HOSTILE_STANCE_ATTACKING
 			walk_to(src, target_mob, 1, move_to_delay)
@@ -231,9 +233,10 @@ mob/living/simple_animal/hostile/hitby(atom/movable/AM as mob|obj,var/speed = TH
 
 	if(rapid)
 		var/datum/callback/shoot_cb = CALLBACK(src, .proc/shoot_wrapper, target, loc, src)
-		addtimer(shoot_cb, 1)
-		addtimer(shoot_cb, 4)
-		addtimer(shoot_cb, 6)
+		for(var/i = 0, i < times_shoot, i++)
+			addtimer(shoot_cb, i + 1)
+			addtimer(shoot_cb, i + 4)
+			addtimer(shoot_cb, i + 6)
 
 	else
 		Shoot(target, src.loc, src)
@@ -265,7 +268,9 @@ mob/living/simple_animal/hostile/hitby(atom/movable/AM as mob|obj,var/speed = TH
 	return target_hit
 
 /mob/living/simple_animal/hostile/proc/shoot_wrapper(target, location, user)
-	Shoot(target, location, user)
+	var/turf/cur_T = get_turf(location)
+	var/turf/T = get_turf(locate(cur_T.x + rand(-4, 6), cur_T.y + rand(-4, 6), cur_T.z))
+	Shoot(target, T, user)
 	if (casingtype)
 		new casingtype(loc)
 
@@ -273,7 +278,7 @@ mob/living/simple_animal/hostile/hitby(atom/movable/AM as mob|obj,var/speed = TH
 	if(target == start)
 		return
 
-	var/obj/item/projectile/A = new projectiletype(user.loc)
+	var/obj/item/projectile/A = new projectiletype(start)
 	playsound(user, projectilesound, 100, 1)
 	if(!A)	return
 	var/def_zone = get_exposed_defense_zone(target)
