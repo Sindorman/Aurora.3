@@ -150,16 +150,17 @@ var/global/list/obj/item/device/pda/PDAs = list()
 
 /obj/item/device/pda/cargo
 	icon_state = "pda-cargo"
-	default_cartridge = /obj/item/cartridge/quartermaster
+	default_cartridge = /obj/item/cartridge/miner/quartermaster
 	inserted_item = /obj/item/pen/silver
 
 /obj/item/device/pda/shaftminer
 	icon_state = "pda-miner"
+	default_cartridge = /obj/item/cartridge/miner
 	inserted_item = /obj/item/pen/silver
 
 /obj/item/device/pda/quartermaster
 	icon_state = "pda-q"
-	default_cartridge = /obj/item/cartridge/quartermaster
+	default_cartridge = /obj/item/cartridge/miner/quartermaster
 	inserted_item = /obj/item/pen/fountain
 
 /*
@@ -464,20 +465,21 @@ var/global/list/obj/item/device/pda/PDAs = list()
 	data["cart_loaded"] = cartridge ? 1:0
 	if(cartridge)
 		var/cartdata[0]
-		cartdata["access"] = list(\
-					"access_security" = cartridge.access_security,\
-					"access_engine" = cartridge.access_engine,\
-					"access_atmos" = cartridge.access_atmos,\
-					"access_medical" = cartridge.access_medical,\
-					"access_clown" = cartridge.access_clown,\
-					"access_mime" = cartridge.access_mime,\
-					"access_janitor" = cartridge.access_janitor,\
-					"access_quartermaster" = cartridge.access_quartermaster,\
-					"access_hydroponics" = cartridge.access_hydroponics,\
-					"access_reagent_scanner" = cartridge.access_reagent_scanner,\
-					"access_remote_door" = cartridge.access_remote_door,\
-					"access_status_display" = cartridge.access_status_display,\
-					"access_detonate_pda" = cartridge.access_detonate_pda\
+		cartdata["access"] = list(
+					"access_security" = cartridge.access_security,
+					"access_engine" = cartridge.access_engine,
+					"access_atmos" = cartridge.access_atmos,
+					"access_medical" = cartridge.access_medical,
+					"access_clown" = cartridge.access_clown,
+					"access_mime" = cartridge.access_mime,
+					"access_janitor" = cartridge.access_janitor,
+					"access_quartermaster" = cartridge.access_quartermaster,
+					"access_mulebot" = cartridge.access_mulebot,
+					"access_hydroponics" = cartridge.access_hydroponics,
+					"access_reagent_scanner" = cartridge.access_reagent_scanner,
+					"access_remote_door" = cartridge.access_remote_door,
+					"access_status_display" = cartridge.access_status_display,
+					"access_detonate_pda" = cartridge.access_detonate_pda
 			)
 
 		if(mode in cartmodes)
@@ -1554,7 +1556,7 @@ var/global/list/obj/item/device/pda/PDAs = list()
 						/obj/item/cartridge/security,
 						/obj/item/cartridge/medical,
 						/obj/item/cartridge/signal/science,
-						/obj/item/cartridge/quartermaster)
+						/obj/item/cartridge/miner/quartermaster)
 	new newcart(src)
 
 // Pass along the pulse to atoms in contents, largely added so pAIs are vulnerable to EMP

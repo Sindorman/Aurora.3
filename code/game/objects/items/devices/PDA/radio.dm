@@ -127,7 +127,7 @@
 /obj/item/radio/integrated/mule/receive_signal(datum/signal/signal)
 	if(signal.data["type"] == "mulebot")
 		if(!botlist)
-			botlist = new()
+			botlist = list()
 
 		if(!(signal.source in botlist))
 			botlist += signal.source
@@ -137,10 +137,12 @@
 			botstatus = b.Copy()
 
 	else if(signal.data["beacon"])
+		message_admins(beacons[signal.data["beacon"]])
+		message_admins(beacons)
 		if(!beacons)
-			beacons = new()
+			beacons = list()
 
-		beacons[signal.data["beacon"] ] = signal.source
+		beacons[signal.data["beacon"]] = signal.source
 
 
 /obj/item/radio/integrated/mule/Topic(href, href_list)
@@ -167,8 +169,9 @@
 			post_signal(control_freq, cmd, "unload", s_filter = RADIO_MULEBOT)
 			post_signal(control_freq, cmd, "bot_status", s_filter = RADIO_MULEBOT)
 		if("setdest")
+			message_admins(beacons)
 			if(beacons)
-				var/dest = input("Select Bot Destination", "Mulebot [active.suffix] Interlink", active.destination) as null|anything in (beacons + list("custom"))
+				var/dest = input("Select Bot Destination", "Mulebot [active.suffix] Interlink", active.destination) as null|anything in (beacons + "custom")
 				if (dest == "custom")
 					var/x = input("Input X from 0 to 255.", "Mulebot [active.suffix] Interlink") as num | null
 					var/y = input("Input Y from 0 to 255.", "Mulebot [active.suffix] Interlink") as num | null

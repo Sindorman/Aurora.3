@@ -321,7 +321,7 @@
 		/obj/item/cartridge/signal/science = 10,
 		/obj/item/device/pda/heads = 10,
 		/obj/item/cartridge/captain = 3,
-		/obj/item/cartridge/quartermaster = 10
+		/obj/item/cartridge/miner/quartermaster = 10
 	)
 	contraband = list(
 		/obj/item/cartridge/clown = 2

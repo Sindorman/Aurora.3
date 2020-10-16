@@ -121,14 +121,14 @@ Used In File(s): \code\game\objects\items\devices\PDA\PDA.dm
                 </div>
                 <br>
             {{/if}}
-            {{if data.cartridge.access.access_quartermaster == 1}}
+            {{if data.cartridge.access.access_quartermaster == 1 || data.cartridge.access.access_mulebot == 1}}
                 <div class="item">
                     <div class="itemLabelNarrow">
                         <b>Quartermaster</b>:
                     </div>
                     <div class="itemContent">
-                        {{:helper.link('Supply Records', 'gear', {'choice' : "47"}, null, 'fixedLeftWide')}}
-                        {{if data.cartridge.radio == 3}} {{:helper.link('Delivery Bot Control', 'gear', {'choice' : "48"}, null, 'fixedLeftWide')}} {{/if}}
+                        {{if data.cartridge.access.access_quartermaster == 1 }} {{:helper.link('Supply Records', 'gear', {'choice' : "47"}, null, 'fixedLeftWide')}} {{/if}}
+                        {{if data.cartridge.radio == 3 && data.cartridge.access.access_mulebot == 1}} {{:helper.link('Delivery Bot Control', 'gear', {'choice' : "48"}, null, 'fixedLeftWide')}} {{/if}}
                          <br>
                     </div>
                 </div>

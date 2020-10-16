@@ -36,7 +36,7 @@
 	build_path = /obj/item/cartridge/signal/science
 
 /datum/design/item/pda/quartermaster
-	build_path = /obj/item/cartridge/quartermaster
+	build_path = /obj/item/cartridge/miner/quartermaster
 
 /datum/design/item/pda/hop
 	build_path = /obj/item/cartridge/hop

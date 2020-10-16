@@ -9,21 +9,22 @@
 	pickup_sound = 'sound/items/pickup/component.ogg'
 
 	var/obj/item/radio/integrated/radio = null
-	var/access_security = 0
-	var/access_engine = 0
-	var/access_atmos = 0
-	var/access_medical = 0
-	var/access_clown = 0
-	var/access_mime = 0
-	var/access_janitor = 0
-//	var/access_flora = 0
-	var/access_reagent_scanner = 0
-	var/access_remote_door = 0 // Control some blast doors remotely!!
+	var/access_security = FALSE
+	var/access_engine = FALSE
+	var/access_atmos = FALSE
+	var/access_medical = FALSE
+	var/access_clown = FALSE
+	var/access_mime = FALSE
+	var/access_janitor = FALSE
+//	var/access_flora = FALSE
+	var/access_reagent_scanner = FALSE
+	var/access_remote_door = FALSE // Control some blast doors remotely!!
 	var/remote_door_id = ""
-	var/access_status_display = 0
-	var/access_quartermaster = 0
-	var/access_detonate_pda = 0
-	var/access_hydroponics = 0
+	var/access_status_display = FALSE
+	var/access_quartermaster = FALSE
+	var/access_mulebot = FALSE
+	var/access_detonate_pda = FALSE
+	var/access_hydroponics = FALSE
 	var/charges = 0
 	var/mode = null
 	var/menu
@@ -41,27 +42,27 @@
 /obj/item/cartridge/engineering
 	name = "\improper Power-ON cartridge"
 	icon_state = "cart-e"
-	access_engine = 1
+	access_engine = TRUE
 
 /obj/item/cartridge/atmos
 	name = "\improper BreatheDeep cartridge"
 	icon_state = "cart-a"
-	access_atmos = 1
+	access_atmos = TRUE
 
 /obj/item/cartridge/medical
 	name = "\improper Med-U cartridge"
 	icon_state = "cart-m"
-	access_medical = 1
+	access_medical = TRUE
 
 /obj/item/cartridge/chemistry
 	name = "\improper ChemWhiz cartridge"
 	icon_state = "cart-chem"
-	access_reagent_scanner = 1
+	access_reagent_scanner = TRUE
 
 /obj/item/cartridge/security
 	name = "\improper R.O.B.U.S.T. cartridge"
 	icon_state = "cart-s"
-	access_security = 1
+	access_security = TRUE
 
 /obj/item/cartridge/security/Initialize()
 	. = ..()
@@ -70,37 +71,37 @@
 /obj/item/cartridge/detective
 	name = "\improper D.E.T.E.C.T. cartridge"
 	icon_state = "cart-s"
-	access_security = 1
-	access_medical = 1
+	access_security = TRUE
+	access_medical = TRUE
 
 
 /obj/item/cartridge/janitor
 	name = "\improper CustodiPRO cartridge"
 	desc = "The ultimate in clean-room design."
 	icon_state = "cart-j"
-	access_janitor = 1
+	access_janitor = TRUE
 
 /obj/item/cartridge/lawyer
 	name = "\improper P.R.O.V.E. cartridge"
 	icon_state = "cart-s"
-	access_security = 1
+	access_security = TRUE
 
 /obj/item/cartridge/clown
 	name = "\improper Honkworks 5.0 cartridge"
 	icon_state = "cart-clown"
-	access_clown = 1
+	access_clown = TRUE
 	charges = 5
 
 /obj/item/cartridge/mime
 	name = "\improper Gestur-O 1000 cartridge"
 	icon_state = "cart-mi"
-	access_mime = 1
+	access_mime = TRUE
 	charges = 5
 /*
 /obj/item/cartridge/botanist
 	name = "Green Thumb v4.20"
 	icon_state = "cart-b"
-	access_flora = 1
+	access_flora = TRUE
 */
 
 /obj/item/cartridge/signal
@@ -111,35 +112,40 @@
 	name = "\improper Signal Ace 2 cartridge"
 	desc = "Complete with integrated radio signaler!"
 	icon_state = "cart-tox"
-	access_reagent_scanner = 1
-	access_atmos = 1
+	access_reagent_scanner = TRUE
+	access_atmos = TRUE
 
 /obj/item/cartridge/signal/Initialize()
-    . = ..()
-    radio = new /obj/item/radio/integrated/signal(src)
+	. = ..()
+	radio = new /obj/item/radio/integrated/signal(src)
 
-/obj/item/cartridge/quartermaster
+/obj/item/cartridge/miner
+	name = "\improper Space Parts & Space Vendors cartridge"
+	desc = "Perfect for the Shaft Miner! Gives access to mulebot controls."
+	access_mulebot = TRUE
+
+/obj/item/cartridge/miner/Initialize()
+	. = ..()
+	radio = new /obj/item/radio/integrated/mule(src)
+
+/obj/item/cartridge/miner/quartermaster
 	name = "\improper Space Parts & Space Vendors cartridge"
 	desc = "Perfect for the Quartermaster on the go!"
 	icon_state = "cart-q"
-	access_quartermaster = 1
-
-/obj/item/cartridge/quartermaster/Initialize()
-	. = ..()
-	radio = new /obj/item/radio/integrated/mule(src)
+	access_quartermaster = TRUE
 
 /obj/item/cartridge/head
 	name = "\improper Easy-Record DELUXE"
 	icon_state = "cart-h"
-	access_status_display = 1
+	access_status_display = TRUE
 
 /obj/item/cartridge/hop
 	name = "\improper HumanResources9001 cartridge"
 	icon_state = "cart-h"
-	access_status_display = 1
-	access_quartermaster = 1
-	access_janitor = 1
-	access_security = 1
+	access_status_display = TRUE
+	access_quartermaster = TRUE
+	access_janitor = TRUE
+	access_security = TRUE
 
 /obj/item/cartridge/hop/Initialize()
 	. = ..()
@@ -148,8 +154,8 @@
 /obj/item/cartridge/hos
 	name = "\improper R.O.B.U.S.T. DELUXE"
 	icon_state = "cart-hos"
-	access_status_display = 1
-	access_security = 1
+	access_status_display = TRUE
+	access_security = TRUE
 
 /obj/item/cartridge/hos/Initialize()
 	. = ..()
@@ -158,23 +164,23 @@
 /obj/item/cartridge/ce
 	name = "\improper Power-On DELUXE"
 	icon_state = "cart-ce"
-	access_status_display = 1
-	access_engine = 1
-	access_atmos = 1
+	access_status_display = TRUE
+	access_engine = TRUE
+	access_atmos = TRUE
 
 /obj/item/cartridge/cmo
 	name = "\improper Med-U DELUXE"
 	icon_state = "cart-cmo"
-	access_status_display = 1
-	access_reagent_scanner = 1
-	access_medical = 1
+	access_status_display = TRUE
+	access_reagent_scanner = TRUE
+	access_medical = TRUE
 
 /obj/item/cartridge/rd
 	name = "\improper Signal Ace DELUXE"
 	icon_state = "cart-rd"
-	access_status_display = 1
-	access_reagent_scanner = 1
-	access_atmos = 1
+	access_status_display = TRUE
+	access_reagent_scanner = TRUE
+	access_atmos = TRUE
 
 /obj/item/cartridge/rd/Initialize()
 	. = ..()
@@ -184,20 +190,20 @@
 	name = "\improper Value-PAK cartridge"
 	desc = "Now with 200% more value!"
 	icon_state = "cart-c"
-	access_quartermaster = 1
-	access_janitor = 1
-	access_engine = 1
-	access_security = 1
-	access_medical = 1
-	access_reagent_scanner = 1
-	access_status_display = 1
-	access_atmos = 1
+	access_quartermaster = TRUE
+	access_janitor = TRUE
+	access_engine = TRUE
+	access_security = TRUE
+	access_medical = TRUE
+	access_reagent_scanner = TRUE
+	access_status_display = TRUE
+	access_atmos = TRUE
 
 /obj/item/cartridge/syndicate
 	name = "\improper Detomatix cartridge"
 	icon_state = "cart"
-	access_remote_door = 1
-	access_detonate_pda = 1
+	access_remote_door = TRUE
+	access_detonate_pda = TRUE
 	remote_door_id = "smindicate" //Make sure this matches the syndicate shuttle's shield/door id!!	//don't ask about the name, testing.
 	charges = 4
 
@@ -252,7 +258,7 @@
 
 	/*		Station Display (Mode: 42)			*/
 
-	if(mode==42)
+	if(mode == 42)
 		values["message1"] = message1 ? message1 : "(none)"
 		values["message2"] = message2 ? message2 : "(none)"
 
@@ -281,10 +287,10 @@
 				listify_cache["type"] = RECORD_GENERAL
 				listify_cache["data"] = active.Listify()
 			values["general"] = listify_cache["data"]
-			values["general_exists"] = 1
+			values["general_exists"] = TRUE
 
 		else
-			values["general_exists"] = 0
+			values["general_exists"] = FALSE
 
 
 
@@ -303,9 +309,9 @@
 				listify_cache["data"] = active.Listify(0)
 				listify_cache["data"] += active.medical.Listify()
 			values["medical"] = listify_cache["data"]
-			values["medical_exists"] = 1
+			values["medical_exists"] = TRUE
 		else
-			values["medical_exists"] = 0
+			values["medical_exists"] = FALSE
 
 	/*		Security Records (Mode:45 / 451)	*/
 
@@ -322,13 +328,13 @@
 				listify_cache["data"] = active.Listify(0)
 				listify_cache["data"] += active.security.Listify()
 			values["security"] = listify_cache["data"]
-			values["security_exists"] = 1
+			values["security_exists"] = TRUE
 		else
-			values["security_exists"] = 0
+			values["security_exists"] = FALSE
 
 	/*		Security Bot Control (Mode: 46)		*/
 
-	if(mode==46)
+	if(mode == 46)
 		var/botsData[0]
 		var/beepskyData[0]
 		if(istype(radio,/obj/item/radio/integrated/beepsky))
@@ -365,7 +371,7 @@
 
 	/*		MULEBOT Control	(Mode: 48)		*/
 
-	if(mode==48)
+	if(mode == 48)
 		var/muleData[0]
 		var/mulebotsData[0]
 		if(istype(radio,/obj/item/radio/integrated/mule))
