@@ -17,8 +17,8 @@
 
 	var/ceiling_type = /turf/simulated/floor/airless/ceiling
 
-	var/sound_takeoff = 'sound/effects/ships/shuttle_takeoff.ogg'
-	var/sound_landing = 'sound/effects/ships/shuttle_landing.ogg'
+	var/sound_takeoff = 'sound/effects/ship/shuttle_takeoff.ogg'
+	var/sound_landing = 'sound/effects/ship/shuttle_landing.ogg'
 
 	var/knockdown = TRUE //whether shuttle downs non-buckled_to people when it moves
 
