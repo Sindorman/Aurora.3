@@ -42,7 +42,7 @@
 #define DROP_SOUND_VOLUME 20
 #define THROW_SOUND_VOLUME 90
 
-/proc/playsound(atom/source, soundin, vol, vary, extrarange, falloff, is_global, usepressure = 1, environment = -1, required_preferences = 0, required_asfx_toggles = 0, frequency = 0)
+/proc/playsound(atom/source, soundin, vol, vary, extrarange, falloff, is_global, usepressure = 1, environment = -1, required_preferences = FALSE, required_asfx_toggles = FALSE, frequency = 0)
 	if (isarea(source))
 		crash_with("[source] is an area and is trying to make the sound: [soundin]")
 		return
@@ -56,7 +56,6 @@
 	if (is_global)
 		playsound_allinrange(source, original_sound,
 			extra_range = extrarange,
-			is_global = is_global,
 			use_random_freq = !!vary,
 			use_pressure = usepressure,
 			modify_environment = (environment != 0),
@@ -98,7 +97,7 @@
 
 	return S
 
-/proc/playsound_allinrange(atom/source, sound/S, extra_range = 0, is_global = FALSE, use_random_freq = FALSE, use_pressure = TRUE,  modify_environment = TRUE, required_preferences = 0, required_asfx_toggles = 0)
+/proc/playsound_allinrange(atom/source, sound/S, extra_range = 0, use_random_freq = FALSE, use_pressure = TRUE,  modify_environment = TRUE, required_preferences = FALSE, required_asfx_toggles = FALSE)
 	var/turf/source_turf = get_turf(source)
 
 	for (var/MM in player_list)
@@ -119,7 +118,7 @@
 
 			M.playsound_to(source_turf, S, use_random_freq = use_random_freq, use_pressure = use_pressure, modify_environment = modify_environment)
 
-/proc/playsound_lineofsight(atom/source, sound/S, use_random_freq = FALSE, use_pressure = TRUE, modify_environment = TRUE, required_preferences = 0, required_asfx_toggles = 0)
+/proc/playsound_lineofsight(atom/source, sound/S, use_random_freq = FALSE, use_pressure = TRUE, modify_environment = TRUE, required_preferences = FALSE, required_asfx_toggles = FALSE)
 	var/turf/source_turf = get_turf(source)
 	var/list/mobs = list()
 	var/list/objs = list()
@@ -132,7 +131,7 @@
 
 		M.playsound_to(source_turf, S, use_random_freq = use_random_freq, use_pressure = use_pressure, modify_environment = modify_environment)
 
-/mob/proc/sound_can_play(required_preferences = 0, required_asfx_toggles = 0)
+/mob/proc/sound_can_play(required_preferences = FALSE, required_asfx_toggles = FALSE)
 	if (!client)
 		return FALSE
 
@@ -178,7 +177,7 @@
 		return 0.6
 	return 1
 
-/mob/proc/playsound_to(turf/source_turf, sound/original_sound, use_random_freq, modify_environment = TRUE, use_pressure = TRUE, required_preferences = 0, required_asfx_toggles = 0)
+/mob/proc/playsound_to(turf/source_turf, sound/original_sound, use_random_freq, modify_environment = TRUE, use_pressure = TRUE, required_preferences = FALSE, required_asfx_toggles = FALSE)
 	var/sound/S = copy_sound(original_sound)
 
 	var/pressure_factor = 1.0
@@ -228,11 +227,11 @@
 	sound_to(src, S)
 	return S.volume
 
-/mob/proc/playsound_simple(source, soundin, volume, use_random_freq = FALSE, frequency = 0, falloff = 0, use_pressure = TRUE, required_preferences = 0, required_asfx_toggles = 0)
+/mob/proc/playsound_simple(source, soundin, volume, use_random_freq = FALSE, frequency = 0, falloff = 0, use_pressure = TRUE, required_preferences = FALSE, required_asfx_toggles = FALSE)
 	var/sound/S = playsound_get_sound(soundin, volume, falloff, frequency)
 	return playsound_to(source ? get_turf(source) : null, S, use_random_freq, use_pressure = use_pressure, required_preferences = required_preferences, required_asfx_toggles = required_asfx_toggles)
 
-/proc/playsound_in(atom/source, soundin, vol, vary, extrarange, falloff, is_global, usepressure = 1, environment = -1, required_preferences = 0, required_asfx_toggles = 0, frequency = 0, time)
+/proc/playsound_in(atom/source, soundin, vol, vary, extrarange, falloff, is_global, usepressure = 1, environment = -1, required_preferences = FALSE, required_asfx_toggles = FALSE, frequency = 0, time)
 	addtimer(CALLBACK(GLOBAL_PROC, /proc/playsound, source, soundin, vol, vary, extrarange, falloff, is_global, usepressure, environment, required_preferences, required_asfx_toggles, frequency), time, TIMER_STOPPABLE | TIMER_CLIENT_TIME)
 
 /client/proc/playtitlemusic()

@@ -5,7 +5,7 @@
 	var/warmup_time = 0
 	var/moving_status = SHUTTLE_IDLE
 
-	var/list/shuttle_area //can be both single area type or a list of areas
+	var/list/shuttle_area // can be both single area type or a list of areas
 	var/obj/effect/shuttle_landmark/current_location //This variable is type-abused initially: specify the landmark_tag, not the actual landmark.
 	var/list/shuttle_computers = list()
 
@@ -32,19 +32,40 @@
 
 	var/squishes = TRUE //decides whether or not things get squished when it moves.
 
+	var/list/center = list()
+	var/length = 0
+	var/width = 0
+
 /datum/shuttle/New(_name, var/obj/effect/shuttle_landmark/initial_location)
 	..()
 	if(_name)
 		src.name = _name
 
+	var/min_x = INFINITY
+	var/min_y = INFINITY
+	var/max_x = -1
+	var/max_y = -1
+
 	var/list/areas = list()
 	if(!islist(shuttle_area))
 		shuttle_area = list(shuttle_area)
-	for(var/T in shuttle_area)
-		var/area/A = locate(T)
+	for(var/area_object in shuttle_area)
+		var/area/A = locate(area_object)
 		if(!istype(A))
-			CRASH("Shuttle \"[name]\" couldn't locate area [T].")
+			CRASH("Shuttle \"[name]\" couldn't locate area [area_object].")
 		areas += A
+
+		for(var/atom in A.contents)
+			if(isturf(atom))
+				var/turf/T = atom
+				min_x = min(T.x, min_x)
+				min_y = min(T.y, min_y)
+				max_x = max(T.x, max_x)
+				max_y = max(T.y, max_y)
+
+	center = list((max_x + min_x) / 2, (max_y + min_y) / 2)
+	length = max_x - min_x
+	width = max_y - min_y
 	shuttle_area = areas
 
 	if(initial_location)
@@ -78,6 +99,14 @@
 
 	. = ..()
 
+/datum/shuttle/proc/play_sound_shuttle(var/sound, var/obj/effect/shuttle_landmark/location, volume = 100)
+	var/area/location_area = get_area(location)
+	var/turf/T = get_turf(locate(center[1], center[2], location_area.z))
+	var/sound/original_sound = playsound_get_sound(sound, volume, 20)
+	for(var/mob/M in range("[length + 5]x[width + 5]", T))
+		M.playsound_to(location, original_sound, FALSE)
+		to_chat(M, "You should hear [sound]")
+
 /datum/shuttle/proc/short_jump(var/obj/effect/shuttle_landmark/destination)
 	if(moving_status != SHUTTLE_IDLE) return
 
@@ -88,20 +117,24 @@
 	if(sound_takeoff)
 		if(!fuel_check(TRUE)) // Check for fuel, but don't use any.
 			return
-		playsound(current_location, sound_takeoff, 25, 20, is_global = TRUE)
-	spawn(warmup_time*10)
-		if(moving_status == SHUTTLE_IDLE)
-			return	//someone cancelled the launch
+		play_sound_shuttle(sound_takeoff, current_location.base_area, 25)
 
-		if(!fuel_check()) //fuel error (probably out of fuel) occured, so cancel the launch
-			var/datum/shuttle/autodock/S = src
-			if(istype(S))
-				S.cancel_launch(null)
-			return
+	sleep(max(30, warmup_time * 10))
 
-		moving_status = SHUTTLE_INTRANSIT //shouldn't matter but just to be safe
-		attempt_move(destination)
-		moving_status = SHUTTLE_IDLE
+	if(moving_status == SHUTTLE_IDLE)
+		return	// someone cancelled the launch
+
+	if(!fuel_check()) // fuel error (probably out of fuel) occured, so cancel the launch
+		var/datum/shuttle/autodock/S = src
+		if(istype(S))
+			S.cancel_launch(null)
+		return
+
+	moving_status = SHUTTLE_INTRANSIT // shouldn't matter but just to be safe
+	play_sound_shuttle(sound_landing, current_location, 20)
+	play_sound_shuttle(sound_landing, destination, 20) // To allow people to move out of the way
+	attempt_move(destination)
+	moving_status = SHUTTLE_IDLE
 
 /datum/shuttle/proc/long_jump(var/obj/effect/shuttle_landmark/destination, var/obj/effect/shuttle_landmark/interim, var/travel_time)
 	if(moving_status != SHUTTLE_IDLE)
@@ -114,31 +147,35 @@
 	if(sound_takeoff)
 		if(!fuel_check(TRUE)) // Check for fuel, but don't use any.
 			return
-		playsound(current_location, sound_takeoff, 50, 20, is_global = TRUE)
-	spawn(warmup_time*10)
-		if(moving_status == SHUTTLE_IDLE)
-			return	//someone cancelled the launch
+		play_sound_shuttle(sound_takeoff, current_location, 50)
 
-		if(!fuel_check()) //fuel error (probably out of fuel) occured, so cancel the launch
-			var/datum/shuttle/autodock/S = src
-			if(istype(S))
-				S.cancel_launch(null)
-			return
+	sleep(max(70, warmup_time * 10))
 
-		arrive_time = world.time + travel_time*10
-		moving_status = SHUTTLE_INTRANSIT
-		if(attempt_move(interim))
-			on_move_interim()
-			var/fwooshed = 0
-			while (world.time < arrive_time)
-				if(!fwooshed && (arrive_time - world.time) < 100)
-					fwooshed = 1
-					playsound(destination, sound_landing, 50, 20, is_global = TRUE)
-				sleep(5)
-			if(!attempt_move(destination))
-				attempt_move(start_location) //try to go back to where we started. If that fails, I guess we're stuck in the interim location
+	if(moving_status == SHUTTLE_IDLE)
+		return	// someone cancelled the launch
 
-		moving_status = SHUTTLE_IDLE
+	if(!fuel_check()) // fuel error (probably out of fuel) occured, so cancel the launch
+		var/datum/shuttle/autodock/S = src
+		if(istype(S))
+			S.cancel_launch(null)
+		return
+
+	arrive_time = world.time + travel_time * 10
+	moving_status = SHUTTLE_INTRANSIT
+	if(attempt_move(interim))
+		on_move_interim()
+		var/fwooshed = 0
+		while (world.time < arrive_time)
+			if(!fwooshed && (arrive_time - world.time) < 100)
+				fwooshed = 1
+				testing("Should play landing sound")
+				play_sound_shuttle(sound_landing, current_location, 25)
+				play_sound_shuttle(sound_landing, destination, 25) // To allow people to move out of the way
+			sleep(10)
+		if(!attempt_move(destination))
+			attempt_move(start_location) // try to go back to where we started. If that fails, I guess we're stuck in the interim location
+
+	moving_status = SHUTTLE_IDLE
 
 /datum/shuttle/proc/fuel_check()
 	return 1 //fuel check should always pass in non-overmap shuttles (they have magic engines)
@@ -182,8 +219,18 @@
 			if(our_area.has_gravity != new_grav)
 				our_area.gravitychange(new_grav)
 
+	var/min_x = INFINITY
+	var/min_y = INFINITY
+	var/max_x = -1
+	var/max_y = -1
+
 	for(var/turf/src_turf in turf_translation)
 		var/turf/dst_turf = turf_translation[src_turf]
+		min_x = min(dst_turf.x, min_x)
+		min_y = min(dst_turf.y, min_y)
+		max_x = max(dst_turf.x, max_x)
+		max_y = max(dst_turf.y, max_y)
+
 		if(squishes && src_turf.is_solid_structure()) //in case someone put a hole in the shuttle and you were lucky enough to be under it
 			for(var/atom/movable/AM in dst_turf)
 				if(AM.movable_flags & MOVABLE_FLAG_DEL_SHUTTLE)
@@ -195,7 +242,10 @@
 					var/mob/living/bug = AM
 					bug.gib()
 				else
-					qdel(AM) //it just gets atomized I guess? TODO throw it into space somewhere, prevents people from using shuttles as an atom-smasher
+					qdel(AM) // it just gets atomized I guess? TODO throw it into space somewhere, prevents people from using shuttles as an atom-smasher
+
+	center = list((max_x + min_x) / 2, (max_y + min_y) / 2)
+
 	var/list/powernets = list()
 	for(var/area/A in shuttle_area)
 		// if there was a zlevel above our origin, erase our ceiling now we're leaving
