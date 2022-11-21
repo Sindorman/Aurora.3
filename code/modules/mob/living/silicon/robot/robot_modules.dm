@@ -6,6 +6,7 @@ var/global/list/robot_modules = list(
 	"Rescue" 		= /obj/item/robot_module/medical/rescue,
 	"Medical" 		= /obj/item/robot_module/medical/general,
 	"Engineering"	= /obj/item/robot_module/engineering/general,
+	"Atmospheric"	= /obj/item/robot_module/engineering/atmospheric,
 	"Construction"	= /obj/item/robot_module/engineering/construction,
 	"Custodial" 	= /obj/item/robot_module/janitor
 )
@@ -20,21 +21,21 @@ var/global/list/robot_modules = list(
 	var/channels = list()
 	var/networks = list()
 	var/languages = list( // Any listed language will be understandable. Any set to TRUE will be speakable
-		LANGUAGE_SOL_COMMON =  TRUE,
-		LANGUAGE_ELYRAN_STANDARD = TRUE,
-		LANGUAGE_TRADEBAND =   TRUE,
-		LANGUAGE_UNATHI =      FALSE,
-		LANGUAGE_SIIK_MAAS =   FALSE,
-		LANGUAGE_SKRELLIAN =   FALSE,
-		LANGUAGE_GUTTER =      TRUE,
-		LANGUAGE_VAURCESE =    FALSE,
-		LANGUAGE_ROOTSONG =    FALSE,
-		LANGUAGE_SIGN =        FALSE,
-		LANGUAGE_SIGN_TAJARA = FALSE,
-		LANGUAGE_SIIK_TAJR =   FALSE,
-		LANGUAGE_AZAZIBA =     FALSE,
-		LANGUAGE_DELVAHII =    FALSE,
-		LANGUAGE_YA_SSA =      FALSE
+		LANGUAGE_SOL_COMMON =		TRUE,
+		LANGUAGE_ELYRAN_STANDARD =	TRUE,
+		LANGUAGE_TRADEBAND =		TRUE,
+		LANGUAGE_UNATHI =			FALSE,
+		LANGUAGE_SIIK_MAAS =		FALSE,
+		LANGUAGE_SKRELLIAN =		FALSE,
+		LANGUAGE_GUTTER =			TRUE,
+		LANGUAGE_VAURCESE =			FALSE,
+		LANGUAGE_ROOTSONG =			FALSE,
+		LANGUAGE_SIGN =				FALSE,
+		LANGUAGE_SIGN_TAJARA =		FALSE,
+		LANGUAGE_SIIK_TAJR =		FALSE,
+		LANGUAGE_AZAZIBA =			FALSE,
+		LANGUAGE_DELVAHII =			FALSE,
+		LANGUAGE_YA_SSA =			FALSE
 	)
 	var/sprites = list()
 	var/can_be_pushed = TRUE
@@ -336,6 +337,7 @@ var/global/list/robot_modules = list(
 	channels = list(CHANNEL_ENGINEERING = TRUE)
 	networks = list(NETWORK_ENGINEERING)
 	supported_upgrades = list(/obj/item/robot_parts/robot_component/jetpack)
+	no_slip = TRUE
 	sprites = list(
 		"Basic" =          list(ROBOT_CHASSIS = "robot_engi", ROBOT_PANEL = "robot", ROBOT_EYES = "robot"),
 		"Landmate" =       list(ROBOT_CHASSIS = "landmate_engi", ROBOT_PANEL = "landmate", ROBOT_EYES = "landmate"),
@@ -358,19 +360,37 @@ var/global/list/robot_modules = list(
 	)
 	specialized_access_type = /datum/job/engineer
 
+/obj/item/robot_module/engineering/proc/add_materials(var/datum/matter_synth/metal, var/datum/matter_synth/plasteel, var/datum/matter_synth/glass)
+	var/obj/item/stack/material/cyborg/steel/M = new /obj/item/stack/material/cyborg/steel(src)
+	M.synths = list(metal)
+	modules += M
+
+	var/obj/item/stack/rods/cyborg/rods = new /obj/item/stack/rods/cyborg(src)
+	rods.synths = list(metal)
+	modules += rods
+
+	var/obj/item/stack/material/cyborg/plasteel/S = new /obj/item/stack/material/cyborg/plasteel(src)
+	S.synths = list(plasteel)
+	modules += S
+
+	var/obj/item/stack/material/cyborg/glass/G = new (src)
+	G.synths = list(glass)
+	modules += G
+
+	var/obj/item/stack/tile/floor/cyborg/FT = new /obj/item/stack/tile/floor/cyborg(src)
+	FT.synths = list(metal)
+	modules += FT
+
 /obj/item/robot_module/engineering/construction
 	name = "construction robot module"
-	no_slip = TRUE
 
 /obj/item/robot_module/engineering/construction/Initialize()
 	. = ..()
 	modules += new /obj/item/powerdrill(src)
 	modules += new /obj/item/rfd/construction/borg(src)
-	modules += new /obj/item/rfd/piping/borg(src)
 	modules += new /obj/item/screwdriver/robotic(src)
 	modules += new /obj/item/wrench/robotic(src)
 	modules += new /obj/item/weldingtool/experimental(src)
-	modules += new /obj/item/device/pipe_painter(src)
 	modules += new /obj/item/gripper/no_use/loader(src)
 	modules += new /obj/item/gripper(src)
 	modules += new /obj/item/device/t_scanner(src) // to check underfloor wiring
@@ -384,122 +404,25 @@ var/global/list/robot_modules = list(
 	modules += new /obj/item/extinguisher(src) // For navigating space and/or low grav, and just being useful.
 	modules += new /obj/item/device/flash(src) // Non-lethal tool that prevents any 'borg from going lethal on Crew so long as it's an option according to laws.
 	modules += new /obj/item/crowbar/robotic(src) // Base crowbar that all 'borgs should have access to.
-	modules += new /obj/item/pen/robopen(src) // Pen for renaming doors
 	emag = new /obj/item/gun/energy/plasmacutter/mounted(src)
 	malf_AI_module += new /obj/item/rfd/transformer(src)
 
 	var/datum/matter_synth/metal = new /datum/matter_synth/metal(80000)
 	var/datum/matter_synth/plasteel = new /datum/matter_synth/plasteel(40000)
 	var/datum/matter_synth/glass = new /datum/matter_synth/glass(60000)
-	var/datum/matter_synth/wire = new /datum/matter_synth/wire(60)
-	var/datum/matter_synth/cloth = new /datum/matter_synth/cloth(50000)
-	synths += metal
-	synths += plasteel
-	synths += glass
-	synths += wire
-	synths += cloth
-
-	var/obj/item/stack/material/cyborg/steel/M = new /obj/item/stack/material/cyborg/steel(src)
-	M.synths = list(metal)
-	modules += M
-
-	var/obj/item/stack/rods/cyborg/rods = new /obj/item/stack/rods/cyborg(src)
-	rods.synths = list(metal)
-	modules += rods
-
-	var/obj/item/stack/material/cyborg/plasteel/S = new /obj/item/stack/material/cyborg/plasteel(src)
-	S.synths = list(plasteel)
-	modules += S
-
-	var/obj/item/stack/material/cyborg/glass/reinforced/RG = new /obj/item/stack/material/cyborg/glass/reinforced(src)
-	RG.synths = list(metal, glass)
-	modules += RG
-
-	var/obj/item/stack/material/cyborg/cloth/CL = new /obj/item/stack/material/cyborg/cloth(src)
-	CL.synths = list(cloth)
-	modules += CL
-
-	var/obj/item/stack/tile/floor/cyborg/FT = new /obj/item/stack/tile/floor/cyborg(src) // to add floor over the metal rods lattice
-	FT.synths = list(metal)
-	modules += FT
-
-	var/obj/item/stack/cable_coil/cyborg/C = new /obj/item/stack/cable_coil/cyborg(src) // Let there be light electric said and after that did cut the wire
-	C.synths = list(wire)
-	modules += C
-
-/obj/item/robot_module/engineering/general/Initialize()
-	. = ..()
-	modules += new /obj/item/powerdrill(src)
-	modules += new /obj/item/weldingtool/largetank(src)
-	modules += new /obj/item/screwdriver/robotic(src)
-	modules += new /obj/item/wrench/robotic(src)
-	modules += new /obj/item/wirecutters/robotic(src)
-	modules += new /obj/item/device/multitool/robotic(src)
-	modules += new /obj/item/rfd/piping/borg(src)
-	modules += new /obj/item/device/t_scanner(src)
-	modules += new /obj/item/device/analyzer(src)
-	modules += new /obj/item/gripper(src)
-	modules += new /obj/item/gripper/no_use/loader(src)
-	modules += new /obj/item/device/lightreplacer(src)
-	modules += new /obj/item/device/pipe_painter(src)
-	modules += new /obj/item/device/floor_painter(src)
-	modules += new /obj/item/taperoll/engineering(src) // To enable 'borgs to telegraph danger visually.
-	modules += new /obj/item/inflatable_dispenser(src) // To enable 'borgs to protect Crew from danger in direct hazards.
-	modules += new /obj/item/device/gps(src) // For being located while disabled and coordinating with life sensor consoles.
-	modules += new /obj/item/extinguisher(src) // For navigating space and/or low grav, and just being useful.
-	modules += new /obj/item/device/flash(src) // Non-lethal tool that prevents any 'borg from going lethal on Crew so long as it's an option according to laws.
-	modules += new /obj/item/crowbar/robotic(src) // Base crowbar that all 'borgs should have access to.
-	modules += new /obj/item/pen/robopen(src) // Pen for renaming doors
-	emag = new /obj/item/melee/baton/robot/arm(src)
-	malf_AI_module += new /obj/item/rfd/transformer(src)
-
-	var/datum/matter_synth/metal = new /datum/matter_synth/metal(60000)
-	var/datum/matter_synth/glass = new /datum/matter_synth/glass(40000)
-	var/datum/matter_synth/plasteel = new /datum/matter_synth/plasteel(20000)
-	var/datum/matter_synth/wire = new /datum/matter_synth/wire(45)
 	var/datum/matter_synth/wood = new /datum/matter_synth/wood(20000)
 	var/datum/matter_synth/plastic = new /datum/matter_synth/plastic(15000)
 	var/datum/matter_synth/cloth = new /datum/matter_synth/cloth(50000)
 	synths += metal
-	synths += glass
 	synths += plasteel
-	synths += wire
-	synths += wood
-	synths += plastic
+	synths += glass
 	synths += cloth
 
-	var/obj/item/matter_decompiler/MD = new /obj/item/matter_decompiler(src)
-	MD.metal = metal
-	MD.glass = glass
-	modules += MD
-
-	var/obj/item/stack/material/cyborg/steel/M = new (src)
-	M.synths = list(metal)
-	modules += M
-
-	var/obj/item/stack/material/cyborg/glass/G = new (src)
-	G.synths = list(glass)
-	modules += G
-
-	var/obj/item/stack/rods/cyborg/rods = new /obj/item/stack/rods/cyborg(src)
-	rods.synths = list(metal)
-	modules += rods
-
-	var/obj/item/stack/cable_coil/cyborg/C = new /obj/item/stack/cable_coil/cyborg(src)
-	C.synths = list(wire)
-	modules += C
-
-	var/obj/item/stack/tile/floor/cyborg/S = new /obj/item/stack/tile/floor/cyborg(src)
-	S.synths = list(metal)
-	modules += S
+	add_materials(metal, plasteel, glass)
 
 	var/obj/item/stack/material/cyborg/glass/reinforced/RG = new /obj/item/stack/material/cyborg/glass/reinforced(src)
 	RG.synths = list(metal, glass)
 	modules += RG
-
-	var/obj/item/stack/material/cyborg/plasteel/PL = new /obj/item/stack/material/cyborg/plasteel(src)
-	PL.synths = list(plasteel)
-	modules += PL
 
 	var/obj/item/stack/material/cyborg/wood/W = new /obj/item/stack/material/cyborg/wood(src)
 	W.synths = list(wood)
@@ -528,6 +451,117 @@ var/global/list/robot_modules = list(
 	var/obj/item/stack/tile/floor_dark/cyborg/FTD = new /obj/item/stack/tile/floor_dark/cyborg(src)
 	FTD.synths = list(plasteel)
 	modules += FTD
+
+/obj/item/robot_module/engineering/atmospheric
+	name = "atmospheric robot module"
+	specialized_access_type = /datum/job/atmos
+
+/obj/item/robot_module/engineering/atmospheric/Initialize()
+	. = ..()
+	modules += new /obj/item/powerdrill(src)
+	modules += new /obj/item/weldingtool/largetank(src)
+	modules += new /obj/item/screwdriver/robotic(src)
+	modules += new /obj/item/wrench/robotic(src)
+	modules += new /obj/item/device/multitool/robotic(src)
+	modules += new /obj/item/rfd/piping/borg(src)
+	modules += new /obj/item/device/t_scanner(src)
+	modules += new /obj/item/device/analyzer(src)
+	modules += new /obj/item/gripper(src)
+	modules += new /obj/item/gripper/no_use/loader(src)
+	modules += new /obj/item/device/pipe_painter(src)
+	modules += new /obj/item/taperoll/engineering(src) // To enable 'borgs to telegraph danger visually.
+	modules += new /obj/item/inflatable_dispenser(src) // To enable 'borgs to protect Crew from danger in direct hazards.
+	modules += new /obj/item/device/gps(src) // For being located while disabled and coordinating with life sensor consoles.
+	modules += new /obj/item/extinguisher(src) // For navigating space and/or low grav, and just being useful.
+	modules += new /obj/item/device/flash(src) // Non-lethal tool that prevents any 'borg from going lethal on Crew so long as it's an option according to laws.
+	modules += new /obj/item/crowbar/robotic(src) // Base crowbar that all 'borgs should have access to.
+	emag = new /obj/item/melee/baton/robot/arm(src)
+	malf_AI_module += new /obj/item/rfd/transformer(src)
+
+	var/datum/matter_synth/metal = new /datum/matter_synth/metal(60000)
+	var/datum/matter_synth/glass = new /datum/matter_synth/glass(40000)
+	var/datum/matter_synth/plasteel = new /datum/matter_synth/plasteel(20000)
+	var/datum/matter_synth/plastic = new /datum/matter_synth/plastic(15000)
+	synths += metal
+	synths += glass
+	synths += plasteel
+	synths += plastic
+
+	var/obj/item/matter_decompiler/MD = new /obj/item/matter_decompiler(src)
+	MD.metal = metal
+	MD.glass = glass
+	modules += MD
+
+	var/obj/item/stack/material/cyborg/steel/M = new (src)
+	M.synths = list(metal)
+	modules += M
+
+	var/obj/item/stack/material/cyborg/glass/G = new (src)
+	G.synths = list(glass)
+	modules += G
+
+	var/obj/item/stack/rods/cyborg/rods = new /obj/item/stack/rods/cyborg(src)
+	rods.synths = list(metal)
+	modules += rods
+
+	var/obj/item/stack/tile/floor/cyborg/S = new /obj/item/stack/tile/floor/cyborg(src)
+	S.synths = list(metal)
+	modules += S
+
+	var/obj/item/stack/material/cyborg/plasteel/PL = new /obj/item/stack/material/cyborg/plasteel(src)
+	PL.synths = list(plasteel)
+	modules += PL
+
+/obj/item/robot_module/engineering/general/Initialize()
+	. = ..()
+	modules += new /obj/item/powerdrill(src)
+	modules += new /obj/item/weldingtool/largetank(src)
+	modules += new /obj/item/screwdriver/robotic(src)
+	modules += new /obj/item/wrench/robotic(src)
+	modules += new /obj/item/wirecutters/robotic(src)
+	modules += new /obj/item/device/multitool/robotic(src)
+	modules += new /obj/item/device/t_scanner(src)
+	modules += new /obj/item/gripper(src)
+	modules += new /obj/item/gripper/no_use/loader(src)
+	modules += new /obj/item/device/lightreplacer(src)
+	modules += new /obj/item/device/floor_painter(src)
+	modules += new /obj/item/taperoll/engineering(src) // To enable 'borgs to telegraph danger visually.
+	modules += new /obj/item/inflatable_dispenser(src) // To enable 'borgs to protect Crew from danger in direct hazards.
+	modules += new /obj/item/device/gps(src) // For being located while disabled and coordinating with life sensor consoles.
+	modules += new /obj/item/extinguisher(src) // For navigating space and/or low grav, and just being useful.
+	modules += new /obj/item/device/flash(src) // Non-lethal tool that prevents any 'borg from going lethal on Crew so long as it's an option according to laws.
+	modules += new /obj/item/crowbar/robotic(src) // Base crowbar that all 'borgs should have access to.
+	modules += new /obj/item/pen/robopen(src) // Pen for renaming doors
+	emag = new /obj/item/melee/baton/robot/arm(src)
+	malf_AI_module += new /obj/item/rfd/transformer(src)
+
+	var/datum/matter_synth/metal = new /datum/matter_synth/metal(60000)
+	var/datum/matter_synth/glass = new /datum/matter_synth/glass(40000)
+	var/datum/matter_synth/plasteel = new /datum/matter_synth/plasteel(20000)
+	var/datum/matter_synth/wire = new /datum/matter_synth/wire(45)
+	synths += metal
+	synths += glass
+	synths += plasteel
+	synths += wire
+
+	add_materials(metal, plasteel, glass)
+
+	var/obj/item/matter_decompiler/MD = new /obj/item/matter_decompiler(src)
+	MD.metal = metal
+	MD.glass = glass
+	modules += MD
+
+	var/obj/item/stack/material/cyborg/glass/reinforced/RG = new /obj/item/stack/material/cyborg/glass/reinforced(src)
+	RG.synths = list(metal, glass)
+	modules += RG
+
+	var/obj/item/stack/cable_coil/cyborg/C = new /obj/item/stack/cable_coil/cyborg(src)
+	C.synths = list(wire)
+	modules += C
+
+	var/obj/item/stack/material/cyborg/plasteel/PL = new /obj/item/stack/material/cyborg/plasteel(src)
+	PL.synths = list(plasteel)
+	modules += PL
 
 /obj/item/robot_module/janitor
 	name = "custodial robot module"
