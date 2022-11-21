@@ -211,7 +211,7 @@
 	id_card = new id_card_type()
 
 	if (module)
-		if (istype(module, /obj/item/robot_module/combat))
+		if (istype(module, /obj/item/robot_module/combat) || istype(module, /obj/item/robot_module/bluespace))
 			id_card.access = get_all_station_access() + access_synth // Give full station access
 			return
 

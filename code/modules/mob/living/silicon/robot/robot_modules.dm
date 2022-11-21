@@ -360,7 +360,12 @@ var/global/list/robot_modules = list(
 	)
 	specialized_access_type = /datum/job/engineer
 
-/obj/item/robot_module/engineering/proc/add_materials(var/datum/matter_synth/metal, var/datum/matter_synth/plasteel, var/datum/matter_synth/glass)
+/obj/item/robot_module/engineering/proc/add_materials(var/datum/matter_synth/metal, var/datum/matter_synth/glass)
+	var/obj/item/matter_decompiler/MD = new /obj/item/matter_decompiler(src)
+	MD.metal = metal
+	MD.glass = glass
+	modules += MD
+
 	var/obj/item/stack/material/cyborg/steel/M = new /obj/item/stack/material/cyborg/steel(src)
 	M.synths = list(metal)
 	modules += M
@@ -368,10 +373,6 @@ var/global/list/robot_modules = list(
 	var/obj/item/stack/rods/cyborg/rods = new /obj/item/stack/rods/cyborg(src)
 	rods.synths = list(metal)
 	modules += rods
-
-	var/obj/item/stack/material/cyborg/plasteel/S = new /obj/item/stack/material/cyborg/plasteel(src)
-	S.synths = list(plasteel)
-	modules += S
 
 	var/obj/item/stack/material/cyborg/glass/G = new (src)
 	G.synths = list(glass)
@@ -418,7 +419,7 @@ var/global/list/robot_modules = list(
 	synths += glass
 	synths += cloth
 
-	add_materials(metal, plasteel, glass)
+	add_materials(metal, glass)
 
 	var/obj/item/stack/material/cyborg/glass/reinforced/RG = new /obj/item/stack/material/cyborg/glass/reinforced(src)
 	RG.synths = list(metal, glass)
@@ -439,6 +440,10 @@ var/global/list/robot_modules = list(
 	var/obj/item/stack/tile/wood/cyborg/FWT = new /obj/item/stack/tile/wood/cyborg(src)
 	FWT.synths = list(wood)
 	modules += FWT
+
+	var/obj/item/stack/material/cyborg/plasteel/S = new /obj/item/stack/material/cyborg/plasteel(src)
+	S.synths = list(plasteel)
+	modules += S
 
 	var/obj/item/stack/tile/floor_white/cyborg/FTW = new /obj/item/stack/tile/floor_white/cyborg(src)
 	FTW.synths = list(plastic)
@@ -480,37 +485,10 @@ var/global/list/robot_modules = list(
 
 	var/datum/matter_synth/metal = new /datum/matter_synth/metal(60000)
 	var/datum/matter_synth/glass = new /datum/matter_synth/glass(40000)
-	var/datum/matter_synth/plasteel = new /datum/matter_synth/plasteel(20000)
-	var/datum/matter_synth/plastic = new /datum/matter_synth/plastic(15000)
 	synths += metal
 	synths += glass
-	synths += plasteel
-	synths += plastic
 
-	var/obj/item/matter_decompiler/MD = new /obj/item/matter_decompiler(src)
-	MD.metal = metal
-	MD.glass = glass
-	modules += MD
-
-	var/obj/item/stack/material/cyborg/steel/M = new (src)
-	M.synths = list(metal)
-	modules += M
-
-	var/obj/item/stack/material/cyborg/glass/G = new (src)
-	G.synths = list(glass)
-	modules += G
-
-	var/obj/item/stack/rods/cyborg/rods = new /obj/item/stack/rods/cyborg(src)
-	rods.synths = list(metal)
-	modules += rods
-
-	var/obj/item/stack/tile/floor/cyborg/S = new /obj/item/stack/tile/floor/cyborg(src)
-	S.synths = list(metal)
-	modules += S
-
-	var/obj/item/stack/material/cyborg/plasteel/PL = new /obj/item/stack/material/cyborg/plasteel(src)
-	PL.synths = list(plasteel)
-	modules += PL
+	add_materials(metal, glass)
 
 /obj/item/robot_module/engineering/general/Initialize()
 	. = ..()
@@ -537,31 +515,16 @@ var/global/list/robot_modules = list(
 
 	var/datum/matter_synth/metal = new /datum/matter_synth/metal(60000)
 	var/datum/matter_synth/glass = new /datum/matter_synth/glass(40000)
-	var/datum/matter_synth/plasteel = new /datum/matter_synth/plasteel(20000)
 	var/datum/matter_synth/wire = new /datum/matter_synth/wire(45)
 	synths += metal
 	synths += glass
-	synths += plasteel
 	synths += wire
 
-	add_materials(metal, plasteel, glass)
-
-	var/obj/item/matter_decompiler/MD = new /obj/item/matter_decompiler(src)
-	MD.metal = metal
-	MD.glass = glass
-	modules += MD
-
-	var/obj/item/stack/material/cyborg/glass/reinforced/RG = new /obj/item/stack/material/cyborg/glass/reinforced(src)
-	RG.synths = list(metal, glass)
-	modules += RG
+	add_materials(metal, glass)
 
 	var/obj/item/stack/cable_coil/cyborg/C = new /obj/item/stack/cable_coil/cyborg(src)
 	C.synths = list(wire)
 	modules += C
-
-	var/obj/item/stack/material/cyborg/plasteel/PL = new /obj/item/stack/material/cyborg/plasteel(src)
-	PL.synths = list(plasteel)
-	modules += PL
 
 /obj/item/robot_module/janitor
 	name = "custodial robot module"
